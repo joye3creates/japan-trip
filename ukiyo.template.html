@@ -1,0 +1,470 @@
+<title>Japan Genzeizu</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap">
+<style>
+/* A deliberately single-theme page: an aged survey sheet has no dark mode.
+   Every colour is painted explicitly so it holds on either host ground. */
+:root{
+  color-scheme:light;
+  --paper:#E8DCC0; --paper-2:#DFD0AE; --paper-3:#D4C39C;
+  --sea:#BAC6C1; --sea-2:#A9B7B2;
+  --land:#D9C7A2; --land-v:#C3A778;
+  --ink:#3B2F23; --ink-2:#6B5B47; --ink-3:#92836C;
+  --vermillion:#A83A2B; --vermillion-2:#8A2E22;
+  --sage:#9DA680;
+  --rule:#3B2F23;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Spectral",Georgia,"Times New Roman",serif;
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+.jp{font-family:"Shippori Mincho","Yu Mincho","Hiragino Mincho ProN",serif}
+.num{font-variant-numeric:tabular-nums oldstyle-nums}
+
+/* ---------- the sheet ---------- */
+.sheet{
+  max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:22px 34px;
+  position:relative;
+}
+.plate{
+  position:relative;background:var(--paper);
+  border:1px solid var(--rule);
+  box-shadow:0 0 0 4px var(--paper), 0 0 0 5px var(--rule), 0 14px 40px rgba(59,47,35,.16);
+}
+/* paper grain, painted once over everything and ignored by the pointer */
+.grain{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:.5;mix-blend-mode:multiply}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:5;
+  background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(90,70,45,.17) 100%)}
+
+/* ---------- cartouche ---------- */
+.cartouche{
+  position:absolute;left:50%;top:-1px;transform:translateX(-50%);z-index:8;
+  background:var(--paper);border:1px solid var(--rule);border-top:0;
+  padding:7px 30px 8px;text-align:center;min-width:250px;
+}
+.cartouche .t{font-family:"Shippori Mincho",serif;font-weight:800;font-size:23px;
+  letter-spacing:.42em;line-height:1;margin-right:-.42em}
+.cartouche .s{font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink-2);margin-top:5px}
+
+/* ---------- map ---------- */
+.mapbox{position:relative;overflow:hidden;background:var(--sea)}
+#map{display:block;width:100%;height:660px;touch-action:none;cursor:grab}
+#map.drag{cursor:grabbing}
+@media(max-width:760px){#map{height:440px}}
+
+.corner{position:absolute;z-index:7;font-size:9.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-2)}
+.corner.tl{left:14px;top:14px} .corner.tr{right:14px;top:14px;text-align:right}
+
+.tools{position:absolute;right:13px;top:44px;z-index:7;display:flex;flex-direction:column;gap:0}
+.tools button{
+  width:29px;height:29px;border:1px solid var(--rule);border-bottom:0;
+  background:var(--paper);color:var(--ink);cursor:pointer;
+  font-family:"Shippori Mincho",serif;font-size:14px;line-height:1;padding:0}
+.tools button:last-child{border-bottom:1px solid var(--rule)}
+.tools button:hover{background:var(--paper-3)}
+.tools button:focus-visible{outline:2px solid var(--vermillion);outline-offset:1px}
+
+.legend{
+  position:absolute;left:13px;bottom:13px;z-index:7;background:var(--paper);
+  border:1px solid var(--rule);padding:9px 12px 10px;width:max-content;max-width:min(430px,calc(100% - 26px));
+}
+.legend .lt{font-family:"Shippori Mincho",serif;font-size:11px;letter-spacing:.3em;
+  margin-bottom:6px;margin-right:-.3em}
+.legend .row{display:flex;flex-wrap:wrap;gap:3px 15px}
+.legend span{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--ink-2)}
+
+.zoomnote{
+  position:absolute;right:13px;bottom:13px;z-index:7;
+  background:var(--paper);border:1px solid var(--rule);padding:4px 13px;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  transition:opacity .35s}
+@media(max-width:760px){.zoomnote{display:none}}
+
+#tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .12s;
+  background:var(--ink);color:var(--paper);padding:7px 10px;font-size:11.5px;
+  max-width:250px;box-shadow:0 5px 18px rgba(59,47,35,.4)}
+#tip b{display:block;font-size:13px;margin-bottom:2px}
+#tip .r{display:flex;justify-content:space-between;gap:16px;color:var(--paper-3);font-size:10.5px}
+
+/* ---------- index strip ---------- */
+.index{border-top:1px solid var(--rule);display:grid;
+  grid-template-columns:1fr 250px;background:var(--paper)}
+@media(max-width:860px){.index{grid-template-columns:1fr}}
+.days{display:flex;overflow-x:auto;border-right:1px solid var(--rule)}
+@media(max-width:860px){.days{border-right:0;border-bottom:1px solid var(--rule)}}
+.day{
+  flex:0 0 auto;width:62px;border-right:1px solid var(--paper-3);
+  background:none;cursor:pointer;padding:11px 6px 12px;text-align:center;
+  font-family:inherit;color:var(--ink-2);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+.day:last-child{border-right:0}
+.day:hover{background:var(--paper-2);color:var(--ink)}
+.day[aria-pressed="true"]{background:var(--paper-3);color:var(--ink)}
+.day[aria-pressed="true"] .bar i{background:var(--vermillion)}
+.day:focus-visible{outline:2px solid var(--vermillion);outline-offset:-2px}
+.day .n{font-size:9.5px;letter-spacing:.14em;color:var(--ink-3)}
+.day .k{font-family:"Shippori Mincho","Yu Mincho","Hiragino Mincho ProN",serif;
+  font-size:15px;line-height:1.3;height:74px;text-align:center}
+.day .bar{width:100%;height:30px;display:flex;align-items:flex-end;justify-content:center}
+.day .bar i{display:block;width:9px;background:var(--ink-3);min-height:1px}
+.day .v{font-size:9.5px;font-variant-numeric:tabular-nums}
+
+.panel{padding:14px 16px 16px;min-height:200px}
+.panel h2{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;margin:2px 0 1px}
+.panel .eyebrow{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:4px 0;
+  border-bottom:1px dotted var(--paper-3);font-size:12.5px}
+.kv:last-of-type{border-bottom:0}
+.kv dt{color:var(--ink-2)} .kv dd{margin:0;font-variant-numeric:tabular-nums}
+.seal{display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border:1.5px solid var(--vermillion);color:var(--vermillion);
+  font-family:"Shippori Mincho",serif;font-size:13px;line-height:1;float:right;margin-left:10px}
+.ph{border:1px dashed var(--ink-3);background:var(--paper-2);color:var(--ink-3);
+  padding:11px 10px;text-align:center;font-size:10.5px;line-height:1.5;margin-top:11px}
+
+footer{max-width:1280px;margin:0 auto;padding:14px 16px 0;color:var(--ink-3);font-size:10.5px}
+footer p{margin:0 0 4px;max-width:78ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="sheet">
+  <div class="plate">
+    <div class="cartouche">
+      <div class="t jp">現勢図</div>
+      <div class="s">Japan &middot; 15&ndash;30 XI MMXXV</div>
+    </div>
+
+    <div class="mapbox">
+      <div class="corner tl">Genzeizu &middot; map of present conditions</div>
+      <div class="corner tr">Joyee &amp; Ananya<br>sixteen days</div>
+      <svg id="map" role="img" aria-label="Woodblock-style map of Japan showing a sixteen day route"></svg>
+      <div class="tools">
+        <button id="zin" aria-label="Zoom in">＋</button>
+        <button id="zout" aria-label="Zoom out">－</button>
+        <button id="zfit" aria-label="Whole country">全</button>
+      </div>
+      <div class="legend">
+        <div class="lt jp">凡例</div>
+        <div class="row" id="legend"></div>
+      </div>
+      <div class="zoomnote" id="zoomnote">Scroll to zoom &middot; drag to pan</div>
+      <div class="vignette"></div>
+      <svg class="grain" aria-hidden="true"><filter id="gr">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+        <feComponentTransfer><feFuncA type="linear" slope="0.5" intercept="0"/></feComponentTransfer>
+      </filter><rect width="100%" height="100%" filter="url(#gr)" opacity="0.55"/></svg>
+    </div>
+
+    <div class="index">
+      <div class="days" id="days"></div>
+      <div class="panel" id="panel"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Prefecture outlines are real, generalised to about a tenth of their surveyed
+    points, in the manner of a printed survey sheet rather than a satellite trace.
+    The thirteen prefectures the route touched are inked darker. Land is offset a
+    hair from its keyline, the way a woodblock sheet misregisters.</p>
+    <p>Figures come from 158 expense lines across sixteen day sheets. Steps, photographs
+    and the handwritten notes are still pending and are never filled with invented values.</p>
+  </footer>
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const GEO  = /*__GEO__*/;
+const DATA = /*__TRIP_DATA__*/;
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const RATE=DATA.trip.rate;
+const yen=v=>"¥"+Math.round(v).toLocaleString("en-US");
+const inr=v=>"₹"+Math.round(v*RATE).toLocaleString("en-IN");
+const PL=Object.fromEntries(DATA.places.map(p=>[p.id,p]));
+const CATJA={food:"食",shopping:"買",travel:"行",experiences:"観",utilities:"雑",gifts:"贈"};
+const CATEN={food:"Food",shopping:"Shopping",travel:"Transport",experiences:"Experiences",
+             utilities:"Utilities",gifts:"Gifts"};
+const JA=["印度","東京","富士","京都","宇治","広島","阿蘇","大阪","奈良","金沢","白川郷","金沢","東京","鎌倉","浅草","帰国"];
+let sel=null, selPlace=null;
+
+/* ---------- projection over all of Japan ---------- */
+const W=1200,H=660;
+const merc=la=>57.29578*Math.log(Math.tan(Math.PI/4+la*Math.PI/360));
+let lo=[999,-999], la=[999,-999];
+GEO.forEach(p=>p.r.forEach(r=>r.forEach(([x,y])=>{
+  lo[0]=Math.min(lo[0],x); lo[1]=Math.max(lo[1],x);
+  la[0]=Math.min(la[0],merc(y)); la[1]=Math.max(la[1],merc(y));})));
+const SC=Math.min(W/(lo[1]-lo[0]), H/(la[1]-la[0]))*0.98;
+const X=v=>(v-lo[0])*SC + (W-(lo[1]-lo[0])*SC)/2;
+const Y=v=>H-((merc(v)-la[0])*SC) - (H-(la[1]-la[0])*SC)/2;
+
+const MODE={shinkansen:{w:2.6,d:"",lbl:"Shinkansen"}, train:{w:1.5,d:"",lbl:"Train"},
+  bus:{w:1.5,d:"6 3",lbl:"Bus"}, ferry:{w:1.5,d:"1 4",lbl:"Ferry"},
+  cycle:{w:1.3,d:"8 3 2 3",lbl:"Cycle"}, walk:{w:1.3,d:"2 3",lbl:"Walk"},
+  flight:{w:1.5,d:"10 5",lbl:"Flight"}};
+
+const svg=$("#map");
+const el=(t,a={})=>{const n=document.createElementNS("http://www.w3.org/2000/svg",t);
+  for(const k in a)n.setAttribute(k,a[k]);return n;};
+
+/* initial frame: the trip's own extent, not the whole country */
+const jp=DATA.places.filter(p=>p.city!=="Delhi");
+const tx=[Math.min(...jp.map(p=>X(p.lng))), Math.max(...jp.map(p=>X(p.lng)))];
+const ty=[Math.min(...jp.map(p=>Y(p.lat))), Math.max(...jp.map(p=>Y(p.lat)))];
+const PADV=58;
+function tripView(){
+  let w=(tx[1]-tx[0])+PADV*2, h=(ty[1]-ty[0])+PADV*2;
+  const ar=W/H; if(w/h<ar) w=h*ar; else h=w/ar;
+  return {x:(tx[0]+tx[1])/2-w/2, y:(ty[0]+ty[1])/2-h/2, w, h};
+}
+let view=tripView();
+const setVB=()=>svg.setAttribute("viewBox",`${view.x} ${view.y} ${view.w} ${view.h}`);
+const zLevel=()=>W/view.w;                    // 1 = whole country in frame
+
+function pathOf(ring){
+  let d="M"+X(ring[0][0]).toFixed(1)+","+Y(ring[0][1]).toFixed(1);
+  for(let i=1;i<ring.length;i++) d+="L"+X(ring[i][0]).toFixed(1)+","+Y(ring[i][1]).toFixed(1);
+  return d+"Z";
+}
+const PATHS=GEO.map(p=>({n:p.n,ja:p.ja,v:p.v,d:p.r.map(pathOf).join(" ")}));
+
+function draw(){
+  svg.textContent="";
+  svg.setAttribute("preserveAspectRatio","xMidYMid slice"); setVB();
+  const z=zLevel(), k=1/z;                    // keep strokes optically constant
+  const gLand=el("g"), gLeg=el("g"), gNode=el("g"), gLbl=el("g");
+  svg.append(gLand,gLeg,gNode,gLbl);
+
+  // sea ground
+  gLand.append(el("rect",{x:view.x,y:view.y,width:view.w,height:view.h,fill:"var(--sea)"}));
+
+  // woodblock misregistration: the colour block sits a hair off its keyline
+  const off=Math.max(1.2*k,0.4);
+  PATHS.forEach(p=>{
+    gLand.append(el("path",{d:p.d,fill:p.v?"var(--land-v)":"var(--land)",
+      transform:`translate(${off},${off*1.4})`, opacity:p.v?.95:.85}));
+  });
+  PATHS.forEach(p=>{
+    gLand.append(el("path",{d:p.d,fill:"none",stroke:"var(--ink)",
+      "stroke-width":Math.max(0.45*k,0.14),"stroke-linejoin":"round",
+      opacity:p.v?.72:.32}));
+  });
+
+  const days = sel===null?DATA.days:DATA.days.filter(d=>d.day_index===sel);
+  const live = new Set(days.flatMap(d=>d.places));
+
+  // route
+  DATA.days.forEach(d=>{
+    const on = sel===null||d.day_index===sel;
+    d.legs.forEach(l=>{
+      const a=PL[l.from],b=PL[l.to];
+      if(!a||!b||a.city==="Delhi"||b.city==="Delhi")return;
+      const m=MODE[l.mode]||MODE.train;
+      const x1=X(a.lng),y1=Y(a.lat),x2=X(b.lng),y2=Y(b.lat);
+      const mx=(x1+x2)/2-(y2-y1)*.07, my=(y1+y2)/2+(x2-x1)*.07;
+      const p=el("path",{d:`M${x1},${y1} Q${mx},${my} ${x2},${y2}`,fill:"none",
+        stroke:on?"var(--vermillion)":"var(--ink-3)","stroke-width":m.w*k,
+        "stroke-linecap":"round",opacity:on?.9:.3});
+      if(m.d)p.setAttribute("stroke-dasharray",m.d.split(" ").map(v=>+v*k).join(" "));
+      p.addEventListener("pointerenter",e=>tip(e,
+        `<b>${a.name} → ${b.name}</b><div class="r"><span>${m.lbl}</span><span>Day ${d.day_index}</span></div>`));
+      p.addEventListener("pointerleave",untip);
+      gLeg.append(p);
+    });
+  });
+
+  // places, revealed progressively as you zoom
+  const showNodes = z > 1.5 || sel!==null;
+  const showLbls  = z > 2.6 || sel!==null;
+  if(showNodes) DATA.places.forEach(p=>{
+    if(p.city==="Delhi")return;
+    const on = sel===null||live.has(p.id);
+    const x=X(p.lng),y=Y(p.lat), transit=p.kind==="transit", stay=p.kind==="stay";
+    if(transit && z<3.4 && sel===null) return;
+    const g=el("g",{style:"cursor:pointer"});
+    const r=(stay?4.6:transit?2.8:4.2)*k;
+    let c;
+    if(stay){
+      c=el("rect",{x:x-r,y:y-r,width:r*2,height:r*2,
+        fill:on?"var(--ink)":"var(--ink-3)",opacity:on?.9:.35});
+    } else {
+      c=el("circle",{cx:x,cy:y,r:r,
+        fill:transit?"var(--paper)":(on?"var(--vermillion)":"var(--ink-3)"),
+        stroke:on?"var(--vermillion-2)":"var(--ink-3)","stroke-width":Math.max(.9*k,.3),
+        opacity:on?1:.4});
+    }
+    if(selPlace===p.id)
+      g.append(el("circle",{cx:x,cy:y,r:r*2.6,fill:"none",stroke:"var(--vermillion)",
+        "stroke-width":1.4*k}));
+    g.append(el("circle",{cx:x,cy:y,r:r*3.4,fill:"transparent"}),c);
+    g.addEventListener("pointerenter",e=>tip(e,
+      `<b>${p.name}</b><div class="r"><span>${p.city}</span><span>${p.kind}</span></div>`));
+    g.addEventListener("pointerleave",untip);
+    g.addEventListener("click",()=>{selPlace=p.id;draw();panel();});
+    gNode.append(g);
+    if(showLbls && on && !transit) cands.push({p,x,y,k});
+  });
+
+  // labels last, so they sit above everything, collision-culled by rank
+  if(showLbls){
+    const PRIO={attraction:0,food:1,experience:2,shopping:3,stay:4,transit:9};
+    const placed=[], fs=10.5*k;
+    cands.sort((a,b)=>(PRIO[a.p.kind]??5)-(PRIO[b.p.kind]??5)||a.p.name.length-b.p.name.length);
+    cands.forEach(({p,x,y})=>{
+      const w=p.name.length*5.6*k+10*k, h=12*k;
+      const flip = x > view.x+view.w*0.76;
+      const lx = flip ? x-8*k-w : x+8*k, ly=y-6*k;
+      if(placed.some(b=>lx<b.x+b.w&&lx+w>b.x&&ly<b.y+b.h&&ly+h>b.y))return;
+      placed.push({x:lx,y:ly,w,h});
+      const t=el("text",{x:flip?x-8*k:x+8*k,y:y+3.4*k,fill:"var(--ink)",
+        "text-anchor":flip?"end":"start","font-size":fs,
+        "font-family":"Spectral,Georgia,serif","paint-order":"stroke",
+        stroke:"var(--paper)","stroke-width":3*k,"stroke-linejoin":"round"});
+      t.textContent=p.name; gLbl.append(t);
+    });
+  }
+  cands.length=0;
+
+  // prefecture names only when pulled back far enough to read the country
+  if(z<1.9){
+    PATHS.filter(p=>p.v).forEach(p=>{
+      const r=GEO.find(g=>g.n===p.n).r[0];
+      let sx=0,sy=0; r.forEach(([a,b])=>{sx+=X(a);sy+=Y(b);});
+      const t=el("text",{x:sx/r.length,y:sy/r.length,fill:"var(--ink-2)",
+        "text-anchor":"middle","font-size":11*k,"font-family":'"Shippori Mincho",serif',
+        "letter-spacing":2*k,opacity:.72});
+      t.textContent=p.ja.replace(/[都府県]$/,""); gLbl.append(t);
+    });
+  }
+
+  const zn=$("#zoomnote");
+  zn.textContent = z<1.5 ? "Zoom in to reveal places"
+    : z<2.6 ? "Zoom further for names" : "Click any mark for its day";
+  zn.style.opacity = sel===null ? "1" : "0";
+}
+let cands=[];
+
+function tip(e,html){const t=$("#tip");t.innerHTML=html;t.style.opacity="1";
+  const mv=ev=>{t.style.left=Math.min(ev.clientX+14,innerWidth-t.offsetWidth-10)+"px";
+    t.style.top=Math.max(ev.clientY-10,8)+"px";};
+  mv(e); svg.addEventListener("pointermove",mv); t._m=mv;}
+function untip(){const t=$("#tip");t.style.opacity="0";
+  if(t._m){svg.removeEventListener("pointermove",t._m);t._m=null;}}
+
+/* pan + zoom */
+let drag=null;
+svg.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,vx:view.x,vy:view.y};
+  svg.classList.add("drag");svg.setPointerCapture(e.pointerId);});
+svg.addEventListener("pointermove",e=>{if(!drag)return;
+  const r=svg.getBoundingClientRect();
+  view.x=drag.vx-(e.clientX-drag.x)*view.w/r.width;
+  view.y=drag.vy-(e.clientY-drag.y)*view.h/r.height; setVB();});
+addEventListener("pointerup",()=>{if(drag){drag=null;svg.classList.remove("drag");draw();}});
+svg.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY>0?1.16:1/1.16);},{passive:false});
+function zoom(f){
+  const cx=view.x+view.w/2, cy=view.y+view.h/2;
+  const nw=Math.min(W*1.25,Math.max(W*0.035,view.w*f));
+  view.w=nw; view.h=nw*(H/W); view.x=cx-view.w/2; view.y=cy-view.h/2; draw();
+}
+$("#zin").onclick=()=>zoom(1/1.5); $("#zout").onclick=()=>zoom(1.5);
+$("#zfit").onclick=()=>{view={x:0,y:0,w:W,h:H};sel=null;selPlace=null;days();draw();panel();};
+
+/* ---------- day index ---------- */
+function days(){
+  const mx=Math.max(...DATA.days.map(d=>d.total));
+  $("#days").innerHTML=DATA.days.map(d=>`
+    <button class="day" data-d="${d.day_index}" aria-pressed="${sel===d.day_index}">
+      <span class="n">${String(d.day_index).padStart(2,"0")}</span>
+      <span class="k jp">${[...JA[d.day_index]].join("<br>")}</span>
+      <span class="bar"><i style="height:${Math.max(d.total/mx*30,1)}px"></i></span>
+      <span class="v">${d.total?Math.round(d.total/1000)+"k":"—"}</span>
+    </button>`).join("");
+  $$(".day").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.d; sel = sel===i?null:i; selPlace=null;
+    if(sel!==null){
+      const ps=DATA.days[sel].places.map(p=>PL[p]).filter(p=>p&&p.city!=="Delhi");
+      if(ps.length){
+        const xs=ps.map(p=>X(p.lng)), ys=ps.map(p=>Y(p.lat));
+        let w=Math.max(Math.max(...xs)-Math.min(...xs),40)+150,
+            h=Math.max(Math.max(...ys)-Math.min(...ys),40)+150;
+        const ar=W/H; if(w/h<ar)w=h*ar; else h=w/ar;
+        view={x:(Math.min(...xs)+Math.max(...xs))/2-w/2,
+              y:(Math.min(...ys)+Math.max(...ys))/2-h/2,w,h};
+      }
+    } else view=tripView();
+    days(); draw(); panel();
+  });
+}
+
+/* ---------- panel ---------- */
+function panel(){
+  const b=$("#panel");
+  if(selPlace){
+    const p=PL[selPlace], ds=DATA.days.filter(d=>d.places.includes(p.id));
+    b.innerHTML=`<span class="seal jp">印</span>
+      <div class="eyebrow">${p.city} · ${p.kind}</div>
+      <h2>${p.name}</h2>
+      <dl style="margin:9px 0 0">
+        <div class="kv"><dt>Position</dt><dd>${p.lat.toFixed(3)}, ${p.lng.toFixed(3)}</dd></div>
+        <div class="kv"><dt>Evidence</dt><dd>${p.confidence}</dd></div>
+        <div class="kv"><dt>Seen on</dt><dd>${ds.length?ds.map(d=>"Day "+d.day_index).join(", "):"—"}</dd></div>
+      </dl>
+      <div class="ph">Photograph and notes pending</div>`;
+    return;
+  }
+  if(sel!==null){
+    const d=DATA.days[sel];
+    const cats=Object.entries(d.spend).filter(([,v])=>v).sort((a,b)=>b[1]-a[1]);
+    b.innerHTML=`<span class="seal jp">${JA[sel][0]}</span>
+      <div class="eyebrow">Day ${d.day_index} · ${new Date(d.date)
+        .toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"long"})}</div>
+      <h2><span class="jp">${JA[sel]}</span></h2>
+      <div style="font-size:12px;color:var(--ink-2);margin-bottom:8px">${d.label}</div>
+      <dl style="margin:0">
+        ${cats.map(([c,v])=>`<div class="kv"><dt><span class="jp"
+          style="color:var(--vermillion);margin-right:7px">${CATJA[c]}</span>${CATEN[c]}</dt>
+          <dd>${yen(v)}</dd></div>`).join("")}
+        <div class="kv" style="border-top:1px solid var(--ink);margin-top:5px;padding-top:6px">
+          <dt><b>Day total</b></dt><dd><b>${yen(d.total)}</b> · ${inr(d.total)}</dd></div>
+      </dl>
+      ${d.stay?`<div style="margin-top:9px;font-size:11.5px;color:var(--ink-2)">
+        Slept at ${d.stay.name}</div>`:""}
+      <div class="ph">Steps pending · ${d.places.length} photo slots awaiting</div>`;
+    return;
+  }
+  const tot=DATA.days.reduce((s,d)=>s+d.total,0);
+  b.innerHTML=`<span class="seal jp">日</span>
+    <div class="eyebrow">The whole sheet</div>
+    <h2>Sixteen days</h2>
+    <dl style="margin:9px 0 0">
+      <div class="kv"><dt>Prefectures entered</dt><dd>13 of 47</dd></div>
+      <div class="kv"><dt>Places marked</dt><dd>${DATA.places.length}</dd></div>
+      <div class="kv"><dt>Legs travelled</dt><dd>${DATA.days.reduce((s,d)=>s+d.legs.length,0)}</dd></div>
+      <div class="kv"><dt>Recorded in country</dt><dd>${yen(tot)}</dd></div>
+      <div class="kv"><dt>In rupees</dt><dd>${inr(tot)}</dd></div>
+    </dl>
+    <p style="font-size:11.5px;color:var(--ink-2);margin:10px 0 0">
+      Choose a day below, or zoom into the sheet until the places surface.</p>`;
+}
+
+$("#legend").innerHTML=
+  `<span><svg width="15" height="10"><rect width="15" height="10" fill="var(--land-v)"
+     stroke="var(--ink)" stroke-width="0.6"/></svg>Entered</span>
+   <span><svg width="15" height="10"><rect width="15" height="10" fill="var(--land)"
+     stroke="var(--ink)" stroke-width="0.6"/></svg>Not entered</span>`
+  + Object.entries(MODE).filter(([k])=>k!=="flight"&&k!=="cycle").map(([k,m])=>
+  `<span><svg width="20" height="8"><line x1="1" y1="4" x2="19" y2="4"
+     stroke="var(--vermillion)" stroke-width="${m.w}"
+     ${m.d?`stroke-dasharray="${m.d}"`:""} stroke-linecap="round"/></svg>${m.lbl}</span>`).join("")
+  + `<span><svg width="12" height="10"><circle cx="6" cy="5" r="3.6"
+       fill="var(--vermillion)" stroke="var(--vermillion-2)" stroke-width="0.8"/></svg>Place</span>
+     <span><svg width="12" height="10"><rect x="2" y="1" width="8" height="8"
+       fill="var(--ink)"/></svg>Lodging</span>`;
+
+days(); draw(); panel();
+</script>
