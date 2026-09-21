@@ -1,11 +1,10 @@
-# Source workbook and itinerary are personal; keep them out of version control
-source/
-*.xlsx
-*.pdf
-
-# QA screenshots
-notes/shot_*.png
-
+# This repo doubles as a case-study archive, so process artefacts are kept
+# deliberately (screenshots, raw dumps) rather than ignored.
+#
+# source/ is where the original inputs go: the expense workbook and the
+# itinerary PDF. Add them yourself if you want the archive reproducible.
+# The repo is PRIVATE and they contain personal financial data — remove
+# source/ before ever making this public.
 __pycache__/
 *.pyc
 .DS_Store
