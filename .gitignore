@@ -1,0 +1,11 @@
+# Source workbook and itinerary are personal; keep them out of version control
+source/
+*.xlsx
+*.pdf
+
+# QA screenshots
+notes/shot_*.png
+
+__pycache__/
+*.pyc
+.DS_Store

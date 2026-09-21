@@ -1,0 +1,628 @@
+<title>Japan, Sixteen Days</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#E4E8EB; --surface:#FAFBFB; --surface-2:#EEF1F3;
+  --ink:#141C24; --ink-2:#56626E; --ink-3:#8B959F;
+  --rule:#C6CDD3; --rule-2:#D9DFE3;
+  --accent:#B2372A; --accent-2:#1F5E8C;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
+  --pending:#8B959F; --pending-bg:#E4E8EB;
+  --shadow:0 1px 2px rgba(20,28,36,.08),0 6px 20px rgba(20,28,36,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --paper:#0C1218; --surface:#18212A; --surface-2:#131B23;
+  --ink:#E9EEF2; --ink-2:#9BA8B4; --ink-3:#6C7985;
+  --rule:#2A3742; --rule-2:#222E38;
+  --accent:#E0614F; --accent-2:#5C9DD1;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --pending:#6C7985; --pending-bg:#131B23;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.28);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0C1218; --surface:#18212A; --surface-2:#131B23;
+  --ink:#E9EEF2; --ink-2:#9BA8B4; --ink-3:#6C7985;
+  --rule:#2A3742; --rule-2:#222E38;
+  --accent:#E0614F; --accent-2:#5C9DD1;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --pending:#6C7985; --pending-bg:#131B23;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:"Zen Kaku Gothic New","IBM Plex Sans",sans-serif;font-weight:700;margin:0;text-wrap:balance}
+.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+
+/* ---------- shell ---------- */
+.wrap{max-width:1360px;margin:0 auto;padding-inline:16px}
+header.top{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:40;
+  background:var(--surface);border-bottom:1px solid var(--rule);
+}
+.topin{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;padding-block:14px 12px}
+.wordmark{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;font-size:22px;letter-spacing:.04em;line-height:1}
+.wordmark .jp{color:var(--accent);margin-right:8px}
+.topmeta{display:flex;gap:16px;flex-wrap:wrap;margin-left:auto;align-items:baseline}
+.topmeta b{font-weight:500;color:var(--ink);font-size:12px}
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule);background:var(--surface)}
+nav.tabs button{
+  appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  padding:9px 14px;font:inherit;font-size:12px;font-weight:500;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);cursor:pointer;
+}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button:focus-visible{outline:2px solid var(--accent-2);outline-offset:-2px}
+main{padding-block:18px 40px}
+
+/* ---------- route layout ---------- */
+.route{display:grid;grid-template-columns:186px minmax(0,1fr) 288px;gap:14px;align-items:start}
+@media(max-width:1080px){.route{grid-template-columns:160px minmax(0,1fr)}.detail{grid-column:1/-1}}
+@media(max-width:720px){.route{grid-template-columns:1fr}.dayrail{order:2}.mapcard{order:1}}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:3px}
+.panel-h{padding:10px 12px;border-bottom:1px solid var(--rule-2);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dayrail{max-height:620px;overflow-y:auto}
+@media(max-width:720px){.dayrail{max-height:280px}}
+.daybtn{
+  width:100%;display:grid;grid-template-columns:26px 1fr;gap:9px;align-items:baseline;
+  background:none;border:0;border-bottom:1px solid var(--rule-2);
+  padding:8px 12px;font:inherit;text-align:left;color:var(--ink-2);cursor:pointer;
+}
+.daybtn:hover{background:var(--surface-2);color:var(--ink)}
+.daybtn[aria-pressed="true"]{background:var(--surface-2);color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.daybtn:focus-visible{outline:2px solid var(--accent-2);outline-offset:-2px}
+.daybtn .n{font-size:11px;color:var(--ink-3)}
+.daybtn .l{font-size:12.5px;font-weight:500;line-height:1.3}
+.daybtn .v{font-size:10.5px;color:var(--ink-3);grid-column:2}
+
+/* ---------- map ---------- */
+.mapcard{position:relative;overflow:hidden}
+#map{display:block;width:100%;height:620px;touch-action:none;cursor:grab;background:var(--surface)}
+#map.drag{cursor:grabbing}
+@media(max-width:720px){#map{height:420px}}
+.maptools{position:absolute;right:10px;top:52px;display:flex;flex-direction:column;gap:4px}
+.maptools button{
+  width:30px;height:30px;border:1px solid var(--rule);background:var(--surface);
+  color:var(--ink);border-radius:3px;cursor:pointer;font:inherit;font-size:14px;line-height:1;
+}
+.maptools button:hover{background:var(--surface-2)}
+.maptools button:focus-visible{outline:2px solid var(--accent-2)}
+.maplegend{
+  position:absolute;left:10px;bottom:10px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:3px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:4px 14px;max-width:calc(100% - 20px);
+}
+.lg{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--ink-2)}
+.lg svg{flex:none}
+#tip{
+  position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .1s;
+  background:var(--ink);color:var(--paper);border-radius:3px;padding:7px 9px;
+  font-size:11.5px;max-width:250px;box-shadow:var(--shadow);
+}
+#tip b{display:block;font-size:12.5px;margin-bottom:2px}
+#tip .r{display:flex;justify-content:space-between;gap:14px;color:var(--ink-3)}
+
+/* ---------- detail ---------- */
+.detail .body{padding:12px}
+.badge{display:inline-block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 6px;border-radius:2px;border:1px solid var(--rule);color:var(--ink-3);font-weight:500}
+.badge.itinerary{border-color:var(--accent-2);color:var(--accent-2)}
+.badge.inferred{border-color:var(--accent);color:var(--accent)}
+.ph{
+  border:1px dashed var(--rule);border-radius:3px;background:var(--pending-bg);
+  color:var(--pending);padding:14px 10px;text-align:center;font-size:11px;line-height:1.45;
+}
+.ph .ico{display:block;font-size:15px;margin-bottom:4px;opacity:.65}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--rule-2);font-size:12px}
+.kv:last-child{border-bottom:0}
+.kv dt{color:var(--ink-2)}
+.kv dd{margin:0;font-weight:500}
+
+/* ---------- numbers ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;margin-bottom:16px}
+.tile{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:12px 13px}
+.tile .big{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:24px;font-weight:500;line-height:1.1;margin:5px 0 2px;letter-spacing:-.02em}
+.tile .sub{font-size:10.5px;color:var(--ink-3)}
+.tile.pending .big{color:var(--pending)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,470px),1fr));gap:14px}
+.chart-h{padding:11px 13px 0}
+.chart-h h3{font-size:13.5px}
+.chart-h p{margin:3px 0 0;font-size:11px;color:var(--ink-3)}
+.chart-b{padding:10px 13px 13px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 13px;padding:0 13px 11px}
+.legend span{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-2)}
+.sw{width:9px;height:9px;border-radius:2px;flex:none}
+svg.c{display:block;width:100%;overflow:visible}
+svg.c text{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* ---------- ledger ---------- */
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--rule-2)}
+.filters button{
+  border:1px solid var(--rule);background:var(--surface);color:var(--ink-2);border-radius:14px;
+  padding:3px 11px;font:inherit;font-size:11.5px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.filters button:focus-visible{outline:2px solid var(--accent-2);outline-offset:1px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12px;min-width:640px}
+th,td{text-align:left;padding:6px 12px;border-bottom:1px solid var(--rule-2);white-space:nowrap}
+th{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;
+   position:sticky;top:0;background:var(--surface);z-index:1}
+td.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+td.item{white-space:normal;min-width:190px}
+tbody tr:hover{background:var(--surface-2)}
+.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:baseline}
+
+/* ---------- questions + footer ---------- */
+.qlist{display:grid;gap:9px;padding:12px}
+.q{display:grid;grid-template-columns:52px 1fr;gap:10px;font-size:12px;align-items:start}
+.q .d{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);
+  border:1px solid var(--accent);border-radius:2px;padding:2px 5px;text-align:center;font-weight:500}
+footer{border-top:1px solid var(--rule);margin-top:26px;padding-block:16px 8px;color:var(--ink-3);font-size:11px}
+footer p{margin:0 0 5px;max-width:74ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap topin">
+    <div>
+      <div class="wordmark"><span class="jp">日本</span>JAPAN</div>
+      <div class="eyebrow" style="margin-top:4px">Travel memory map &middot; first draft</div>
+    </div>
+    <div class="topmeta">
+      <div><div class="eyebrow">Dates</div><b class="mono">15&ndash;30 Nov 2025</b></div>
+      <div><div class="eyebrow">Days</div><b class="mono">16</b></div>
+      <div><div class="eyebrow">Travellers</div><b>Joyee &amp; Ananya</b></div>
+      <div><div class="eyebrow">Rate used</div><b class="mono">0.57 &#8377;/&yen;</b></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs"><div class="wrap" style="display:flex;gap:2px">
+  <button id="t-route"  aria-selected="true"  aria-controls="p-route">Route</button>
+  <button id="t-numbers" aria-selected="false" aria-controls="p-numbers">Numbers</button>
+  <button id="t-ledger"  aria-selected="false" aria-controls="p-ledger">Ledger</button>
+</div></nav>
+
+<main class="wrap">
+
+  <section id="p-route">
+    <div class="route">
+      <div class="panel dayrail">
+        <div class="panel-h"><span class="eyebrow">Itinerary</span>
+          <button id="allDays" class="badge" style="cursor:pointer;background:none">All days</button></div>
+        <div id="days"></div>
+      </div>
+
+      <div class="panel mapcard">
+        <div class="panel-h">
+          <span class="eyebrow">Route diagram &middot; true geographic positions</span>
+          <span class="eyebrow mono" id="mapstate">all 16 days</span>
+        </div>
+        <svg id="map" role="img" aria-label="Map of the route through Japan"></svg>
+        <div class="maptools">
+          <button id="zin"  aria-label="Zoom in">+</button>
+          <button id="zout" aria-label="Zoom out">&minus;</button>
+          <button id="zfit" aria-label="Reset view">&#8862;</button>
+        </div>
+        <div class="maplegend" id="maplegend"></div>
+      </div>
+
+      <div class="panel detail">
+        <div class="panel-h"><span class="eyebrow">Detail</span></div>
+        <div class="body" id="detail"></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <div class="panel-h"><span class="eyebrow">Open questions for the paper notes</span>
+        <span class="eyebrow mono" id="qcount"></span></div>
+      <div class="qlist" id="questions"></div>
+    </div>
+  </section>
+
+  <section id="p-numbers" hidden></section>
+  <section id="p-ledger" hidden></section>
+
+  <footer>
+    <p><b style="color:var(--ink-2)">Where these numbers come from.</b> Every figure is read from
+    the 16 day sheets of your expense workbook, 158 line items, cross-checked against each day's
+    own summary block. Rupee figures convert at 0.57, the trip average you supplied.</p>
+    <p><b style="color:var(--ink-2)">What is still a placeholder.</b> Step counts, photographs and
+    the handwritten notes are marked pending throughout rather than filled with invented numbers.
+    Place positions come from the itinerary and the expense text; those marked inferred are my
+    reading and need confirming.</p>
+  </footer>
+</main>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const DATA = /*__TRIP_DATA__*/;
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const RATE=DATA.trip.rate;
+const CATS=["food","shopping","travel","experiences","utilities","gifts"];
+const CATCOL={food:"--s1",shopping:"--s2",travel:"--s3",experiences:"--s4",utilities:"--s5",gifts:"--s6"};
+const CATLBL={food:"Food",shopping:"Shopping",travel:"Transport",experiences:"Experiences",utilities:"Utilities",gifts:"Gifts"};
+const cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const yen=v=>"¥"+Math.round(v).toLocaleString("en-US");
+const inr=v=>"₹"+Math.round(v*RATE).toLocaleString("en-IN");
+const PL=Object.fromEntries(DATA.places.map(p=>[p.id,p]));
+let sel=null, selPlace=null;
+
+/* ============================ MAP ============================ */
+const MAPW=900, MAPH=620;
+const jp=DATA.places.filter(p=>p.city!=="Delhi");
+const merc=la=>57.29578*Math.log(Math.tan(Math.PI/4+la*Math.PI/360));
+const bx=[Math.min(...jp.map(p=>p.lng)),Math.max(...jp.map(p=>p.lng))];
+const by=[Math.min(...jp.map(p=>merc(p.lat))),Math.max(...jp.map(p=>merc(p.lat)))];
+const PAD=70;
+const sc=Math.min((MAPW-PAD*2)/(bx[1]-bx[0]),(MAPH-PAD*2)/(by[1]-by[0]));
+const X=l=>PAD+(l-bx[0])*sc+(MAPW-PAD*2-(bx[1]-bx[0])*sc)/2;
+const Y=l=>MAPH-PAD-(merc(l)-by[0])*sc-(MAPH-PAD*2-(by[1]-by[0])*sc)/2;
+
+const MODE={
+  shinkansen:{w:3,  d:"",         lbl:"Shinkansen"},
+  train:     {w:1.9,d:"",         lbl:"Train"},
+  bus:       {w:1.9,d:"7 4",      lbl:"Bus"},
+  ferry:     {w:1.9,d:"1 5",      lbl:"Ferry"},
+  cycle:     {w:1.6,d:"9 3 2 3",  lbl:"Cycle"},
+  walk:      {w:1.6,d:"2 3",      lbl:"Walk"},
+  flight:    {w:1.9,d:"12 6",     lbl:"Flight"},
+};
+const svg=$("#map");
+let view={x:0,y:0,w:MAPW,h:MAPH};
+const setVB=()=>svg.setAttribute("viewBox",`${view.x} ${view.y} ${view.w} ${view.h}`);
+const el=(t,a={})=>{const n=document.createElementNS("http://www.w3.org/2000/svg",t);
+  for(const k in a)n.setAttribute(k,a[k]);return n;};
+
+function drawMap(){
+  svg.textContent="";
+  svg.setAttribute("preserveAspectRatio","xMidYMid meet"); setVB();
+  const gGrid=el("g"),gLeg=el("g"),gNode=el("g"),gLbl=el("g");
+  svg.append(gGrid,gLeg,gNode,gLbl);
+
+  // graticule: whole degrees of latitude and longitude
+  for(let la=32;la<=37;la++){const y=Y(la);
+    gGrid.append(el("line",{x1:0,y1:y,x2:MAPW,y2:y,stroke:cv("--rule-2"),"stroke-width":1}));
+    gGrid.append(Object.assign(el("text",{x:6,y:y-4,fill:cv("--ink-3"),"font-size":9}),{textContent:la+"°N"}));}
+  for(let ln=131;ln<=140;ln++){const x=X(ln);
+    gGrid.append(el("line",{x1:x,y1:0,x2:x,y2:MAPH,stroke:cv("--rule-2"),"stroke-width":1}));}
+
+  const days = sel===null?DATA.days:DATA.days.filter(d=>d.day_index===sel);
+  const live = new Set(days.flatMap(d=>d.places));
+
+  // legs, gently curved so parallel runs stay readable
+  DATA.days.forEach(d=>{
+    const on = sel===null||d.day_index===sel;
+    d.legs.forEach(l=>{
+      const a=PL[l.from],b=PL[l.to]; if(!a||!b||a.city==="Delhi"||b.city==="Delhi")return;
+      const m=MODE[l.mode]||MODE.train;
+      const x1=X(a.lng),y1=Y(a.lat),x2=X(b.lng),y2=Y(b.lat);
+      const mx=(x1+x2)/2-(y2-y1)*.06, my=(y1+y2)/2+(x2-x1)*.06;
+      const p=el("path",{d:`M${x1},${y1} Q${mx},${my} ${x2},${y2}`,fill:"none",
+        stroke: on?cv("--accent"):cv("--rule"), "stroke-width":m.w, "stroke-linecap":"round",
+        opacity: on?.85:.28});
+      if(m.d)p.setAttribute("stroke-dasharray",m.d);
+      p.style.pointerEvents="stroke"; p.style.strokeWidth=Math.max(m.w,9)+"px";
+      p.setAttribute("stroke-width",m.w);
+      p.addEventListener("pointerenter",e=>tip(e,
+        `<b>${a.name} → ${b.name}</b><div class="r"><span>${m.lbl}</span><span>Day ${d.day_index}</span></div>`));
+      p.addEventListener("pointerleave",untip);
+      gLeg.append(p);
+    });
+  });
+
+  // nodes
+  const cands=[];
+  DATA.places.forEach(p=>{
+    if(p.city==="Delhi")return;
+    const on = sel===null||live.has(p.id);
+    const x=X(p.lng),y=Y(p.lat), transit=p.kind==="transit";
+    const g=el("g",{style:"cursor:pointer"});
+    const c=el("circle",{cx:x,cy:y,r:transit?3.4:5.4,
+      fill: transit?cv("--surface"):(on?cv("--accent"):cv("--rule")),
+      stroke: on?cv("--accent"):cv("--rule"), "stroke-width":transit?1.7:1.4,
+      opacity:on?1:.42});
+    if(selPlace===p.id){
+      g.append(el("circle",{cx:x,cy:y,r:11,fill:"none",stroke:cv("--accent-2"),"stroke-width":2}));}
+    g.append(el("circle",{cx:x,cy:y,r:13,fill:"transparent"}),c);
+    g.addEventListener("pointerenter",e=>tip(e,
+      `<b>${p.name}</b><div class="r"><span>${p.city}</span><span>${p.kind}</span></div>`));
+    g.addEventListener("pointerleave",untip);
+    g.addEventListener("click",()=>{selPlace=p.id;drawMap();renderDetail();});
+    gNode.append(g);
+    if(on&&!transit)cands.push({p,x,y});
+  });
+
+  // Place labels greedily by importance, dropping any that would overlap one
+  // already placed. Keeps a dense map legible without hand-tuned offsets.
+  const PRIO={attraction:0,food:1,experience:2,shopping:3,stay:4,transit:9};
+  const placed=[];
+  cands.sort((a,b)=>(PRIO[a.p.kind]??5)-(PRIO[b.p.kind]??5)||a.p.name.length-b.p.name.length);
+  cands.forEach(({p,x,y})=>{
+    const w=p.name.length*5.9+12, h=13;
+    const flip = x > MAPW*0.78;                       // near the right edge, set the label inward
+    const lx = flip ? x-9-w : x+9, ly=y-6.5;
+    if(placed.some(b=>lx<b.x+b.w&&lx+w>b.x&&ly<b.y+b.h&&ly+h>b.y))return;
+    placed.push({x:lx,y:ly,w,h});
+    const t=el("text",{x: flip ? x-9 : x+9, y:y+3.5, fill:cv("--ink"),
+      "text-anchor": flip ? "end" : "start",
+      "font-size":10.5,"font-family":'"IBM Plex Sans",sans-serif',
+      "paint-order":"stroke",stroke:cv("--surface"),"stroke-width":3.2,"stroke-linejoin":"round"});
+    t.textContent=p.name; gLbl.append(t);
+  });
+  $("#mapstate").textContent = sel===null? "all 16 days" : "day "+sel+" · "+DATA.days[sel].label;
+}
+function tip(e,html){const t=$("#tip");t.innerHTML=html;t.style.opacity="1";
+  const move=ev=>{t.style.left=Math.min(ev.clientX+14,innerWidth-t.offsetWidth-10)+"px";
+    t.style.top=Math.max(ev.clientY-12,8)+"px";};
+  move(e); svg.addEventListener("pointermove",move); t._m=move;}
+function untip(){const t=$("#tip");t.style.opacity="0";
+  if(t._m){svg.removeEventListener("pointermove",t._m);t._m=null;}}
+
+/* pan + zoom */
+let drag=null;
+svg.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,vx:view.x,vy:view.y};
+  svg.classList.add("drag");svg.setPointerCapture(e.pointerId);});
+svg.addEventListener("pointermove",e=>{if(!drag)return;
+  const r=svg.getBoundingClientRect();
+  view.x=drag.vx-(e.clientX-drag.x)*view.w/r.width;
+  view.y=drag.vy-(e.clientY-drag.y)*view.h/r.height;setVB();});
+addEventListener("pointerup",()=>{drag=null;svg.classList.remove("drag");});
+svg.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY>0?1.12:1/1.12);},{passive:false});
+function zoom(k){const cx=view.x+view.w/2, cy=view.y+view.h/2;
+  view.w=Math.min(MAPW*2.2,Math.max(MAPW*.14,view.w*k));
+  view.h=view.w*(MAPH/MAPW);
+  view.x=cx-view.w/2; view.y=cy-view.h/2; setVB();}
+$("#zin").onclick=()=>zoom(1/1.35); $("#zout").onclick=()=>zoom(1.35);
+$("#zfit").onclick=()=>{view={x:0,y:0,w:MAPW,h:MAPH};setVB();};
+
+/* ============================ RAIL + DETAIL ============================ */
+function renderDays(){
+  $("#days").innerHTML=DATA.days.map(d=>`
+    <button class="daybtn" data-d="${d.day_index}" aria-pressed="${sel===d.day_index}">
+      <span class="n mono">${String(d.day_index).padStart(2,"0")}</span>
+      <span class="l">${d.label}</span>
+      <span class="v mono">${d.total?yen(d.total):"—"} · ${new Date(d.date)
+        .toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>
+    </button>`).join("");
+  $$(".daybtn").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.d; sel = sel===i?null:i; selPlace=null;
+    renderDays(); drawMap(); renderDetail();});
+}
+$("#allDays").onclick=()=>{sel=null;selPlace=null;renderDays();drawMap();renderDetail();};
+
+function renderDetail(){
+  const box=$("#detail");
+  if(selPlace){
+    const p=PL[selPlace];
+    const ds=DATA.days.filter(d=>d.places.includes(p.id));
+    box.innerHTML=`
+      <h3 style="font-size:16px">${p.name}</h3>
+      <div style="margin:6px 0 11px;display:flex;gap:5px;flex-wrap:wrap">
+        <span class="badge">${p.city}</span><span class="badge">${p.kind}</span>
+        <span class="badge ${p.confidence}">${p.confidence}</span></div>
+      <div class="ph" style="margin-bottom:11px"><span class="ico">▢</span>
+        Photograph pending<br><span style="font-size:10px">Drops in once the trip photos are added</span></div>
+      <dl style="margin:0 0 11px">
+        <div class="kv"><dt>Coordinates</dt><dd class="mono">${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</dd></div>
+        <div class="kv"><dt>Visited on</dt><dd>${ds.length?ds.map(d=>"Day "+d.day_index).join(", "):"—"}</dd></div>
+        ${ds.map(d=>`<div class="kv"><dt>Day ${d.day_index} spend</dt>
+          <dd class="mono">${yen(d.total)} · ${inr(d.total)}</dd></div>`).join("")}
+      </dl>
+      <div class="ph"><span class="ico">✎</span>Notes pending<br>
+        <span style="font-size:10px">What you did here comes from the paper notes</span></div>`;
+    return;
+  }
+  if(sel!==null){
+    const d=DATA.days[sel];
+    const rows=DATA.entries.filter(r=>r.day_index===sel&&r.amount);
+    box.innerHTML=`
+      <div class="eyebrow">Day ${d.day_index} &middot; ${new Date(d.date)
+        .toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</div>
+      <h3 style="font-size:16px;margin:3px 0 10px">${d.label}</h3>
+      <dl style="margin:0 0 11px">
+        <div class="kv"><dt>Spent</dt><dd class="mono">${yen(d.total)} &middot; ${inr(d.total)}</dd></div>
+        <div class="kv"><dt>Line items</dt><dd class="mono">${rows.length}</dd></div>
+        <div class="kv"><dt>Places</dt><dd class="mono">${d.places.length}</dd></div>
+        <div class="kv"><dt>Legs</dt><dd class="mono">${d.legs.length}</dd></div>
+        <div class="kv"><dt>Steps</dt><dd class="mono" style="color:var(--pending)">pending</dd></div>
+      </dl>
+      <div class="eyebrow" style="margin-bottom:5px">Spend by category</div>
+      <dl style="margin:0 0 11px">${CATS.filter(c=>d.spend[c]).map(c=>
+        `<div class="kv"><dt><span class="cdot" style="background:var(${CATCOL[c]})"></span>${CATLBL[c]}</dt>
+         <dd class="mono">${yen(d.spend[c])}</dd></div>`).join("")}</dl>
+      <div class="ph"><span class="ico">▢</span>${d.places.length} photo slots awaiting<br>
+        <span style="font-size:10px">Geotagged photos will pin themselves to these places</span></div>`;
+    return;
+  }
+  const tot=DATA.days.reduce((s,d)=>s+d.total,0);
+  box.innerHTML=`
+    <div class="eyebrow">Whole trip</div>
+    <h3 style="font-size:16px;margin:3px 0 10px">16 days, 46 places</h3>
+    <dl style="margin:0 0 11px">
+      <div class="kv"><dt>In-country spend</dt><dd class="mono">${yen(tot)}</dd></div>
+      <div class="kv"><dt>In rupees</dt><dd class="mono">${inr(tot)}</dd></div>
+      <div class="kv"><dt>Line items</dt><dd class="mono">${DATA.entries.length}</dd></div>
+      <div class="kv"><dt>Food entries</dt><dd class="mono">${DATA.food_items.length}</dd></div>
+      <div class="kv"><dt>Legs mapped</dt><dd class="mono">${DATA.days.reduce((s,d)=>s+d.legs.length,0)}</dd></div>
+    </dl>
+    <p style="font-size:11.5px;color:var(--ink-2);margin:0 0 11px">
+      Pick a day on the left to isolate it, or click any place on the map.</p>
+    <div class="ph"><span class="ico">↯</span>Step counts pending<br>
+      <span style="font-size:10px">All 16 Step count rows in your workbook are empty,
+      so this waits on your phone's health export</span></div>`;
+}
+
+/* ============================ LEGEND + QUESTIONS ============================ */
+$("#maplegend").innerHTML=Object.entries(MODE).filter(([k])=>k!=="flight").map(([k,m])=>
+  `<span class="lg"><svg width="24" height="8"><line x1="1" y1="4" x2="23" y2="4"
+    stroke="${cv("--accent")}" stroke-width="${m.w}"
+    ${m.d?`stroke-dasharray="${m.d}"`:""} stroke-linecap="round"/></svg>${m.lbl}</span>`).join("")
+  +`<span class="lg"><svg width="12" height="10"><circle cx="6" cy="5" r="4"
+     fill="${cv("--accent")}"/></svg>Place</span>
+    <span class="lg"><svg width="12" height="10"><circle cx="6" cy="5" r="3"
+     fill="${cv("--surface")}" stroke="${cv("--accent")}" stroke-width="1.6"/></svg>Station</span>`;
+
+$("#questions").innerHTML=DATA.trip.open_questions.map(q=>
+  `<div class="q"><span class="d">${q.day===null?"Stays":"Day "+q.day}</span><span>${q.q}</span></div>`).join("");
+$("#qcount").textContent=DATA.trip.open_questions.length+" to resolve";
+
+/* ============================ NUMBERS ============================ */
+function bars(id){
+  const byCat={}; CATS.forEach(c=>byCat[c]=0);
+  DATA.entries.forEach(r=>{if(r.amount&&r.currency==="JPY")byCat[r.category]=(byCat[r.category]||0)+r.amount;});
+  const tot=Object.values(byCat).reduce((a,b)=>a+b,0);
+  const maxDay=Math.max(...DATA.days.map(d=>d.total));
+
+  /* stacked bars: spend by day */
+  const W=560,H=210,L=46,B=26,T=8;
+  const bw=(W-L-6)/16-5;
+  let stack="";
+  DATA.days.forEach((d,i)=>{
+    let y=H-B;
+    const x=L+i*((W-L-6)/16)+2;
+    CATS.forEach(c=>{
+      const v=d.spend[c]||0; if(!v)return;
+      const h=(v/maxDay)*(H-B-T);
+      y-=h;
+      stack+=`<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(h-2,.6)}" rx="1.5"
+        fill="var(${CATCOL[c]})" data-t="Day ${d.day_index} · ${CATLBL[c]}|${yen(v)}"/>`;
+      y-=0;
+    });
+    stack+=`<text x="${x+bw/2}" y="${H-B+13}" text-anchor="middle" font-size="9"
+      fill="var(--ink-3)">${d.day_index}</text>`;
+  });
+  let gy="";
+  [0,10000,20000,30000,40000,50000].forEach(v=>{
+    if(v>maxDay*1.05)return;
+    const y=H-B-(v/maxDay)*(H-B-T);
+    gy+=`<line x1="${L}" y1="${y}" x2="${W}" y2="${y}" stroke="var(--rule-2)" stroke-width="1"/>
+         <text x="${L-7}" y="${y+3}" text-anchor="end" font-size="9" fill="var(--ink-3)">${v?"¥"+v/1000+"k":0}</text>`;
+  });
+
+  /* horizontal bars: spend by category */
+  const cw=560, ch=CATS.length*30+8, cl=92;
+  const cmax=Math.max(...Object.values(byCat));
+  const cat=CATS.map((c,i)=>{
+    const v=byCat[c], w=(v/cmax)*(cw-cl-96), y=i*30+4;
+    return `<text x="${cl-9}" y="${y+16}" text-anchor="end" font-size="11"
+      fill="var(--ink-2)" font-family="'IBM Plex Sans',sans-serif">${CATLBL[c]}</text>
+      <rect x="${cl}" y="${y+5}" width="${Math.max(w,2)}" height="15" rx="2"
+        fill="var(${CATCOL[c]})" data-t="${CATLBL[c]}|${yen(v)} · ${inr(v)}"/>
+      <text x="${cl+Math.max(w,2)+8}" y="${y+16}" font-size="10.5" fill="var(--ink-2)"
+        >${yen(v)}  <tspan fill="var(--ink-3)">${Math.round(v/tot*100)}%</tspan></text>`;
+  }).join("");
+
+  /* transport mix: one measure, one colour */
+  const modes={};
+  DATA.days.forEach(d=>d.legs.forEach(l=>modes[l.mode]=(modes[l.mode]||0)+1));
+  const me=Object.entries(modes).sort((a,b)=>b[1]-a[1]);
+  const mmax=Math.max(...me.map(m=>m[1])), mw=560, mh=me.length*26+8, ml=92;
+  const mix=me.map(([k,n],i)=>{
+    const w=(n/mmax)*(mw-ml-70), y=i*26+4;
+    return `<text x="${ml-9}" y="${y+14}" text-anchor="end" font-size="11" fill="var(--ink-2)"
+      font-family="'IBM Plex Sans',sans-serif">${(MODE[k]||{lbl:k}).lbl}</text>
+      <rect x="${ml}" y="${y+3}" width="${Math.max(w,2)}" height="13" rx="2" fill="var(--s1)"
+        data-t="${(MODE[k]||{lbl:k}).lbl}|${n} legs"/>
+      <text x="${ml+Math.max(w,2)+8}" y="${y+14}" font-size="10.5" fill="var(--ink-2)">${n}</text>`;
+  }).join("");
+
+  const ppd=(tot*RATE+Object.values(DATA.trip.prepaid_inr).reduce((a,b)=>a+b,0))/2/16;
+  const tiles=[
+    ["In-country spend",yen(tot),inr(tot)+" at 0.57",""],
+    ["Per person, per day","₹"+Math.round(ppd).toLocaleString("en-IN"),"including everything pre-paid",""],
+    ["Line items",DATA.entries.length,"across 16 day sheets",""],
+    ["Food entries",DATA.food_items.length,"meals, coffees, konbini runs",""],
+    ["Places mapped",DATA.places.length,"46 with coordinates",""],
+    ["Steps","pending","health export not yet added","pending"],
+  ].map(([l,b,s,cl])=>`<div class="tile ${cl}"><div class="eyebrow">${l}</div>
+      <div class="big">${b}</div><div class="sub">${s}</div></div>`).join("");
+
+  const lg=CATS.map(c=>`<span><i class="sw" style="background:var(${CATCOL[c]})"></i>${CATLBL[c]}</span>`).join("");
+
+  $(id).innerHTML=`
+    <div class="tiles">${tiles}</div>
+    <div class="charts">
+      <div class="panel"><div class="chart-h"><h3>Spend by day</h3>
+        <p>Stacked by category. Day 10 and the last two Tokyo days are the shopping spikes.</p></div>
+        <div class="legend">${lg}</div>
+        <div class="chart-b"><svg class="c" viewBox="0 0 ${W} ${H}">${gy}${stack}</svg></div></div>
+
+      <div class="panel"><div class="chart-h"><h3>Spend by category</h3>
+        <p>Shopping is the largest single category of the trip, and the one your totals tab missed.</p></div>
+        <div class="chart-b"><svg class="c" viewBox="0 0 ${cw} ${ch}">${cat}</svg></div></div>
+
+      <div class="panel"><div class="chart-h"><h3>How you moved</h3>
+        <p>Every leg of the trip counted by mode. The two flights bracket the map rather than appear on it.</p></div>
+        <div class="chart-b"><svg class="c" viewBox="0 0 ${mw} ${mh}">${mix}</svg></div></div>
+
+      <div class="panel"><div class="chart-h"><h3>Steps</h3>
+        <p>Waiting on your health app export.</p></div>
+        <div class="chart-b"><div class="ph" style="padding:34px 16px"><span class="ico">↯</span>
+          All 16 Step count rows in the workbook are empty.<br>
+          <span style="font-size:10px">Once daily totals arrive, they split into transit steps
+          from walking-leg distance and on-site steps as the remainder.</span></div></div></div>
+    </div>`;
+  $$(`${id} rect[data-t]`).forEach(r=>{
+    r.style.cursor="crosshair";
+    r.addEventListener("pointerenter",e=>{const[a,b]=r.dataset.t.split("|");
+      const t=$("#tip");t.innerHTML=`<b>${a}</b><div class="r"><span>${b}</span></div>`;
+      t.style.opacity="1";t.style.left=Math.min(e.clientX+14,innerWidth-t.offsetWidth-10)+"px";
+      t.style.top=Math.max(e.clientY-12,8)+"px";});
+    r.addEventListener("pointerleave",()=>{$("#tip").style.opacity="0";});
+  });
+}
+
+/* ============================ LEDGER ============================ */
+let lf="all";
+function ledger(){
+  const rows=DATA.entries.filter(r=>lf==="all"||r.category===lf);
+  $("#p-ledger").innerHTML=`
+    <div class="panel">
+      <div class="panel-h"><span class="eyebrow">All 158 line items, as written in your workbook</span>
+        <span class="eyebrow mono">${rows.length} shown</span></div>
+      <div class="filters">
+        <button data-f="all" aria-pressed="${lf==="all"}">All</button>
+        ${CATS.map(c=>`<button data-f="${c}" aria-pressed="${lf===c}">${CATLBL[c]}</button>`).join("")}
+      </div>
+      <div class="tablewrap"><table><thead><tr>
+        <th>Day</th><th>Date</th><th>Category</th><th>Item</th>
+        <th style="text-align:right">Amount</th><th style="text-align:right">&#8377;</th>
+        <th>Paid with</th><th>By</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr>
+          <td class="mono">${r.day_index}</td>
+          <td class="mono">${new Date(r.date).toLocaleDateString("en-GB",{day:"2-digit",month:"short"})}</td>
+          <td><span class="cdot" style="background:var(${CATCOL[r.category]||"--ink-3"})"></span>${CATLBL[r.category]||r.category}</td>
+          <td class="item">${r.item?String(r.item).replace(/[<>]/g,""):'<span style="color:var(--pending)">unnamed</span>'}</td>
+          <td class="num">${r.amount==null?'<span style="color:var(--pending)">missing</span>'
+            :(r.currency==="INR"?"₹":"¥")+Math.round(r.amount).toLocaleString("en-US")}</td>
+          <td class="num">${r.amount==null?"—":r.currency==="INR"?"—":inr(r.amount)}</td>
+          <td>${r.payment_mode||"—"}</td>
+          <td>${r.paid_by||"—"}</td></tr>`).join("")}
+      </tbody></table></div></div>`;
+  $$("#p-ledger .filters button").forEach(b=>b.onclick=()=>{lf=b.dataset.f;ledger();});
+}
+
+/* ============================ TABS ============================ */
+const TABS=[["t-route","p-route"],["t-numbers","p-numbers"],["t-ledger","p-ledger"]];
+TABS.forEach(([t,p])=>$("#"+t).onclick=()=>{
+  TABS.forEach(([t2,p2])=>{const on=t2===t;
+    $("#"+t2).setAttribute("aria-selected",on); $("#"+p2).hidden=!on;});
+  if(p==="p-numbers")bars("#p-numbers");
+  if(p==="p-ledger")ledger();
+});
+
+renderDays(); drawMap(); renderDetail();
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>{
+  drawMap(); if(!$("#p-numbers").hidden)bars("#p-numbers");});
+</script>
