@@ -33,8 +33,10 @@ python3 -c "import pathlib; t=pathlib.Path('app.template.html').read_text(); \
   pathlib.Path('japan-map.html').write_text(t.replace('/*__TRIP_DATA__*/', d))"
 ```
 
-`extract.py` has the workbook path in the `SRC` constant at the top. Point it at
-your own copy; the source file is deliberately not committed.
+The source workbook is committed at `source/J_Cube_Trip.xlsx`, and both scripts
+resolve their paths relative to their own location, so this runs from any
+directory with no editing. Verified: rerunning the pipeline reproduces
+`data/trip.json` and `data/raw_expenses.json` byte for byte.
 
 ## Current state
 

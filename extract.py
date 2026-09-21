@@ -3,8 +3,10 @@
 import openpyxl, json, re, datetime, sys
 from pathlib import Path
 
-SRC = "/root/.claude/uploads/b3850738-abc6-5216-a1c1-a24a34cc94c0/e4fd231f-J_Cube_Trip_.xlsx"
-OUT = Path("/home/user/japan-trip/data")
+# Paths resolve against this file, so the pipeline runs from any directory.
+ROOT = Path(__file__).resolve().parent
+SRC  = ROOT / "source" / "J_Cube_Trip.xlsx"
+OUT  = ROOT / "data"
 TRIP_START = datetime.date(2025, 11, 15)
 
 # Ledger is grouped into category blocks; each block starts at a fixed row in col G.

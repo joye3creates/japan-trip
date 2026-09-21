@@ -3,7 +3,7 @@
 import json, collections
 from pathlib import Path
 
-D = Path("/home/user/japan-trip/data")
+D = Path(__file__).resolve().parent / "data"
 RATE = 0.57          # INR per JPY, user-supplied trip average
 
 # id, name, lat, lng, city, kind, confidence
