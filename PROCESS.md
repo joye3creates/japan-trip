@@ -274,6 +274,31 @@ Things that cost time:
 
 ---
 
+## 7b. Session 02 in brief
+
+A second working block of 78 minutes on 21 September took the project from a
+published draft to a durable, reproducible repository with a second visual
+language. Full detail in `sessions/2026-09-21-session-02.md`. The three things
+that matter for the cumulative account:
+
+**The repo went live and the pipeline became reproducible.** The source workbook
+is committed, both scripts resolve their own paths, and rerunning reproduces the
+dataset byte for byte, verified by checksum.
+
+**A constraint from session 01 was reversed.** Session 01 accepted an abstract
+route diagram because geocoding APIs were blocked and hand-drawing a coastline
+looked too risky. Session 02 re-tested and found that `git clone` works even
+though geocoding does not, so real prefecture geometry came in over git and was
+simplified from 80,370 points to 6,830. The environment had not changed; the map
+of it had simply never been finished. **Re-test constraints when the cost of the
+workaround rises.**
+
+**Seven more roadblocks, numbers 12 to 18.** Four were platform permissions, one
+was a filename, and two were bugs in the work. The instructive one is 17, where
+a DOM probe reported a correct layout while the pixels showed two glyphs printed
+on top of each other — vertical writing mode silently depends on font metrics
+that a fallback face does not carry.
+
 ## 8. Open threads
 
 1. **Handwritten notes** — attractions visited and within-day ordering.
