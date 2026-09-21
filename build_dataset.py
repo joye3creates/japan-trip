@@ -56,7 +56,28 @@ PLACES = [
  ("skytree",        "Tokyo Skytree",            35.7101, 139.8107, "Tokyo",     "attraction", "ledger"),
  ("ginza",          "Ginza",                    35.6717, 139.7650, "Tokyo",     "shopping",   "itinerary"),
  ("itoya",          "Itoya",                    35.6730, 139.7669, "Tokyo",     "shopping",   "ledger"),
+ ("toyoko-osaka",   "Toyoko Inn Osaka Kyobashi",34.6968, 135.5342, "Osaka",     "stay",       "booking"),
+ ("chisun-nagano",  "Chisun Grand Nagano",      36.6420, 138.1880, "Nagano",    "stay",       "booking"),
 ]
+
+# From the Expedia confirmations. Only four nights of the sixteen are covered here;
+# the rest were booked through Booking.com and Airbnb and are not yet documented.
+# Costs are in rupees as charged, not yen.
+STAYS = [
+ {"place":"toyoko-shinjuku","name":"Toyoko Inn Tokyo Shinjuku Kabukicho",
+  "check_in":"2025-11-16","check_out":"2025-11-17","nights":1,"inr":8898.07,
+  "address":"2-20-15 Kabuki-cho, Shinjuku-ku, Tokyo 160-0021","status":"stayed"},
+ {"place":"toyoko-osaka","name":"Toyoko Inn Osaka Kyobashi Sakuranomiya",
+  "check_in":"2025-11-22","check_out":"2025-11-24","nights":2,"inr":12569.12,
+  "address":"1-8-16 Nakanocho, Miyakojima, Osaka 534-0027","status":"stayed"},
+ {"place":"chisun-nagano","name":"Chisun Grand Nagano",
+  "check_in":"2025-11-26","check_out":"2025-11-27","nights":1,"inr":5440.17,
+  "address":"2-17-1 Minami Chitose, Nagano, Nagano-ken 380-0823","status":"not used",
+  "note":"Booked, then dropped in favour of a third night in Kanazawa. "
+         "Cancellation was free until 23:59 on 25 Nov, so whether this was "
+         "refunded or forfeited is unconfirmed."},
+]
+STAY_BY_DAY = {1:0, 7:1, 8:1}
 
 # day_index -> ordered place ids actually visited (best reading of itinerary + ledger)
 DAY_PLACES = {
@@ -109,9 +130,10 @@ CITY_BY_DAY = {0:"Delhi",1:"Tokyo",2:"Mt. Fuji",3:"Fuji → Kyoto",4:"Kyoto & Uj
 
 OPEN_QUESTIONS = [
  {"day":4,"q":"Itinerary planned Arashiyama and the Sagano railway, but every expense names Uji. Which happened?"},
- {"day":10,"q":"'matsumoto trip tix' ¥8,140 — Matsumoto the city, or Matsumoto Kiyoshi the drugstore? Itinerary says Shirakawa-go."},
+ {"day":10,"q":"'matsumoto trip tix' ¥8,140 is now likelier to be Matsumoto the city than the drugstore: a Nagano hotel was booked for the 26th, so Nagano prefecture was genuinely in the plan. Confirm whether you day-tripped there."},
+ {"day":11,"q":"The Chisun Grand Nagano booking for the 26th went unused when you took a third Kanazawa night instead. Cancelled in time for a refund, or forfeited? It moves the trip total by ₹5,440."},
  {"day":13,"q":"'kanazawa' travel and 'buddha temple entry' on a Tokyo day — likely Kamakura via Kanazawa-hakkei. Confirm."},
- {"day":None,"q":"Which stays map to which nights? The PDF lists Airbnb shortlists, not final bookings."},
+ {"day":None,"q":"Thirteen of sixteen nights are still undocumented. The Expedia confirmations cover Tokyo on the 16th and Osaka on the 22nd–23rd only; Fuji, Kyoto, Beppu, Kanazawa and the last Tokyo stretch went through Booking.com and Airbnb."},
 ]
 
 def main():
@@ -133,6 +155,8 @@ def main():
             "places":[p for p in DAY_PLACES.get(i,[]) if p in places],
             "legs":[{"from":a,"to":b,"mode":m} for (dd,a,b,m) in LEGS if dd==i],
             "spend":dict(by),"total":sum(by.values()),
+            "stay": (lambda k: {**STAYS[k], "per_night_inr": round(STAYS[k]["inr"]/STAYS[k]["nights"],2)}
+                     if k is not None else None)(STAY_BY_DAY.get(i)),
             "steps":None,                      # placeholder: no health export yet
             "photos":[],                       # placeholder: no photos yet
             "note_status":"pending",           # placeholder: paper notes not transcribed
@@ -146,9 +170,11 @@ def main():
       "prepaid_inr":{"Flights":80000,"Accommodation":100000,"JR passes":67700,
                      "Pre-booked transport":29017},
       "placeholders":["steps","photos","paper notes"],
+      "stays_documented_nights":sum(x["nights"] for x in STAYS if x["status"]=="stayed"),
+      "stays_documented_inr":round(sum(x["inr"] for x in STAYS if x["status"]=="stayed"),2),
       "open_questions":OPEN_QUESTIONS,
     }
-    out={"trip":trip,"places":list(places.values()),"days":days,"entries":rows,
+    out={"trip":trip,"places":list(places.values()),"days":days,"entries":rows,"stays":STAYS,
          "food_items":[{"day":r["day_index"],"item":r["item"],"amount":r["amount"]} for r in food]}
     (D/"trip.json").write_text(json.dumps(out,ensure_ascii=False,separators=(",",":")))
     print(f"places        : {len(places)}")

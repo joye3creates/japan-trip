@@ -123,7 +123,7 @@ pre-installed binary directly with
 the agent proxy. The container's egress policy permits package registries and a
 short allowlist, not arbitrary APIs.
 
-*Resolution:* coordinates for all 46 places were written from knowledge of the
+*Resolution:* coordinates for all 48 places were written from knowledge of the
 landmarks rather than looked up. This is accurate enough at map zoom for
 well-known sites. Each place carries a `confidence` field — `itinerary`, `ledger`
 or `inferred` — so the uncertain ones are visible in the interface rather than

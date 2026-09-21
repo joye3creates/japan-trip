@@ -116,6 +116,8 @@ main{padding-block:18px 40px}
   padding:2px 6px;border-radius:2px;border:1px solid var(--rule);color:var(--ink-3);font-weight:500}
 .badge.itinerary{border-color:var(--accent-2);color:var(--accent-2)}
 .badge.inferred{border-color:var(--accent);color:var(--accent)}
+.badge.booking{border-color:var(--s3);color:var(--s3)}
+.badge.ledger{border-color:var(--ink-3);color:var(--ink-2)}
 .ph{
   border:1px dashed var(--rule);border-radius:3px;background:var(--pending-bg);
   color:var(--pending);padding:14px 10px;text-align:center;font-size:11px;line-height:1.45;
@@ -257,6 +259,8 @@ const yen=v=>"¥"+Math.round(v).toLocaleString("en-US");
 const inr=v=>"₹"+Math.round(v*RATE).toLocaleString("en-IN");
 const PL=Object.fromEntries(DATA.places.map(p=>[p.id,p]));
 let sel=null, selPlace=null;
+const STAY_BY_PLACE=Object.fromEntries((DATA.stays||[]).map(s=>[s.place,s]));
+const UNUSED_STAY=new Set((DATA.stays||[]).filter(s=>s.status!=="stayed").map(s=>s.place));
 
 /* ============================ MAP ============================ */
 const MAPW=900, MAPH=620;
@@ -326,17 +330,31 @@ function drawMap(){
   DATA.places.forEach(p=>{
     if(p.city==="Delhi")return;
     const on = sel===null||live.has(p.id);
-    const x=X(p.lng),y=Y(p.lat), transit=p.kind==="transit";
+    const x=X(p.lng),y=Y(p.lat), transit=p.kind==="transit", stay=p.kind==="stay";
+    const unused=UNUSED_STAY.has(p.id);
     const g=el("g",{style:"cursor:pointer"});
-    const c=el("circle",{cx:x,cy:y,r:transit?3.4:5.4,
-      fill: transit?cv("--surface"):(on?cv("--accent"):cv("--rule")),
-      stroke: on?cv("--accent"):cv("--rule"), "stroke-width":transit?1.7:1.4,
-      opacity:on?1:.42});
+    let c;
+    if(stay){
+      const s=5.2;
+      c=el("rect",{x:x-s,y:y-s,width:s*2,height:s*2,rx:1.2,
+        fill: unused?"none":(on?cv("--accent-2"):cv("--rule")),
+        stroke: unused?cv("--ink-3"):(on?cv("--accent-2"):cv("--rule")),
+        "stroke-width":1.6, opacity:on?1:.45});
+      if(unused)c.setAttribute("stroke-dasharray","3 2");
+    } else {
+      c=el("circle",{cx:x,cy:y,r:transit?3.4:5.4,
+        fill: transit?cv("--surface"):(on?cv("--accent"):cv("--rule")),
+        stroke: on?cv("--accent"):cv("--rule"), "stroke-width":transit?1.7:1.4,
+        opacity:on?1:.42});
+    }
     if(selPlace===p.id){
       g.append(el("circle",{cx:x,cy:y,r:11,fill:"none",stroke:cv("--accent-2"),"stroke-width":2}));}
     g.append(el("circle",{cx:x,cy:y,r:13,fill:"transparent"}),c);
+    const st=STAY_BY_PLACE[p.id];
     g.addEventListener("pointerenter",e=>tip(e,
-      `<b>${p.name}</b><div class="r"><span>${p.city}</span><span>${p.kind}</span></div>`));
+      `<b>${p.name}</b><div class="r"><span>${p.city}</span><span>${
+        st ? (st.status==="stayed" ? st.nights+" night"+(st.nights>1?"s":"") : "booked, not used")
+           : p.kind}</span></div>`));
     g.addEventListener("pointerleave",untip);
     g.addEventListener("click",()=>{selPlace=p.id;drawMap();renderDetail();});
     gNode.append(g);
@@ -437,6 +455,15 @@ function renderDetail(){
         <div class="kv"><dt>Legs</dt><dd class="mono">${d.legs.length}</dd></div>
         <div class="kv"><dt>Steps</dt><dd class="mono" style="color:var(--pending)">pending</dd></div>
       </dl>
+      ${d.stay?`<div class="eyebrow" style="margin-bottom:5px">Slept at</div>
+        <div style="border:1px solid var(--rule);border-radius:3px;padding:9px 10px;margin-bottom:11px">
+          <div style="font-weight:500;font-size:12.5px">${d.stay.name}</div>
+          <div style="font-size:11px;color:var(--ink-3);margin:2px 0 6px">${d.stay.address}</div>
+          <div class="kv" style="border:0;padding:0"><dt>Per night</dt>
+            <dd class="mono">\u20b9${d.stay.per_night_inr.toLocaleString("en-IN")}</dd></div>
+        </div>`:`<div class="ph" style="margin-bottom:11px"><span class="ico">\u2302</span>
+          Accommodation not documented<br><span style="font-size:10px">
+          Only 3 of 16 nights have confirmations so far</span></div>`}
       <div class="eyebrow" style="margin-bottom:5px">Spend by category</div>
       <dl style="margin:0 0 11px">${CATS.filter(c=>d.spend[c]).map(c=>
         `<div class="kv"><dt><span class="cdot" style="background:var(${CATCOL[c]})"></span>${CATLBL[c]}</dt>
@@ -448,12 +475,13 @@ function renderDetail(){
   const tot=DATA.days.reduce((s,d)=>s+d.total,0);
   box.innerHTML=`
     <div class="eyebrow">Whole trip</div>
-    <h3 style="font-size:16px;margin:3px 0 10px">16 days, 46 places</h3>
+    <h3 style="font-size:16px;margin:3px 0 10px">${DATA.trip.days_count} days, ${DATA.places.length} places</h3>
     <dl style="margin:0 0 11px">
       <div class="kv"><dt>In-country spend</dt><dd class="mono">${yen(tot)}</dd></div>
       <div class="kv"><dt>In rupees</dt><dd class="mono">${inr(tot)}</dd></div>
       <div class="kv"><dt>Line items</dt><dd class="mono">${DATA.entries.length}</dd></div>
       <div class="kv"><dt>Food entries</dt><dd class="mono">${DATA.food_items.length}</dd></div>
+      <div class="kv"><dt>Nights documented</dt><dd class="mono">${DATA.trip.stays_documented_nights} of ${DATA.trip.days_count}</dd></div>
       <div class="kv"><dt>Legs mapped</dt><dd class="mono">${DATA.days.reduce((s,d)=>s+d.legs.length,0)}</dd></div>
     </dl>
     <p style="font-size:11.5px;color:var(--ink-2);margin:0 0 11px">
@@ -471,7 +499,11 @@ $("#maplegend").innerHTML=Object.entries(MODE).filter(([k])=>k!=="flight").map((
   +`<span class="lg"><svg width="12" height="10"><circle cx="6" cy="5" r="4"
      fill="${cv("--accent")}"/></svg>Place</span>
     <span class="lg"><svg width="12" height="10"><circle cx="6" cy="5" r="3"
-     fill="${cv("--surface")}" stroke="${cv("--accent")}" stroke-width="1.6"/></svg>Station</span>`;
+     fill="${cv("--surface")}" stroke="${cv("--accent")}" stroke-width="1.6"/></svg>Station</span>
+    <span class="lg"><svg width="12" height="10"><rect x="2" y="1" width="8" height="8" rx="1"
+     fill="${cv("--accent-2")}"/></svg>Stay</span>
+    <span class="lg"><svg width="12" height="10"><rect x="2" y="1" width="8" height="8" rx="1"
+     fill="none" stroke="${cv("--ink-3")}" stroke-width="1.5" stroke-dasharray="3 2"/></svg>Booked, not used</span>`;
 
 $("#questions").innerHTML=DATA.trip.open_questions.map(q=>
   `<div class="q"><span class="d">${q.day===null?"Stays":"Day "+q.day}</span><span>${q.q}</span></div>`).join("");
@@ -543,7 +575,7 @@ function bars(id){
     ["Per person, per day","₹"+Math.round(ppd).toLocaleString("en-IN"),"including everything pre-paid",""],
     ["Line items",DATA.entries.length,"across 16 day sheets",""],
     ["Food entries",DATA.food_items.length,"meals, coffees, konbini runs",""],
-    ["Places mapped",DATA.places.length,"46 with coordinates",""],
+    ["Places mapped",DATA.places.length,"every one with coordinates",""],
     ["Steps","pending","health export not yet added","pending"],
   ].map(([l,b,s,cl])=>`<div class="tile ${cl}"><div class="eyebrow">${l}</div>
       <div class="big">${b}</div><div class="sub">${s}</div></div>`).join("");
@@ -565,6 +597,29 @@ function bars(id){
       <div class="panel"><div class="chart-h"><h3>How you moved</h3>
         <p>Every leg of the trip counted by mode. The two flights bracket the map rather than appear on it.</p></div>
         <div class="chart-b"><svg class="c" viewBox="0 0 ${mw} ${mh}">${mix}</svg></div></div>
+
+      <div class="panel"><div class="chart-h"><h3>Where you slept</h3>
+        <p>Three of sixteen nights have confirmations. The rest went through other booking sites.</p></div>
+        <div class="chart-b">${(DATA.stays||[]).map(s=>`
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline;
+            padding:8px 0;border-bottom:1px solid var(--rule-2)">
+            <div style="min-width:0">
+              <div style="font-weight:500;font-size:12.5px">${s.name}</div>
+              <div style="font-size:10.5px;color:var(--ink-3)">
+                ${new Date(s.check_in).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}
+                &rarr; ${new Date(s.check_out).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}
+                &middot; ${s.nights} night${s.nights>1?"s":""}
+                ${s.status!=="stayed"?'<span class="badge inferred" style="margin-left:6px">not used</span>':""}</div>
+            </div>
+            <div class="mono" style="white-space:nowrap;${s.status!=="stayed"
+              ?"color:var(--pending);text-decoration:line-through":""}"
+              >\u20b9${Math.round(s.inr).toLocaleString("en-IN")}</div>
+          </div>`).join("")}
+          <p style="font-size:11px;color:var(--ink-2);margin:10px 0 0">
+            The Nagano booking was dropped for a third night in Kanazawa. Whether it was
+            refunded before the deadline or forfeited is unconfirmed, and it moves the
+            trip total by \u20b95,440 either way.</p>
+        </div></div>
 
       <div class="panel"><div class="chart-h"><h3>Steps</h3>
         <p>Waiting on your health app export.</p></div>
