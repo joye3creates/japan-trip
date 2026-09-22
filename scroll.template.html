@@ -12,7 +12,6 @@
 html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:"Spectral",Georgia,serif;font-size:14px;line-height:1.55}
-.jp{font-family:"Shippori Mincho","Yu Mincho",serif}
 
 /* sticky graphic with steps scrolling over it */
 .scrolly{position:relative;max-width:1400px;margin:0 auto;padding-inline:16px;
@@ -36,7 +35,7 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .step p{margin:0;font-size:13px;color:var(--ink-2)}
 .step p+p{margin-top:7px}
 .lede{max-width:600px;margin:0 auto;padding:12vh 16px 4vh;text-align:center}
-.lede h1{font-family:"Shippori Mincho",serif;font-size:32px;font-weight:800;letter-spacing:.04em}
+.lede h1{font-family:"Shippori Mincho",serif;font-size:33px;font-weight:800;letter-spacing:.04em}
 .lede p{color:var(--ink-2)}
 .tail{max-width:640px;margin:0 auto;padding:6vh 16px 12vh;color:var(--ink-3);font-size:11.5px}
 .tail p{margin:0 0 6px}
@@ -44,7 +43,6 @@ body{margin:0;background:var(--paper);color:var(--ink);
 </style>
 
 <div class="lede">
-  <div class="jp" style="font-size:13px;letter-spacing:.4em;color:var(--verm)">現勢図</div>
   <h1>Sixteen Days, Counted</h1>
   <p>Every yen spent between Tokyo and Kyushu, 15 to 30 November 2025.
      Scroll to watch the country become the ledger.</p>
@@ -61,6 +59,15 @@ body{margin:0;background:var(--paper);color:var(--ink);
   &yen;100 to &yen;36,000, a range of 360 to one, and on a straight axis 89% of every mark
   would pile into the leftmost tenth of the page. Log spreads them. A mark twice as far
   right is not twice the price; read the axis.</p>
+  <p><b>The rail passes.</b> Two passes cost &#8377;67,700 before departure and then covered
+  sixteen train and bullet-train journeys at no cost on the day. Rather than let those
+  journeys read as free, the cost is divided evenly across them, &yen;7,423 a journey.
+  That figure moves if the pass covered rides this reconstruction has not captured, and a
+  later toggle will show what each journey would have cost without the pass. A further
+  &#8377;29,017 of pre-booked tickets is not yet shared out.</p>
+  <p><b>Whose money.</b> Every figure is for both travellers together, not per person.</p>
+  <p><b>Left out.</b> Shopping and gifts are withheld. They are personal purchases and tell
+  a reader nothing useful about travelling in Japan.</p>
   <p><b>Still missing.</b> Thirteen of sixteen nights have no accommodation record. Steps,
   photographs and the handwritten notes are pending. Nothing here is invented to fill a gap.</p>
 </div>
@@ -81,7 +88,8 @@ const PL=Object.fromEntries(DATA.places.map(p=>[p.id,p]));
 const CATS=DATA.trip.categories;
 const CATLBL={food:"Food",shopping:"Shopping",travel:"Transport",experiences:"Experiences",
   utilities:"Utilities",gifts:"Gifts",stays:"Stays"};
-const JA=["印度","東京","富士","京都","宇治","広島","阿蘇","大阪","奈良","金沢","白川郷","金沢","東京","鎌倉","浅草","帰国"];
+const DAYNAME=["Delhi","Tokyo","Mt Fuji","Kyoto","Uji","Hiroshima","Mt Aso","Osaka",
+  "Nara","Kanazawa","Shirakawa-go","Kanazawa","Tokyo","Kamakura","Asakusa","Home"];
 const rows=DATA.entries.filter(r=>r.amount&&r.currency==="JPY"&&r.place_id);
 
 /* ---------- map projection ---------- */
@@ -100,8 +108,22 @@ const vals=rows.map(r=>r.amount);
 const lo10=Math.log10(Math.min(...vals)), hi10=Math.log10(Math.max(...vals));
 const X=v=>L+(Math.log10(v)-lo10)/(hi10-lo10)*(R-L);
 const laneY=i=>TOP+i*LANE+LANE/2;
-// deterministic jitter so a mark keeps its slot between renders
-const jit=(r,i)=>((r.day_index*37+i*17+r.amount)%13-6)*1.5;
+// Marks that land on the same spot are stacked evenly rather than jittered at
+// random, so a cluster of identical fares reads as a countable column.
+const OFF=(()=>{
+  const bucket={};
+  rows.forEach((r,i)=>{
+    const k=r.day_index+":"+Math.round(X(r.amount)/7);
+    (bucket[k]=bucket[k]||[]).push(i);
+  });
+  const o={};
+  Object.values(bucket).forEach(list=>{
+    const n=list.length, span=Math.min(LANE-10, n*9);
+    list.forEach((i,j)=>{ o[i]= n===1 ? 0 : -span/2 + span*j/(n-1); });
+  });
+  return o;
+})();
+const jit=(r,i)=>OFF[i]||0;
 
 /* ---------- icons: identity by shape, not colour ---------- */
 function glyph(cat,mode){
@@ -159,15 +181,16 @@ DATA.days.forEach((day,i)=>{
   gAxis.append(el("line",{x1:L,y1:laneY(i),x2:R,y2:laneY(i),stroke:"var(--ink)","stroke-width":.6,opacity:.28}));
   const n=el("text",{x:L-46,y:laneY(i)+4,"font-size":10,fill:"var(--ink-3)"});
   n.textContent=String(i).padStart(2,"0");
-  const k=el("text",{x:L-34,y:laneY(i)+4.5,"font-size":13,fill:"var(--ink)",
-    "font-family":'"Shippori Mincho",serif'}); k.textContent=JA[i];
+  const k=el("text",{x:L-34,y:laneY(i)+4,"font-size":11.5,fill:"var(--ink)"});
+  k.textContent=DAYNAME[i];
   gAxis.append(n,k);
 });
-const medline=el("line",{x1:X(1000),y1:TOP-14,x2:X(1000),y2:TOP+16*LANE-8,
+const MED=(a=>a[Math.floor(a.length/2)])(vals.slice().sort((p,q)=>p-q));
+const medline=el("line",{x1:X(MED),y1:TOP-14,x2:X(MED),y2:TOP+16*LANE-8,
   stroke:"var(--verm)","stroke-width":1.6,opacity:0});
-const medlbl=el("text",{x:X(1000),y:TOP+16*LANE+16,"text-anchor":"middle",
+const medlbl=el("text",{x:X(MED),y:TOP+16*LANE+16,"text-anchor":"middle",
   "font-size":10.5,fill:"var(--verm)",opacity:0});
-medlbl.textContent="typical purchase ¥1,000"; gNote.append(medline,medlbl); gNote.setAttribute("opacity",1);
+medlbl.textContent="median entry "+yen(MED); gNote.append(medline,medlbl); gNote.setAttribute("opacity",1);
 
 /* the marks: one per expense, alive from the first frame to the last */
 const marks=rows.map((r,i)=>{
@@ -191,16 +214,16 @@ function toChart(){marks.forEach(g=>{const r=g._r;
 
 /* ---------- steps ---------- */
 const STEPS=[
- {t:"The country",   b:["Sixteen days, from Tokyo down to Kyushu and back. Thirteen prefectures entered of forty-seven.",
-                        "Each mark is one thing bought, sitting where it was bought."]},
- {t:"One mark, one purchase", b:["A hundred and fifty-three purchases, from a ¥100 vending machine bottle to a ¥36,000 evening in Don Quijote.",
-                        "They are about to leave the map and keep their identity."]},
- {t:"The ledger",    b:["The land dissolves. Every mark travels to its day, and to its price along the axis.",
-                        "Nothing is created or destroyed in the transition. The same marks simply move."]},
- {t:"What is typical",b:["The median purchase is ¥1,000. Half of everything bought on this trip cost less than that.",
-                        "The axis is logarithmic, so each gridline is ten times the last."]},
- {t:"The two evenings",b:["Days 13 and 14 hold three quarters of their spending in a single category each.",
-                        "One drugstore run and one department store account for more than the whole first week."]},
+ {t:"The country", b:["Sixteen days, from Tokyo down to Kyushu and back. Thirteen prefectures entered of forty-seven.",
+                      "Each mark is one thing paid for, sitting where it happened."]},
+ {t:"One mark, one cost", b:["Meals, fares, entry tickets, a night&rsquo;s lodging. The smallest is a &yen;100 bottle of water; the largest a single night in Tokyo.",
+                      "They are about to leave the map without losing their identity."]},
+ {t:"The ledger",  b:["The land dissolves. Every mark travels to its day, and to its price along the axis.",
+                      "Nothing is created or destroyed. The same marks simply move."]},
+ {t:"What is typical", b:["Half of everything on this trip cost less than the marked line.",
+                      "The axis is logarithmic, so each gridline is ten times the last. A mark twice as far right is not twice the price."]},
+ {t:"The cost you cannot see", b:["Sixteen journeys were covered by rail passes bought before leaving India, so they cost nothing on the day and appear nowhere in the daily book.",
+                      "Given a share of the passes each, they turn out to be the largest single expense of the trip. Highlighted here."]},
 ];
 $("#steps").innerHTML=STEPS.map((s,i)=>`<div class="step" data-i="${i}">
   <div class="card"><div class="n">${String(i+1).padStart(2,"0")} / ${STEPS.length}</div>
@@ -224,7 +247,7 @@ function enter(i){
     medline.style.transition=medlbl.style.transition="opacity .8s";
     medline.setAttribute("opacity",on?.85:0); medlbl.setAttribute("opacity",on?1:0);
     marks.forEach(g=>{
-      const hot = i>=4 && (g._r.day_index===13||g._r.day_index===14);
+      const hot = i>=4 && g._r.pass_allocated;
       g.style.color = i>=4 ? (hot?"var(--verm)":"var(--ink-3)") : "var(--verm)";
       g._dot.setAttribute("fill", g.style.color);
     });

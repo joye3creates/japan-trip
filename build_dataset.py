@@ -6,6 +6,21 @@ from pathlib import Path
 D = Path(__file__).resolve().parent / "data"
 RATE = 0.57          # INR per JPY, user-supplied trip average
 
+# Categories withheld from the public view. Shopping and gifts are personal
+# purchases with no value to anyone reading this as a travel record, so they are
+# dropped at build time rather than hidden in the page.
+EXCLUDE = {"shopping", "gifts"}
+
+# JR passes, in rupees, as recorded on the totals tab. Assumed to cover BOTH
+# travellers; if it turns out to be per person, double it here and nothing else
+# changes. Its cost is spread evenly across the rides it actually covered.
+JR_PASS_INR = 67700
+
+# Days on which a rail pass was active, from the Pass column of the itinerary:
+# SS covers 18-23 Nov (days 3-8), HA covers 24-27 Nov (days 9-12).
+PASS_DAYS = set(range(3, 13))
+PASS_MODES = {"train", "shinkansen"}
+
 # id, name, lat, lng, city, kind, confidence
 # confidence: "itinerary" = named in the planning PDF, "ledger" = named in an expense
 # line, "inferred" = deduced from context and needs confirming from the paper notes.
@@ -142,6 +157,51 @@ def main():
     places={p[0]:{"id":p[0],"name":p[1],"lat":p[2],"lng":p[3],"city":p[4],
                   "kind":p[5],"confidence":p[6]} for p in PLACES}
 
+    # --- every expense gets a home on the map, so it can fly from somewhere real
+    KINDMAP={'food':'food','shopping':'shopping','experiences':'attraction',
+             'travel':'transit','utilities':'other','gifts':'shopping','stays':'stay'}
+    seen=collections.Counter()
+    for r in rows:
+        dp=[places[p] for p in DAY_PLACES.get(r["day_index"],[]) if p in places]
+        want=KINDMAP.get(r["category"])
+        cand=[p for p in dp if p["kind"]==want] or \
+             [p for p in dp if p["kind"] not in ("transit","stay")] or dp
+        if cand:
+            k=seen[(r["day_index"],r["category"])]; seen[(r["day_index"],r["category"])]+=1
+            r["place_id"]=cand[k%len(cand)]["id"]
+        else:
+            r["place_id"]=None
+
+    # --- stays become a category of their own, converted per night and flagged
+    for st in STAYS:
+        if st["status"]!="stayed": continue
+        per=st["inr"]/st["nights"]/RATE
+        start=int(st["check_in"][-2:])-15
+        for n in range(st["nights"]):
+            rows.append({"day_index":start+n,"date":"","category":"stays",
+                "item":st["name"],"amount":round(per),"currency":"JPY",
+                "converted_from_inr":True,"payment_mode":"prepaid","paid_by":"both",
+                "note":st["address"],"place_id":st["place"],"row":0})
+
+    # --- rides the rail pass covered carry a share of the pass, not nothing
+    covered=[(dd,a,b_,m) for (dd,a,b_,m) in LEGS
+             if dd in PASS_DAYS and m in PASS_MODES]
+    share_jpy = round(JR_PASS_INR / len(covered) / RATE) if covered else 0
+    for (dd,a,b_,m) in covered:
+        rows.append({"day_index":dd,"date":"","category":"travel",
+            "item":f"{m} {places[a]['name']} to {places[b_]['name']}",
+            "amount":share_jpy,"currency":"JPY","pass_allocated":True,
+            "mode_hint":m,"payment_mode":"rail pass","paid_by":"both",
+            "note":"share of the JR passes","place_id":a,"row":0})
+
+    # --- give transport rows a mode so the icons can branch
+    for r in rows:
+        if r["category"]=="travel" and not r.get("mode_hint"):
+            legs=[m for (dd,a,b_,m) in LEGS if dd==r["day_index"]]
+            r["mode_hint"]=legs[0] if legs else "train"
+
+    rows=[r for r in rows if r["category"] not in EXCLUDE]
+
     days=[]
     for d in daysrc:
         i=d["day_index"]
@@ -170,11 +230,17 @@ def main():
       "prepaid_inr":{"Flights":80000,"Accommodation":100000,"JR passes":67700,
                      "Pre-booked transport":29017},
       "placeholders":["steps","photos","paper notes"],
+      "categories":["food","travel","experiences","utilities","stays"],
+      "excluded_categories":sorted(EXCLUDE),
+      "shown_for":"both travellers combined",
+      "jr_pass":{"inr":JR_PASS_INR,"rides_covered":len(covered),
+                 "per_ride_jpy":share_jpy,"assumed":"covers both travellers"},
       "stays_documented_nights":sum(x["nights"] for x in STAYS if x["status"]=="stayed"),
       "stays_documented_inr":round(sum(x["inr"] for x in STAYS if x["status"]=="stayed"),2),
       "open_questions":OPEN_QUESTIONS,
     }
     out={"trip":trip,"places":list(places.values()),"days":days,"entries":rows,"stays":STAYS,
+         "legs_flat":[{"day_index":dd,"mode":m,"from":a,"to":b_} for (dd,a,b_,m) in LEGS],
          "food_items":[{"day":r["day_index"],"item":r["item"],"amount":r["amount"]} for r in food]}
     (D/"trip.json").write_text(json.dumps(out,ensure_ascii=False,separators=(",",":")))
     print(f"places        : {len(places)}")
