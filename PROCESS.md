@@ -299,6 +299,28 @@ a DOM probe reported a correct layout while the pixels showed two glyphs printed
 on top of each other — vertical writing mode silently depends on font metrics
 that a fallback face does not carry.
 
+## 7c. Session 03 in brief
+
+Two hours fifty-five minutes on 22 September, in which the project's horizontal
+axis stopped being price and became time. Full detail in
+`sessions/2026-09-22-session-03.md`.
+
+**The design that came out of it.** Every mark is one of three kinds: both a
+time and a price, an event with a time and no price, or a cost with a price and
+no time. An event names the cost it belongs to, and on switching views the
+events fly into their cost and merge. One rule covers lodging arrivals,
+rail-pass journeys and flights identically, and it reverses.
+
+**The mistake worth keeping.** Five accommodation bookings were reported as
+absent because the PDF pages holding them were images and text extraction
+silently skipped them. The user re-sent the same file twice before asking
+directly whether I could see a booking they could. Text extraction returning
+something is not evidence it returned everything.
+
+**Privacy became a convention.** Traveller names removed from eleven files and
+three published pages, the name mapping moved outside version control, and a
+standing rule with audit commands added to `CLAUDE.md`.
+
 ## 8. Open threads
 
 1. **Handwritten notes** — attractions visited and within-day ordering.
