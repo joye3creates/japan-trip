@@ -1,25 +1,23 @@
 # Posting assets
 
-Regenerate any of these by re-running the capture script; nothing here is
-hand-made. All stills are 2x for crisp posting.
+All regenerated from the live pages, all swept for personal data and Japanese
+script before export. Stills are 2x.
 
-| File | What it shows | Use it for |
-|---|---|---|
-| `01_map.png` | The opening frame: Japan, every mark sitting where it happened | Establishing what the thing is |
-| `02_clock.png` | The clock view, sixteen days by hour | The hero image. Day 3's post |
-| `03_ledger.png` | The same marks rearranged by price | Pair with 02 to show the toggle |
-| `04_band.png` | The pass-funded journeys highlighted | The invisible-expense story |
-| `05_woodblock.png` | The aged survey-sheet treatment | Day 2's post, the visual-direction story |
-| `06_bug_projection.png` | The projection bug: a whole country flattened into a band | Day 1's honest failure |
-| `07_bug_glyphs.png` | Japanese labels printed on top of one another | Day 2's honest failure |
-| `interaction.mp4` | 20 seconds: map dissolving, clock, toggling to ledger and back | The main demo |
-| `interaction.gif` | The same, 760px | Where video will not go |
-| `interaction-small.gif` | The same, 560px, lighter | Size-limited places |
+| File | What it shows |
+|---|---|
+| `clock_hero.png` | The clock view: sixteen days laid out hour by hour |
+| `route_map.png` | The route map with the day rail and a detail panel |
+| `numbers_tab.png` | The analytics tab: spend by day, by category, transport mix |
+| `woodblock_full.png` | The full aged survey sheet, whole page |
+| `interaction.mp4` | 21s. Map dissolving into the clock, then toggling to the ledger and back |
+| `tabs-route-numbers-ledger.mp4` | 25s. Route, day isolation, Numbers, Ledger with filters |
+| `interaction.gif` | The first video at 600px, for places that will not take video |
 
-**For Bluesky, use the mp4.** It accepts video comfortably and the file is about
-a megabyte. Animated GIFs are converted to video there anyway, so the GIFs are
-for elsewhere.
+**For Bluesky use the mp4 files.** Both are about a megabyte.
 
-**Both bug images are deliberate recreations.** The fixes are long since in; the
-broken versions were rebuilt purely so the failures can be shown rather than
-described. Say so if you post them.
+## Checked before export
+
+- No traveller names, emails, phone numbers, addresses or booking references in
+  any rendered page
+- No Japanese script in either English-language page
+- Shopping and gifts excluded from the data, and no longer offered as filters
