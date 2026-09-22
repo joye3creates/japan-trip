@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Parse J_Cube_Trip_.xlsx day sheets into a structured trip dataset."""
-import openpyxl, json, re, datetime, sys
+import openpyxl, json, re, datetime, sys, pathlib
 from pathlib import Path
 
 # Paths resolve against this file, so the pipeline runs from any directory.
@@ -17,6 +17,23 @@ BLOCKS = [(2,"utilities"),(16,"experiences"),(29,"food"),(44,"travel"),
 SUMMAP = {"utilities":"utilities","experiences":"experiences","entertainment":"experiences",
           "food + coffee + water":"food","outside food":"food","travel":"travel",
           "shopping":"shopping","gift":"gifts","gifts":"gifts","misc":"misc"}
+
+# Traveller names never enter the dataset. The two people are A and B, which
+# preserves who-paid-what for a later per-person view without naming anyone.
+# The name list itself lives in names.local.txt, which is not committed, so the
+# repository never contains them either. Format: one "name=LABEL" per line.
+_NAMES = pathlib.Path(__file__).resolve().parent / "names.local.txt"
+_ANON = []
+if _NAMES.exists():
+    for _ln in _NAMES.read_text().splitlines():
+        if "=" in _ln and not _ln.startswith("#"):
+            _n, _l = _ln.split("=", 1)
+            _ANON.append(("(?<![A-Za-z])" + re.escape(_n.strip()) + "(?![A-Za-z])", _l.strip()))
+
+def anon(v):
+    if not isinstance(v, str): return v
+    for pat, rep in _ANON: v = re.sub(pat, rep, v, flags=re.I)
+    return v
 
 def clean(v):
     """Item cells: Google Sheets silently turned '7/11' into a date. Undo that."""
@@ -60,8 +77,8 @@ def parse_day(ws, idx):
             if item is not None and str(item).strip().lower() == cat: continue
             rows.append({
                 "date": date.isoformat(), "day_index": idx, "category": cat,
-                "item": item, "amount": float(amt) if isinstance(amt,(int,float)) else None,
-                "payment_mode": mode, "paid_by": payer, "note": note,
+                "item": anon(item), "amount": float(amt) if isinstance(amt,(int,float)) else None,
+                "payment_mode": anon(mode), "paid_by": anon(payer), "note": anon(note),
                 "row": r,
             })
     return date, rows, parse_summary(ws)

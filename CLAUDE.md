@@ -53,6 +53,35 @@ Chart palettes get validated, not eyeballed.
 
 ## Privacy
 
-The repo is private and holds sixteen days of personal financial data. `source/`
-is for the original workbook and itinerary. Remove it before the repo is ever
-made public.
+**Nothing personally identifying leaves this repository or reaches any published
+page.** This is a standing rule, not a per-task instruction, and it is checked
+before every publish rather than remembered afterwards.
+
+Never committed, never rendered, never sent anywhere:
+
+- Names of either traveller, or of anyone else
+- Email addresses, phone numbers, postal addresses
+- Card numbers, payment identifiers, booking reference or confirmation numbers
+- Order numbers, loyalty identifiers, anything that indexes back to an account
+
+The two travellers are **A** and **B** throughout. The mapping from names to
+labels lives in `names.local.txt`, which is gitignored, and `extract.py` applies
+it at read time so the dataset is anonymous from the first write. If that file
+is absent the names simply pass through, so its absence is a bug, not a silent
+success. Check the dataset after any extraction change.
+
+Trip expenses, property names, dates, durations and prices are fine. A hotel's
+own address is a business address and is fine. The guest name on the same
+confirmation is not.
+
+When a source document carries identifying material, say so in the reply rather
+than silently dropping it, so the person knows what was in the file they sent.
+
+To audit: `git grep -ilE '<names>' -- .` plus a scan for email, phone and
+confirmation-number shapes. Note that **commits before ffd3a2d carry a real name
+and address in their authorship**, which rewriting history would be needed to
+remove.
+
+`source/` holds the original workbook and itinerary and must be removed before
+the repo is ever made public. The repo is private and holds sixteen days of
+personal financial data.

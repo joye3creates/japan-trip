@@ -265,7 +265,7 @@ def main():
     food=[r for r in rows if r["category"]=="food" and r["item"]]
     trip={
       "name":"Japan","start":"2025-11-15","end":"2025-11-30","days_count":16,
-      "travellers":["Joyee","Ananya"],
+      "travellers":2,"traveller_labels":["A","B"],
       "currency":"JPY","report_currency":"INR","rate":RATE,
       "prepaid_inr":{"Flights":80000,"Accommodation":100000,"JR passes":67700,
                      "Pre-booked transport":29017},

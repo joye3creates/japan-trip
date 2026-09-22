@@ -3,29 +3,29 @@
 ### Day 1 | 16th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-A2='Joyee suica' | C2=5500.0 | G2='Utilities' | H2='Suica card deposit' | I2=1000.0 | J2='Cash' | K2='Joyee'
-A3='Ananya suica' | C3=5500.0 | H3='suica card top up' | J3='Cash' | K3='Joyee' | L3='110000-5500each card'
-J4='Cash' | K4='joyee'
-J5='Cash' | K5='joyee'
+A2='A suica' | C2=5500.0 | G2='Utilities' | H2='Suica card deposit' | I2=1000.0 | J2='Cash' | K2='A'
+A3='B suica' | C3=5500.0 | H3='suica card top up' | J3='Cash' | K3='A' | L3='110000-5500each card'
+J4='Cash' | K4='A'
+J5='Cash' | K5='A'
 G16='Entertainment'
 B25='Category' | C25='Total'
 B26='Utilities' | C26=1000
 B27='Experiences' | C27=0
 B28='Food + coffee + water' | C28=10603
-B29='Travel' | C29=4080 | G29='Food' | H29='lawson' | I29=490.0 | J29='joyee suica' | K29='joyee'
-B30='misc' | H30='coffee ' | I30=410.0 | J30='joyee suica' | K30='joyee'
-H31=datetime.datetime(2025, 7, 11, 0, 0) | I31=3278.0 | J31='mom cash' | K31='joyee'
-B32='Shopping' | C32=8219 | H32='totori puffs and cookies' | I32=1940.0 | J32='cash' | K32='joyee'
-B33='Gift' | C33=0 | H33='lunch' | I33=4235.0 | J33='cash' | K33='joyee'
+B29='Travel' | C29=4080 | G29='Food' | H29='lawson' | I29=490.0 | J29='A suica' | K29='A'
+B30='misc' | H30='coffee ' | I30=410.0 | J30='A suica' | K30='A'
+H31=datetime.datetime(2025, 7, 11, 0, 0) | I31=3278.0 | J31='B cash' | K31='A'
+B32='Shopping' | C32=8219 | H32='totori puffs and cookies' | I32=1940.0 | J32='cash' | K32='A'
+B33='Gift' | C33=0 | H33='lunch' | I33=4235.0 | J33='cash' | K33='A'
 H34='water at matsumoto' | I34=150.0
 H35='water vending machine ' | I35=100.0
 B36='Total' | C36=23902
 B37='wo shopping/gifts' | C37=15683
 B43='Step count'
-G44='Travel' | H44='limo bus' | I44=2800.0 | J44='suica equal' | K44='joyee, ananya equal'
+G44='Travel' | H44='limo bus' | I44=2800.0 | J44='suica equal' | K44='A, B equal'
 H45='train to totoro cafe both ways' | I45=920.0 | J45='suica equal'
 H46='harajuku to Shinjuku ' | I46=360.0 | J46='suica equal'
-G61='Shopping ' | H61='uniqlo' | I61=8219.0 | J61='mom neo card' | K61='ananya' | L61=4060.0
+G61='Shopping ' | H61='uniqlo' | I61=8219.0 | J61='B neo card' | K61='B' | L61=4060.0
 G79='Gifts'
 G94='Misc'
 
@@ -33,9 +33,9 @@ G94='Misc'
 ### Day 2 | 17th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-A2='Joyee' | G2='Utilities' | I2=0.0 | K2='Joyee'
-A3='Ananya' | K3='Ananya'
-B15='Joyee suica card top up ' | C15=1000.0
+A2='A' | G2='Utilities' | I2=0.0 | K2='A'
+A3='B' | K3='B'
+B15='A suica card top up ' | C15=1000.0
 G16='Entertainment' | H16='sake tasting at ide' | I16=825.0 | J16='Cash'
 B23='Category' | C23='Total'
 B24='Utilities' | C24=0
@@ -43,18 +43,18 @@ B25='Experiences' | C25=825
 B26='Food + coffee + water' | C26=7055
 B27='Travel' | C27=6140
 B28='misc'
-G29='Food' | H29='Coffee Shinjuku station ' | I29=140.0 | J29='cash' | K29='joyee'
-B30='Shopping' | C30=3083 | H30='lunch @ fare' | I30=2300.0 | J30='cash' | K30='joyee '
-B31='Gift' | C31=0 | H31='peach ice cream' | I31=400.0 | J31='cash' | K31='joyee'
-H32='hoto fudo' | I32=3190.0 | J32='cash' | K32='joyee'
-H33='lawson' | I33=1025.0 | J33='cash' | K33='joyee'
+G29='Food' | H29='Coffee Shinjuku station ' | I29=140.0 | J29='cash' | K29='A'
+B30='Shopping' | C30=3083 | H30='lunch @ fare' | I30=2300.0 | J30='cash' | K30='A '
+B31='Gift' | C31=0 | H31='peach ice cream' | I31=400.0 | J31='cash' | K31='A'
+H32='hoto fudo' | I32=3190.0 | J32='cash' | K32='A'
+H33='lawson' | I33=1025.0 | J33='cash' | K33='A'
 B34='Total' | C34=17103
 B35='wo shopping/gifts' | C35=14020
 B43='Step count'
 G44='Travel' | H44='Base fare Fuji limited exp' | I44=5000.0 | J44='suica' | K44='2500 each - check '
 H45='bus travel red line' | I45=1140.0 | J45='suica' | K45='570 each '
 G61='Shopping ' | H61='Fuji coin souviner' | I61=400.0 | J61='cash' | K61='200 each'
-H62='sake' | I62=2683.0 | J62='mom neo' | K62='JOYEE only'
+H62='sake' | I62=2683.0 | J62='B neo' | K62='A only'
 G79='Gifts'
 G94='Misc'
 
@@ -62,19 +62,19 @@ G94='Misc'
 ### Day 3 | 18th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-A2='Joyee' | G2='Utilities' | H2='umbrella ' | I2=1400.0 | K2='Joyee'
-A3='Ananya' | K3='Ananya'
-B15='joyee suica top up ' | C15=5000.0
-B16='mom suica top up ' | C16=5000.0 | G16='Entertainment' | H16='kodaiji entrance fee' | I16=1200.0 | K16='joyee'
+A2='A' | G2='Utilities' | H2='umbrella ' | I2=1400.0 | K2='A'
+A3='B' | K3='B'
+B15='A suica top up ' | C15=5000.0
+B16='B suica top up ' | C16=5000.0 | G16='Entertainment' | H16='kodaiji entrance fee' | I16=1200.0 | K16='A'
 B25='Category' | C25='Total'
 B26='Utilities' | C26=1400
 B27='Experiences' | C27=1200
 B28='Food + coffee + water' | C28=5951
-B29='Travel' | C29=2060 | G29='Food' | H29='coffee vending machine ' | I29=140.0 | J29='joyee cash '
-B30='misc' | H30='shinkansen coffee' | I30=400.0 | J30='mom cash'
-H31='plusta combini' | I31=1000.0 | J31='joyee ic'
-B32='Shopping' | C32=0 | H32='lawson' | I32=1411.0 | J32='mom ic'
-B33='Gift' | C33=0 | H33='omoniyaki store' | I33=3000.0 | J33='joyee cash'
+B29='Travel' | C29=2060 | G29='Food' | H29='coffee vending machine ' | I29=140.0 | J29='A cash '
+B30='misc' | H30='shinkansen coffee' | I30=400.0 | J30='B cash'
+H31='plusta combini' | I31=1000.0 | J31='A ic'
+B32='Shopping' | C32=0 | H32='lawson' | I32=1411.0 | J32='B ic'
+B33='Gift' | C33=0 | H33='omoniyaki store' | I33=3000.0 | J33='A cash'
 B36='Total' | C36=10611
 B37='wo shopping/gifts' | C37=10611
 B43='Step count'
@@ -89,8 +89,8 @@ G94='Misc'
 ### Day 4 | 19th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-G2='Utilities' | K2='Joyee'
-A3='Ananya' | C3=10000.0 | K3='Ananya'
+G2='Utilities' | K2='A'
+A3='B' | C3=10000.0 | K3='B'
 G16='Entertainment' | H16='temple entrance fee' | I16=600.0 | K16='cash '
 B17='taxes tba for atm withdrawal '
 B25='Category' | C25='Total'
@@ -106,7 +106,7 @@ B36='Total' | C36=8884
 B37='wo shopping/gifts' | C37=7684
 B43='Step count'
 G44='Travel'
-G61='Shopping ' | H61='joyee ceramic' | I61=400.0 | J61='joyee cash'
+G61='Shopping ' | H61='A ceramic' | I61=400.0 | J61='A cash'
 G79='Gifts' | H79='uji biscuits ' | I79=800.0 | J79='cash'
 G94='Misc'
 
@@ -114,27 +114,27 @@ G94='Misc'
 ### Day 6 | 19th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-G2='Utilities' | K2='Joyee'
-A3='Ananya' | K3='Ananya'
+G2='Utilities' | K2='A'
+A3='B' | K3='B'
 G16='Entertainment'
 B17='taxes tba for atm withdrawal '
-B18='joyee suica fill 5000'
+B18='A suica fill 5000'
 B23='Category' | C23='Total'
 B24='Utilities' | C24=0
 B25='Experiences' | C25=0
 B26='Food + coffee + water' | C26=7663
 B27='Travel' | C27=4000
 B28='misc'
-G29='Food' | H29='lawson breakfast' | I29=1990.0 | J29='mom suica'
+G29='Food' | H29='lawson breakfast' | I29=1990.0 | J29='B suica'
 B30='Shopping' | C30=2830 | H30='coffee/beer ' | I30=880.0
 B31='Gift' | C31=0 | H31='lunch at aso' | I31=2400.0 | J31='neo card'
-H32='ice cream at aso ' | I32=900.0 | J32='cash mom'
-H33='ice cream joyee treat' | I33=450.0 | J33='cash mom'
-B34='Total' | C34=14493 | H34='dinner from 7/11' | I34=1043.0 | J34='joyee suica' | K34='check'
+H32='ice cream at aso ' | I32=900.0 | J32='cash B'
+H33='ice cream A treat' | I33=450.0 | J33='cash B'
+B34='Total' | C34=14493 | H34='dinner from 7/11' | I34=1043.0 | J34='A suica' | K34='check'
 B35='wo shopping/gifts' | C35=11663
 B43='Step count'
-G44='Travel' | H44='ticket for bus' | I44=4000.0 | J44='mom cash'
-G61='Shopping ' | H61='joyee shopping mostly at aso' | I61=2830.0 | J61='forex card'
+G44='Travel' | H44='ticket for bus' | I44=4000.0 | J44='B cash'
+G61='Shopping ' | H61='A shopping mostly at aso' | I61=2830.0 | J61='forex card'
 G79='Gifts'
 G94='Misc'
 
@@ -142,9 +142,9 @@ G94='Misc'
 ### Day 7 | 19th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-G2='Utilities' | H2='hotel Osaka tax' | I2=880.0 | J2='Cash' | K2='Joyee'
-A3='Ananya' | K3='Ananya'
-G16='Entertainment' | H16='all tickets for hells of beppu' | I16=4800.0 | K16='mom cash'
+G2='Utilities' | H2='hotel Osaka tax' | I2=880.0 | J2='Cash' | K2='A'
+A3='B' | K3='B'
+G16='Entertainment' | H16='all tickets for hells of beppu' | I16=4800.0 | K16='B cash'
 B17='taxes tba for atm withdrawal '
 B23='Category' | C23='Total'
 B24='Utilities' | C24=880
@@ -152,17 +152,17 @@ B25='Experiences' | C25=4800
 B26='Food + coffee + water' | C26=6240
 B27='Travel' | C27=2480
 B28='misc'
-G29='Food' | H29='water' | I29=120.0 | K29='joyee cash'
-B30='Shopping' | C30=440 | H30='brunch breads from beppu station little mermaid ' | I30=1990.0 | J30='joyee cash'
-B31='Gift' | C31=0 | H31='unl rikoriluko cheesecake ' | I31=1065.0 | J31='mom neo card'
-H32='dinner at dotonbori' | I32=3065.0 | J32='mom neo card'
+G29='Food' | H29='water' | I29=120.0 | K29='A cash'
+B30='Shopping' | C30=440 | H30='brunch breads from beppu station little mermaid ' | I30=1990.0 | J30='A cash'
+B31='Gift' | C31=0 | H31='unl rikoriluko cheesecake ' | I31=1065.0 | J31='B neo card'
+H32='dinner at dotonbori' | I32=3065.0 | J32='B neo card'
 B34='Total' | C34=14840
 B35='wo shopping/gifts' | C35=14400
 B39='Remaining' | C39=0
 B43='Step count'
 G44='Travel' | H44='bus to & fro both beppu' | I44=1600.0 | K44='indv suica'
 H45='shinshaibashi to & fro' | I45=880.0 | K45='indv suica'
-G61='Shopping ' | H61='joyee onsen charm' | I61=440.0 | K61='joyee suica'
+G61='Shopping ' | H61='A onsen charm' | I61=440.0 | K61='A suica'
 G79='Gifts'
 G94='Misc'
 
@@ -170,10 +170,10 @@ G94='Misc'
 ### Day 8 | 19th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-G2='Utilities' | H2='bandages+ body lotion' | I2=500.0 | K2='mom suica'
-A3='Ananya' | H3='laundry+dryer' | I3=400.0 | K3='joyee cash'
-B14='mom ithdrew 10000 on neo'
-G16='Entertainment' | H16='entry ticket at katsouji ' | I16=1000.0 | K16='joyee forex'
+G2='Utilities' | H2='bandages+ body lotion' | I2=500.0 | K2='B suica'
+A3='B' | H3='laundry+dryer' | I3=400.0 | K3='A cash'
+B14='B ithdrew 10000 on neo'
+G16='Entertainment' | H16='entry ticket at katsouji ' | I16=1000.0 | K16='A forex'
 B17='taxes tba for atm withdrawal '
 B23='Category' | C23='Total'
 B24='Utilities' | C24=900
@@ -181,11 +181,11 @@ B25='Experiences' | C25=1000
 B26='Food + coffee + water' | C26=6140
 B27='Travel' | C27=6120
 B28='misc'
-G29='Food' | H29='water' | I29=140.0 | J29='joyee cash'
+G29='Food' | H29='water' | I29=140.0 | J29='A cash'
 B30='Shopping' | C30=4990 | H30='lunch at Osaka station ' | I30=3100.0 | J30='neo card'
-B31='Gift' | C31=0 | H31='mochi at nara' | I31=300.0 | J31='joyee cash'
-H32='coffee & water at 7/11 ' | I32=500.0 | J32='mom suica'
-H33='family mart dinner etc.' | I33=2100.0 | J33='mom suica'
+B31='Gift' | C31=0 | H31='mochi at nara' | I31=300.0 | J31='A cash'
+H32='coffee & water at 7/11 ' | I32=500.0 | J32='B suica'
+H33='family mart dinner etc.' | I33=2100.0 | J33='B suica'
 B34='Total' | C34=19150
 B35='wo shopping/gifts' | C35=14160
 B39='Remaining' | C39=0
@@ -203,7 +203,7 @@ G94='Misc'
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
 G2='Utilities'
-B15='joyee withdrew 5000 yen'
+B15='A withdrew 5000 yen'
 G16='Entertainment' | H16='kenroken arden entry' | I16=640.0 | K16='neo card'
 B23='Category' | C23='Total'
 B24='Utilities' | C24=0
@@ -211,10 +211,10 @@ B25='Experiences' | C25=640
 B26='Food + coffee + water' | C26=9715
 B27='Travel' | C27=2600
 B28='misc'
-G29='Food' | H29='omikochi market lunch' | I29=4625.0 | J29='mom/joyee cash'
+G29='Food' | H29='omikochi market lunch' | I29=4625.0 | J29='B/A cash'
 B30='Shopping' | C30=0 | H30='water/coffee at aeon' | I30=350.0 | J30='cash'
 B31='Gift' | C31=0 | H31='morning 7/11 coffee/smoothie' | I31=675.0 | J31='cash '
-H32='dinner ' | I32=4065.0 | K32='mom will pay'
+H32='dinner ' | I32=4065.0 | K32='B will pay'
 B34='Total' | C34=12955
 B35='wo shopping/gifts' | C35=12955
 B39='Remaining' | C39=0
@@ -230,8 +230,8 @@ G94='Misc'
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
 G2='Utilities'
-B15='joyee withdrew 10000 yen'
-B16='mom withdrew 20000 yen ' | G16='Entertainment' | H16='kanda house entrance ' | I16=800.0 | J16='Cash'
+B15='A withdrew 10000 yen'
+B16='B withdrew 20000 yen ' | G16='Entertainment' | H16='kanda house entrance ' | I16=800.0 | J16='Cash'
 B23='Category' | C23='Total'
 B24='Utilities' | C24=0
 B25='Experiences' | C25=800
@@ -250,9 +250,9 @@ B39='Remaining' | C39=0
 B43='Step count'
 G44='Travel' | H44='matsumoto trip tix' | I44=8140.0 | J44='cash'
 G61='Shopping ' | H61='mochi' | I61=290.0 | J61='neo card'
-H62='Pokemon centre' | I62=3681.0 | J62='forex' | K62='joyee only'
-H63='uniqlo' | I63=9325.0 | J63='neo' | K63='joyee 2980'
-H64='abc converse' | I64=5990.0 | J64='forex' | K64='joyee only'
+H62='Pokemon centre' | I62=3681.0 | J62='forex' | K62='A only'
+H63='uniqlo' | I63=9325.0 | J63='neo' | K63='A 2980'
+H64='abc converse' | I64=5990.0 | J64='forex' | K64='A only'
 H65='beauty7/11' | I65=1125.0 | J65='cash'
 G79='Gifts'
 G94='Misc'
@@ -305,7 +305,7 @@ B39='Remaining' | C39=0
 B43='Step count'
 G44='Travel' | H44='yurikamome ' | I44=780.0 | J44='suica ind'
 H45='metros' | I45=600.0 | J45='suica ind'
-G61='Shopping ' | H61='gachan ' | I61=700.0 | J61='cash' | K61='joyee'
+G61='Shopping ' | H61='gachan ' | I61=700.0 | J61='cash' | K61='A'
 G79='Gifts'
 G94='Misc'
 
@@ -333,9 +333,9 @@ B39='Remaining' | C39=0
 B43='Step count'
 G44='Travel' | H44='kanazawa' | I44=1900.0 | J44='suica'
 H45='kanazawa train' | I45=640.0 | J45='suica'
-G61='Shopping ' | H61='ceramic holder ' | I61=200.0 | J61='cash' | K61='joyee'
+G61='Shopping ' | H61='ceramic holder ' | I61=200.0 | J61='cash' | K61='A'
 H62='donquijito' | I62=36000.0 | J62='forex'
-G79='Gifts' | H79='cup ramen' | I79=1050.0 | J79='mom neo' | K79='mom side'
+G79='Gifts' | H79='cup ramen' | I79=1050.0 | J79='B neo' | K79='B side'
 G94='Misc'
 
 ========================================================================
@@ -361,10 +361,10 @@ B39='Remaining' | C39=0
 B43='Step count'
 G44='Travel' | H44='asakusa metro' | I44=360.0
 H45='ginza metro from sky tower' | I45=440.0
-G61='Shopping ' | H61='yoroshi cosmetics ' | I61=5545.0 | J61='neo' | K61='joyee 1100'
-H62='hands' | I62=1400.0 | J62='cash' | K62='joyee only'
+G61='Shopping ' | H61='yoroshi cosmetics ' | I61=5545.0 | J61='neo' | K61='A 1100'
+H62='hands' | I62=1400.0 | J62='cash' | K62='A only'
 H63='itoya' | I63=5400.0 | J63='neo'
-H64='ghibli' | I64=3190.0 | J64='forex' | K64='joyee only'
+H64='ghibli' | I64=3190.0 | J64='forex' | K64='A only'
 H65='matsumoto kiyoshi' | I65=19300.0 | J65='neo'
 H66='lawson home gifts + food' | I66=5135.0 | J66='suica + cash'
 H67='100 yen shop ' | I67=1450.0 | J67='suica'
@@ -390,7 +390,7 @@ H31='sandwich' | I31=720.0 | J31='cash'
 B33='Total' | C33=5737
 B34='wo shopping/gifts' | C34=3717
 B43='Step count'
-G44='Travel' | H44='uber delhi to home' | I44=1817.0 | J44='cash - mom'
+G44='Travel' | H44='uber delhi to home' | I44=1817.0 | J44='cash - B'
 G61='Shopping '
 G79='Gifts' | H79='duty free sweets' | I79=2020.0 | J79='cash'
 G94='Misc'
@@ -399,8 +399,8 @@ G94='Misc'
 ### Day 5 | 20th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-A2='Joyee' | C2=10000.0 | G2='Utilities' | H2='coin locker' | I2=1500.0 | J2='Cash' | K2='Joyee'
-A3='Ananya' | C3=10000.0 | H3='cable ' | I3=1050.0 | K3='suica jpyee'
+A2='A' | C2=10000.0 | G2='Utilities' | H2='coin locker' | I2=1500.0 | J2='Cash' | K2='A'
+A3='B' | C3=10000.0 | H3='cable ' | I3=1050.0 | K3='suica jpyee'
 G16='Entertainment'
 B18='taxes to be added for atm cash withdrawal '
 B23='Category' | C23='Total'
@@ -413,13 +413,13 @@ G29='Food' | H29='breakfast at Hiroshima station ' | J29='suica'
 B30='Shopping' | C30=400 | H30='oyster bbq' | I30=400.0 | J30='cash'
 B31='Gift' | C31=0 | H31='oyster bun + donut' | I31=1000.0 | J31='cash'
 H32='momiji manju cake ' | I32=130.0 | J32='cash'
-H33='lawson (water + coffee)' | I33=531.0 | J33='suica mom'
-B34='Total' | C34=7736 | H34='lawson coffee' | I34=165.0 | J34='suica joyee'
+H33='lawson (water + coffee)' | I33=531.0 | J33='suica B'
+B34='Total' | C34=7736 | H34='lawson coffee' | I34=165.0 | J34='suica A'
 B35='wo shopping/gifts' | C35=7336 | H35='donut dinner food' | I35=1880.0 | J35='cash'
 B43='Step count'
-G44='Travel' | H44='visitor tax kr ferry' | I44=200.0 | J44='suica joyee'
+G44='Travel' | H44='visitor tax kr ferry' | I44=200.0 | J44='suica A'
 H45='train/tram miyajama i hiroshima' | I45=480.0 | J45='suica ind'
-G61='Shopping ' | H61='pokemon coins' | I61=400.0 | J61='joyee cash'
+G61='Shopping ' | H61='pokemon coins' | I61=400.0 | J61='A cash'
 G79='Gifts'
 G94='Misc'
 
@@ -427,15 +427,15 @@ G94='Misc'
 ### Day 0 | 15th Nov25
 ========================================================================
 C1='Cash' | D1='Card' | F1='Date' | G1='Category' | H1='Item' | I1='Expense' | J1='Mode of payment' | K1='Paid By'
-A2='Joyee' | G2='Utilities' | H2='Cab to airport ' | I2=405.0 | J2='Gpay' | K2='Joyee'
-A3='Ananya' | H3='printouts ' | I3=290.0 | J3='Gpay' | K3='Joyee'
+A2='A' | G2='Utilities' | H2='Cab to airport ' | I2=405.0 | J2='Gpay' | K2='A'
+A3='B' | H3='printouts ' | I3=290.0 | J3='Gpay' | K3='A'
 G16='Entertainment'
 B23='Category' | C23='Total'
 B25='Shopping' | C25=0
 B26='Utilities' | C26=1795
 B27='Entertainment ' | C27=0
 B28='Outside food' | C28=0
-B29='Gift' | C29=0 | G29='Food' | H29='Airport sar & spice - coffee + sandwich ' | I29=1100.0 | J29='gpay' | K29='Joyee'
+B29='Gift' | C29=0 | G29='Food' | H29='Airport sar & spice - coffee + sandwich ' | I29=1100.0 | J29='gpay' | K29='A'
 B30='Health Gen.' | C30=0
 B31='business' | C31=0
 B32='Travel' | C32=0

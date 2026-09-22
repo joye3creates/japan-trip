@@ -8,3 +8,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Traveller names, kept out of version control
+names.local.txt

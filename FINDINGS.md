@@ -2,7 +2,7 @@
 
 ## The trip
 
-**15 to 30 November 2025, 16 days (Day 0 to Day 15), two travellers: Joyee and Ananya.**
+**15 to 30 November 2025, 16 days (Day 0 to Day 15), two travellers: the two travellers.**
 
 Route from the itinerary PDF:
 
