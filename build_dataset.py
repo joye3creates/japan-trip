@@ -102,6 +102,11 @@ STAYS = [
  {"place":"vista-kanazawa","name":"Hotel Vista Kanazawa","source":"Booking.com",
   "check_in":"2025-11-24","check_out":"2025-11-26","nights":2,"inr":11267.00,"jpy":16840,
   "address":"Hirooka 2-13-27, Kanazawa","status":"stayed"},
+ {"place":"vista-kanazawa","name":"Hotel Vista Kanazawa, third night","source":"not yet supplied",
+  "check_in":"2025-11-26","check_out":"2025-11-27","nights":1,"inr":None,"jpy":None,
+  "address":"Hirooka 2-13-27, Kanazawa","status":"stayed",
+  "note":"Taken instead of the cancelled Nagano booking. The night is known, the "
+         "price is not, so no figure is asserted for it."},
  {"place":"chisun-nagano","name":"Chisun Grand Nagano","source":"Expedia",
   "check_in":"2025-11-26","check_out":"2025-11-27","nights":1,"inr":5440.17,"jpy":None,
   "address":"2-17-1 Minami Chitose, Nagano","status":"not used",
@@ -193,7 +198,7 @@ def main():
 
     # --- stays become a category of their own, converted per night and flagged
     for st in STAYS:
-        if st["status"]!="stayed": continue
+        if st["status"]!="stayed" or not (st.get("jpy") or st.get("inr")): continue
         per=(st["jpy"]/st["nights"]) if st.get("jpy") else (st["inr"]/st["nights"]/RATE)
         start=int(st["check_in"][-2:])-15
         for n in range(st["nights"]):
@@ -256,7 +261,8 @@ def main():
       "jr_pass":{"inr":JR_PASS_INR,"rides_covered":len(covered),
                  "per_ride_jpy":share_jpy,"assumed":"covers both travellers"},
       "stays_documented_nights":sum(x["nights"] for x in STAYS if x["status"]=="stayed"),
-      "stays_documented_inr":round(sum(x["inr"] for x in STAYS if x["status"]=="stayed"),2),
+      "stays_priced_nights":sum(x["nights"] for x in STAYS if x["status"]=="stayed" and (x.get("inr") or x.get("jpy"))),
+      "stays_documented_inr":round(sum(x["inr"] for x in STAYS if x["status"]=="stayed" and x.get("inr")),2),
       "open_questions":OPEN_QUESTIONS,
     }
     out={"trip":trip,"places":list(places.values()),"days":days,"entries":rows,"stays":STAYS,
