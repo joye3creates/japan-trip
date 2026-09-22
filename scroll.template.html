@@ -1,0 +1,239 @@
+<title>Sixteen Days, Counted</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#E8DCC0; --paper-2:#DFD0AE; --paper-3:#D4C39C;
+  --sea:#BAC6C1; --land:#D9C7A2; --land-v:#C3A778;
+  --ink:#3B2F23; --ink-2:#6B5B47; --ink-3:#92836C;
+  --verm:#A83A2B; --verm-2:#8A2E22;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Spectral",Georgia,serif;font-size:14px;line-height:1.55}
+.jp{font-family:"Shippori Mincho","Yu Mincho",serif}
+
+/* sticky graphic with steps scrolling over it */
+.scrolly{position:relative;max-width:1400px;margin:0 auto;padding-inline:16px;
+  display:grid;grid-template-columns:350px minmax(0,1fr);gap:24px;align-items:start}
+@media(max-width:900px){.scrolly{grid-template-columns:1fr}}
+.sticky{grid-column:2;grid-row:1;position:sticky;top:env(safe-area-inset-top,0px);
+  height:100vh;display:flex;align-items:center;justify-content:center}
+@media(max-width:900px){.sticky{grid-column:1;grid-row:1}}
+#stage{display:block;width:100%;height:92vh}
+.steps{grid-column:1;grid-row:1;position:relative;z-index:3;pointer-events:none}
+@media(max-width:900px){.steps{grid-column:1;grid-row:1;margin-top:-100vh}}
+.step{min-height:96vh;display:flex;align-items:center;
+  justify-content:flex-start;padding-block:10vh}
+.step .card{
+  pointer-events:auto;max-width:330px;background:var(--paper);
+  border:1px solid var(--ink);padding:15px 17px;
+  box-shadow:5px 5px 0 rgba(59,47,35,.13);opacity:.35;transition:opacity .4s}
+.step.on .card{opacity:1}
+.step .n{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--verm)}
+.step h2{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;margin:4px 0 7px}
+.step p{margin:0;font-size:13px;color:var(--ink-2)}
+.step p+p{margin-top:7px}
+.lede{max-width:600px;margin:0 auto;padding:12vh 16px 4vh;text-align:center}
+.lede h1{font-family:"Shippori Mincho",serif;font-size:32px;font-weight:800;letter-spacing:.04em}
+.lede p{color:var(--ink-2)}
+.tail{max-width:640px;margin:0 auto;padding:6vh 16px 12vh;color:var(--ink-3);font-size:11.5px}
+.tail p{margin:0 0 6px}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+
+<div class="lede">
+  <div class="jp" style="font-size:13px;letter-spacing:.4em;color:var(--verm)">現勢図</div>
+  <h1>Sixteen Days, Counted</h1>
+  <p>Every yen spent between Tokyo and Kyushu, 15 to 30 November 2025.
+     Scroll to watch the country become the ledger.</p>
+</div>
+
+<div class="scrolly">
+  <div class="sticky"><svg id="stage" role="img"
+    aria-label="A map of Japan whose marks resolve into a chart of daily spending"></svg></div>
+  <div class="steps" id="steps"></div>
+</div>
+
+<div class="tail">
+  <p><b>Scale.</b> Position is price on a logarithmic axis. Individual purchases run from
+  &yen;100 to &yen;36,000, a range of 360 to one, and on a straight axis 89% of every mark
+  would pile into the leftmost tenth of the page. Log spreads them. A mark twice as far
+  right is not twice the price; read the axis.</p>
+  <p><b>Still missing.</b> Thirteen of sixteen nights have no accommodation record. Steps,
+  photographs and the handwritten notes are pending. Nothing here is invented to fill a gap.</p>
+</div>
+
+<script>
+const GEO=/*__GEO__*/, DATA=/*__TRIP_DATA__*/;
+const $=(s,r=document)=>r.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
+const el=(t,a={})=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n;};
+const svg=$("#stage");
+const W=1180,H=760;
+svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+svg.setAttribute("preserveAspectRatio","xMidYMid meet");
+
+const RATE=DATA.trip.rate;
+const yen=v=>"¥"+Math.round(v).toLocaleString("en-US");
+const PL=Object.fromEntries(DATA.places.map(p=>[p.id,p]));
+const CATS=DATA.trip.categories;
+const CATLBL={food:"Food",shopping:"Shopping",travel:"Transport",experiences:"Experiences",
+  utilities:"Utilities",gifts:"Gifts",stays:"Stays"};
+const JA=["印度","東京","富士","京都","宇治","広島","阿蘇","大阪","奈良","金沢","白川郷","金沢","東京","鎌倉","浅草","帰国"];
+const rows=DATA.entries.filter(r=>r.amount&&r.currency==="JPY"&&r.place_id);
+
+/* ---------- map projection ---------- */
+const merc=la=>57.29578*Math.log(Math.tan(Math.PI/4+la*Math.PI/360));
+let lo=[999,-999],la=[999,-999];
+GEO.forEach(p=>p.r.forEach(r=>r.forEach(([x,y])=>{
+  lo[0]=Math.min(lo[0],x);lo[1]=Math.max(lo[1],x);
+  la[0]=Math.min(la[0],merc(y));la[1]=Math.max(la[1],merc(y));})));
+const MS=Math.min(W/(lo[1]-lo[0]),H/(la[1]-la[0]))*0.94;
+const MX=v=>(v-lo[0])*MS+(W-(lo[1]-lo[0])*MS)/2;
+const MY=v=>H-((merc(v)-la[0])*MS)-(H-(la[1]-la[0])*MS)/2;
+
+/* ---------- chart layout: one lane per day ---------- */
+const L=150, R=W-70, TOP=64, LANE=39;
+const vals=rows.map(r=>r.amount);
+const lo10=Math.log10(Math.min(...vals)), hi10=Math.log10(Math.max(...vals));
+const X=v=>L+(Math.log10(v)-lo10)/(hi10-lo10)*(R-L);
+const laneY=i=>TOP+i*LANE+LANE/2;
+// deterministic jitter so a mark keeps its slot between renders
+const jit=(r,i)=>((r.day_index*37+i*17+r.amount)%13-6)*1.5;
+
+/* ---------- icons: identity by shape, not colour ---------- */
+function glyph(cat,mode){
+  const g=el("g");
+  const add=(t,a)=>{g.append(el(t,a));};
+  if(cat==="food"){ add("circle",{r:4.4,fill:"none",stroke:"currentColor","stroke-width":1.5});
+                    add("circle",{r:1.3,fill:"currentColor"}); }
+  else if(cat==="shopping"){ add("path",{d:"M-4,-2 L4,-2 L3,4.5 L-3,4.5 Z",fill:"none",stroke:"currentColor","stroke-width":1.5});
+                    add("path",{d:"M-2,-2 A2,2.6 0 0 1 2,-2",fill:"none",stroke:"currentColor","stroke-width":1.3}); }
+  else if(cat==="travel"){
+    if(mode==="shinkansen") add("path",{d:"M-6,2 L-1,-3 L6,-3 L6,2 Z",fill:"none",stroke:"currentColor","stroke-width":1.5});
+    else if(mode==="ferry") add("path",{d:"M-5,1 L5,1 L3,4 L-3,4 Z M0,1 L0,-4",fill:"none",stroke:"currentColor","stroke-width":1.4});
+    else if(mode==="bus")   add("rect",{x:-5,y:-3.5,width:10,height:7,rx:1.6,fill:"none",stroke:"currentColor","stroke-width":1.5});
+    else if(mode==="cycle"){add("circle",{cx:-3.4,cy:2,r:2.4,fill:"none",stroke:"currentColor","stroke-width":1.2});
+                            add("circle",{cx:3.4,cy:2,r:2.4,fill:"none",stroke:"currentColor","stroke-width":1.2});}
+    else if(mode==="walk")  add("path",{d:"M0,-4 L0,1 M0,1 L-2.5,4.5 M0,1 L2.5,4.5",fill:"none",stroke:"currentColor","stroke-width":1.4,"stroke-linecap":"round"});
+    else { add("rect",{x:-4.6,y:-4,width:9.2,height:6,rx:1,fill:"none",stroke:"currentColor","stroke-width":1.5});
+           add("path",{d:"M-3,2 L-3,4 M3,2 L3,4",stroke:"currentColor","stroke-width":1.3}); }
+  }
+  else if(cat==="experiences"){ add("path",{d:"M-5,-2 L5,-2 M-3.6,-2 L-3.6,4 M3.6,-2 L3.6,4 M-6,-4 L6,-4",
+                    fill:"none",stroke:"currentColor","stroke-width":1.4}); }
+  else if(cat==="utilities"){ add("rect",{x:-3.6,y:-3.6,width:7.2,height:7.2,fill:"none",stroke:"currentColor","stroke-width":1.5}); }
+  else if(cat==="gifts"){ add("rect",{x:-4,y:-2.4,width:8,height:6.4,fill:"none",stroke:"currentColor","stroke-width":1.4});
+                    add("path",{d:"M0,-2.4 L0,4 M-4,0 L4,0",stroke:"currentColor","stroke-width":1.1}); }
+  else if(cat==="stays"){ add("path",{d:"M-4.6,4 L-4.6,-1 L0,-4.4 L4.6,-1 L4.6,4 Z",fill:"none",stroke:"currentColor","stroke-width":1.5}); }
+  return g;
+}
+
+/* ---------- build the scene once; steps only re-position ---------- */
+const gLand=el("g"),gRoute=el("g"),gAxis=el("g",{opacity:0}),gMarks=el("g"),gNote=el("g",{opacity:0});
+svg.append(gLand,gRoute,gAxis,gMarks,gNote);
+gLand.append(el("rect",{x:0,y:0,width:W,height:H,fill:"var(--sea)"}));
+const pathOf=r=>"M"+r.map(([x,y])=>MX(x).toFixed(1)+","+MY(y).toFixed(1)).join("L")+"Z";
+GEO.forEach(p=>{
+  const d=p.r.map(pathOf).join(" ");
+  gLand.append(el("path",{d,fill:p.v?"var(--land-v)":"var(--land)",
+    transform:"translate(1.4,2)",opacity:p.v?.95:.85}));
+  gLand.append(el("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":.5,opacity:p.v?.7:.3}));
+});
+DATA.days.forEach(day=>day.legs.forEach(l=>{
+  const a=PL[l.from],b=PL[l.to]; if(!a||!b||a.city==="Delhi"||b.city==="Delhi")return;
+  const x1=MX(a.lng),y1=MY(a.lat),x2=MX(b.lng),y2=MY(b.lat);
+  gRoute.append(el("path",{d:`M${x1},${y1} Q${(x1+x2)/2-(y2-y1)*.07},${(y1+y2)/2+(x2-x1)*.07} ${x2},${y2}`,
+    fill:"none",stroke:"var(--verm)","stroke-width":1.5,opacity:.75,"stroke-linecap":"round"}));
+}));
+
+/* axis + lane rules, drawn hidden until the morph */
+[100,1000,10000].forEach(v=>{
+  gAxis.append(el("line",{x1:X(v),y1:TOP-14,x2:X(v),y2:TOP+16*LANE-8,
+    stroke:"var(--ink-3)","stroke-width":.7,"stroke-dasharray":"2 4",opacity:.6}));
+  const t=el("text",{x:X(v),y:TOP-20,"text-anchor":"middle","font-size":10.5,fill:"var(--ink-2)"});
+  t.textContent=yen(v); gAxis.append(t);
+});
+DATA.days.forEach((day,i)=>{
+  gAxis.append(el("line",{x1:L,y1:laneY(i),x2:R,y2:laneY(i),stroke:"var(--ink)","stroke-width":.6,opacity:.28}));
+  const n=el("text",{x:L-46,y:laneY(i)+4,"font-size":10,fill:"var(--ink-3)"});
+  n.textContent=String(i).padStart(2,"0");
+  const k=el("text",{x:L-34,y:laneY(i)+4.5,"font-size":13,fill:"var(--ink)",
+    "font-family":'"Shippori Mincho",serif'}); k.textContent=JA[i];
+  gAxis.append(n,k);
+});
+const medline=el("line",{x1:X(1000),y1:TOP-14,x2:X(1000),y2:TOP+16*LANE-8,
+  stroke:"var(--verm)","stroke-width":1.6,opacity:0});
+const medlbl=el("text",{x:X(1000),y:TOP+16*LANE+16,"text-anchor":"middle",
+  "font-size":10.5,fill:"var(--verm)",opacity:0});
+medlbl.textContent="typical purchase ¥1,000"; gNote.append(medline,medlbl); gNote.setAttribute("opacity",1);
+
+/* the marks: one per expense, alive from the first frame to the last */
+const marks=rows.map((r,i)=>{
+  const p=PL[r.place_id];
+  const g=el("g",{style:"color:var(--verm);transition:transform 1.5s cubic-bezier(.4,0,.2,1),opacity .8s"});
+  const dot=el("circle",{r:2.6,fill:"var(--verm)",opacity:.8});
+  const ic=glyph(r.category,r.mode_hint); ic.setAttribute("opacity","0");
+  ic.style.transition="opacity .7s";
+  g.append(dot,ic); g._dot=dot; g._ic=ic; g._r=r; g._i=i;
+  g.setAttribute("transform",`translate(${MX(p.lng)},${MY(p.lat)})`);
+  gMarks.append(g); return g;
+});
+function toMap(){marks.forEach(g=>{const p=PL[g._r.place_id];
+  g.style.transitionDelay=(g._i%20)*18+"ms";
+  g.setAttribute("transform",`translate(${MX(p.lng)},${MY(p.lat)})`);
+  g._ic.setAttribute("opacity","0"); g._dot.setAttribute("opacity",".8");});}
+function toChart(){marks.forEach(g=>{const r=g._r;
+  g.style.transitionDelay=(g._i%24)*22+"ms";
+  g.setAttribute("transform",`translate(${X(r.amount)},${laneY(r.day_index)+jit(r,g._i)})`);
+  g._ic.setAttribute("opacity","1"); g._dot.setAttribute("opacity","0");});}
+
+/* ---------- steps ---------- */
+const STEPS=[
+ {t:"The country",   b:["Sixteen days, from Tokyo down to Kyushu and back. Thirteen prefectures entered of forty-seven.",
+                        "Each mark is one thing bought, sitting where it was bought."]},
+ {t:"One mark, one purchase", b:["A hundred and fifty-three purchases, from a ¥100 vending machine bottle to a ¥36,000 evening in Don Quijote.",
+                        "They are about to leave the map and keep their identity."]},
+ {t:"The ledger",    b:["The land dissolves. Every mark travels to its day, and to its price along the axis.",
+                        "Nothing is created or destroyed in the transition. The same marks simply move."]},
+ {t:"What is typical",b:["The median purchase is ¥1,000. Half of everything bought on this trip cost less than that.",
+                        "The axis is logarithmic, so each gridline is ten times the last."]},
+ {t:"The two evenings",b:["Days 13 and 14 hold three quarters of their spending in a single category each.",
+                        "One drugstore run and one department store account for more than the whole first week."]},
+];
+$("#steps").innerHTML=STEPS.map((s,i)=>`<div class="step" data-i="${i}">
+  <div class="card"><div class="n">${String(i+1).padStart(2,"0")} / ${STEPS.length}</div>
+  <h2>${s.t}</h2>${s.b.map(p=>`<p>${p}</p>`).join("")}</div></div>`).join("");
+
+let cur=-1;
+function enter(i){
+  if(i===cur)return; cur=i;
+  if(i<=1){ toMap();
+    gLand.style.transition=gRoute.style.transition="opacity 1.2s";
+    gLand.setAttribute("opacity",1); gRoute.setAttribute("opacity",1);
+    gAxis.setAttribute("opacity",0); medline.setAttribute("opacity",0); medlbl.setAttribute("opacity",0);
+    marks.forEach(g=>g.setAttribute("opacity", i===0?.35:1));
+  } else {
+    marks.forEach(g=>g.setAttribute("opacity",1));
+    gLand.style.transition=gRoute.style.transition="opacity 1.4s";
+    gLand.setAttribute("opacity",0); gRoute.setAttribute("opacity",0);
+    gAxis.style.transition="opacity 1s"; gAxis.setAttribute("opacity",1);
+    toChart();
+    const on=i>=3?1:0;
+    medline.style.transition=medlbl.style.transition="opacity .8s";
+    medline.setAttribute("opacity",on?.85:0); medlbl.setAttribute("opacity",on?1:0);
+    marks.forEach(g=>{
+      const hot = i>=4 && (g._r.day_index===13||g._r.day_index===14);
+      g.style.color = i>=4 ? (hot?"var(--verm)":"var(--ink-3)") : "var(--verm)";
+      g._dot.setAttribute("fill", g.style.color);
+    });
+  }
+}
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ e.target.classList.add("on"); enter(+e.target.dataset.i); }
+  else e.target.classList.remove("on");
+}),{rootMargin:"-45% 0px -45% 0px"});
+document.querySelectorAll(".step").forEach(s=>io.observe(s));
+enter(0);
+</script>
