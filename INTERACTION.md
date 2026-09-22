@@ -15,7 +15,7 @@ as a crossfade, and it is borrowed directly from the Pudding's EU regions piece.
 
 | View | Horizontal axis | Default |
 |---|---|---|
-| **Clock** | 24 hours, in two-hour bands, one lane per day | yes |
+| **Clock** | 24 hours, in two-hour bands, one lane per day | yes, and the scroll lands here |
 | **Ledger** | price, logarithmic, one lane per day | toggle |
 
 The vertical axis never changes: one lane per day, sixteen lanes.
@@ -72,8 +72,10 @@ gesture as the lodging merge and should feel like the same idea.
 
 Hovering the pass mark then reveals what it absorbed.
 
-The flights behave identically: they appear on the clock at their departure
-times on day 0 and day 15, then collapse into the flight mark on the ledger.
+The flights behave identically. The outbound appears on the clock on day 0 and
+the return on day 15, at roughly the right hours rather than exactly, then both
+collapse into the flight mark on the ledger. Approximate is fine here; the point
+is that those two lanes hold a real event rather than sitting near-empty.
 
 ## Icons carry category, colour does not
 
@@ -97,10 +99,41 @@ distinguishable at a glance.
 - **Shopping and gifts are excluded at build time**, not hidden in the page, and
   the exclusion is stated where the totals are.
 
+## The two passes
+
+From the JRPass.com order of 27 October 2025, priced in yen so nothing is
+converted. The pass names match the SS and HA abbreviations in the itinerary's
+Pass column exactly, so the day ranges are read rather than guessed.
+
+| | Pass | Tickets, two adults | With fee share | Days |
+|---|---|---|---|---|
+| SS | Sanyo San'in Northern Kyushu | ¥52,000 | ¥54,268 | 18–23 Nov |
+| HA | Hokuriku Arch | ¥60,000 | ¥62,616 | 24–27 Nov |
+
+Booking fee and delivery came to ¥4,884 and are split between the two by ticket
+price. The total, ¥116,884, sits against ₹67,700 on the totals tab, an implied
+rate of 0.579 and a good check on the 0.57 used elsewhere.
+
+Both are seven-day passes. Sanyo San'in was used on six days and Hokuriku Arch on
+four, so neither was run to its full validity.
+
+**The per-ride figures are not yet trustworthy.** The reconstruction finds
+fourteen rides under Sanyo San'in and only two under Hokuriku Arch, which gives
+¥3,876 and ¥31,308 a ride. The second is obviously wrong: a pass bought to cross
+the country by the Hokuriku route was not used twice. The Kanazawa days are
+simply thin in the reconstructed leg list. The notes will fix it, and until they
+do these numbers are placeholders for testing the interaction, not findings.
+
+## Not in this repository
+
+The pass confirmation and the accommodation bookings carry a home address,
+personal email addresses and booking reference numbers. None of that is in the
+dataset or the page. Only property names, dates, durations and prices are.
+
 ## Still open
 
-1. Which pass covers which dates, and how the ₹67,700 splits between the two.
-2. Whether the scroll sequence lands on the clock or the ledger, with the toggle
-   as a control afterwards. Landing on the clock is the stronger story.
-3. Whether the day-0 flight and day-15 return flight appear on the clock at all,
-   or whether those two lanes stay near-empty.
+1. Which rides each pass actually covered, which decides the per-ride share.
+   Waiting on the notes.
+2. Whether the booking fee and delivery charge should be spread across rides at
+   all, or shown separately as the cost of buying the passes rather than of
+   travelling on them.

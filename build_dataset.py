@@ -11,14 +11,26 @@ RATE = 0.57          # INR per JPY, user-supplied trip average
 # dropped at build time rather than hidden in the page.
 EXCLUDE = {"shopping", "gifts"}
 
-# JR passes, in rupees, as recorded on the totals tab. Assumed to cover BOTH
-# travellers; if it turns out to be per person, double it here and nothing else
-# changes. Its cost is spread evenly across the rides it actually covered.
-JR_PASS_INR = 67700
-
-# Days on which a rail pass was active, from the Pass column of the itinerary:
-# SS covers 18-23 Nov (days 3-8), HA covers 24-27 Nov (days 9-12).
-PASS_DAYS = set(range(3, 13))
+# The two rail passes, from the JRPass.com order. Priced in yen on the
+# confirmation, so no conversion is needed. The booking fee and delivery charge
+# are split between them in proportion to their ticket price.
+#
+# The pass names match the SS and HA abbreviations in the Pass column of the
+# itinerary exactly, so the day ranges below are read from that rather than
+# assumed: Sanyo San'in covers 18-23 Nov, Hokuriku Arch covers 24-27 Nov.
+JR_FEES = 2600 + 2284
+PASSES = [
+ {"id":"ss","name":"Sanyo San'in Northern Kyushu Pass","abbr":"SS","days_valid":7,
+  "jpy_tickets":26000*2,"days":list(range(3,9)),
+  "covers":"Kansai through Sanyo and San'in to northern Kyushu"},
+ {"id":"ha","name":"Hokuriku Arch Pass","abbr":"HA","days_valid":7,
+  "jpy_tickets":30000*2,"days":list(range(9,13)),
+  "covers":"Osaka to Tokyo by the Hokuriku route, through Kanazawa"},
+]
+_tk=sum(p["jpy_tickets"] for p in PASSES)
+for _p in PASSES:
+    _p["jpy"]=round(_p["jpy_tickets"]+JR_FEES*_p["jpy_tickets"]/_tk)
+JR_PASS_JPY = sum(p["jpy"] for p in PASSES)
 PASS_MODES = {"train", "shinkansen"}
 
 # id, name, lat, lng, city, kind, confidence
@@ -208,16 +220,19 @@ def main():
                 "payment_mode":"prepaid","paid_by":"both",
                 "note":st["address"],"place_id":st["place"],"row":0})
 
-    # --- rides the rail pass covered carry a share of the pass, not nothing
-    covered=[(dd,a,b_,m) for (dd,a,b_,m) in LEGS
-             if dd in PASS_DAYS and m in PASS_MODES]
-    share_jpy = round(JR_PASS_INR / len(covered) / RATE) if covered else 0
-    for (dd,a,b_,m) in covered:
-        rows.append({"day_index":dd,"date":"","category":"travel",
-            "item":f"{m} {places[a]['name']} to {places[b_]['name']}",
-            "amount":share_jpy,"currency":"JPY","pass_allocated":True,
-            "mode_hint":m,"payment_mode":"rail pass","paid_by":"both",
-            "note":"share of the JR passes","place_id":a,"row":0})
+    # --- each pass is shared across the rides taken on its own valid days
+    for p in PASSES:
+        covered=[(dd,a,b_,m) for (dd,a,b_,m) in LEGS
+                 if dd in p["days"] and m in PASS_MODES]
+        p["rides"]=len(covered)
+        p["per_ride_jpy"]=round(p["jpy"]/len(covered)) if covered else 0
+        for (dd,a,b_,m) in covered:
+            rows.append({"day_index":dd,"date":"","category":"travel",
+                "item":f"{m} {places[a]['name']} to {places[b_]['name']}",
+                "amount":p["per_ride_jpy"],"currency":"JPY","pass_allocated":True,
+                "pass_id":p["id"],"mode_hint":m,"payment_mode":p["abbr"]+" pass",
+                "paid_by":"both","note":"share of the "+p["name"],
+                "place_id":a,"row":0})
 
     # --- give transport rows a mode so the icons can branch
     for r in rows:
@@ -258,8 +273,10 @@ def main():
       "categories":["food","travel","experiences","utilities","stays"],
       "excluded_categories":sorted(EXCLUDE),
       "shown_for":"both travellers combined",
-      "jr_pass":{"inr":JR_PASS_INR,"rides_covered":len(covered),
-                 "per_ride_jpy":share_jpy,"assumed":"covers both travellers"},
+      "jr_passes":[{k:v for k,v in p.items() if k!="days"} for p in PASSES],
+      "jr_pass_total_jpy":JR_PASS_JPY,
+      "jr_pass_note":"Two adult passes each, bought from JRPass.com on 27 Oct 2025, "
+                     "priced in yen. Fees of \u00a54,884 are split between them by ticket price.",
       "stays_documented_nights":sum(x["nights"] for x in STAYS if x["status"]=="stayed"),
       "stays_priced_nights":sum(x["nights"] for x in STAYS if x["status"]=="stayed" and (x.get("inr") or x.get("jpy"))),
       "stays_documented_inr":round(sum(x["inr"] for x in STAYS if x["status"]=="stayed" and x.get("inr")),2),
