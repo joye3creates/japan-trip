@@ -26,6 +26,16 @@ and the assistant's, give each one its reasoning and the alternative that was
 rejected, and focus on design and build decisions rather than admin. These logs
 are raw material for a case study, so specificity beats tidiness.
 
+## Building in public
+
+`BUILDING_IN_PUBLIC.md` is the context pack for drafting social posts elsewhere.
+It gets one short entry per working day, added at the same time as the session
+log, in the shape already established there. It is written for a reader drafting
+a post, not for an engineer: the number and the honest failure carry it.
+
+Its safe-to-post table governs what may appear in it. The published artifact
+links are private and must never be posted as if they were shareable.
+
 ## Data integrity
 
 Placeholders are marked, never filled. Steps, photos and untranscribed notes

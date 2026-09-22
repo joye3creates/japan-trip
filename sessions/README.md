@@ -22,5 +22,13 @@ Each one covers, in this order:
 7. **Artefacts** — files produced or changed, so attachments can be reassembled
 8. **Open at end of session**
 
+After writing the log, add a matching entry to `BUILDING_IN_PUBLIC.md` in the
+repo root. That file is a different job: short, written for someone drafting a
+social post rather than for an engineer, and it goes to a Claude Project on
+claude.ai. One entry a working day, in the established shape — shipped, the
+number, the interesting thing, the honest failure, the angle worth taking. Keep
+it under about 300 words. Never put anything in it that the safe-to-post table
+at the top of that file rules out.
+
 `PROCESS.md` in the repo root is the running cumulative account. These session
 files are the per-day detail underneath it.
