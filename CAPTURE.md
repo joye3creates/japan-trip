@@ -66,6 +66,52 @@ in a message or on a fresh page and photograph it:
 
 ---
 
+## Part 2b — What the time axis needs
+
+This supersedes the older guidance below, which assumed a spend-only chart. The
+default view is now a 24-hour clock per day, in two-hour bands, with a toggle to
+the price axis. That changes what the notes have to carry.
+
+### Per entry, in order of value
+
+| Field | Why |
+|---|---|
+| **Time, even rough** | "late morning", "around 3", "after dinner" all work. This is the axis. |
+| **Free or paid** | A free temple is a mark on the clock with no price. Without these the chart invents idle mornings. |
+| **What it was** | Chooses the icon. Meal, temple, shop, train, lodging. |
+| **Cost, if any** | Already have most of this from the workbook. |
+| **Duration, if it was long** | A three-hour museum reads differently from a ten-minute shrine. Only worth noting when it was substantial. |
+
+**The single most valuable thing you can add is the things that cost nothing.**
+The workbook has 155 priced entries and no free ones. On a price axis that is
+complete; on a clock it is a trip where you apparently did nothing between meals.
+
+### Per transport leg
+
+- Departure time, and arrival time if you noted it
+- Mode: walk, bus, train, shinkansen, ferry, cycle
+- Whether a rail pass covered it
+
+A train at 09:00 followed by an afternoon of marks in a new city is the clearest
+single thing a time axis can show. Worth being precise here even if you are rough
+elsewhere.
+
+### Per day, for lodging
+
+Two marks a day: **when you left the lodging** and **when you got back**. Not
+check-in and check-out, which only happen at the ends of a multi-night stay and
+would leave the middle nights of your Kyoto, Beppu, Osaka and Kanazawa stays with
+no lodging marks at all.
+
+On the price toggle those two converge into the one night's cost, which is what
+the data already holds.
+
+### A rule for after midnight
+
+If a dinner ran to 00:30, it stays on that day's lane, sitting past the 24:00
+mark, rather than jumping to the next day. The lane is the journal day, not the
+clock day. Note it as "day 8, 00:30" and it will land correctly.
+
 ## Part 3 — Two things I will infer, and how
 
 You flagged both of these yourself. Here is the actual method, so you can judge whether
