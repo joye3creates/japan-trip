@@ -14,8 +14,13 @@ Each one covers, in this order:
    reasoning and the alternative that was rejected. This is the section a case
    study actually needs, so it gets the most detail.
 5. **Roadblocks** — what broke, why, how it resolved, what it cost
-6. **Artefacts** — files produced or changed, so attachments can be reassembled
-7. **Open at end of session**
+6. **Prompts and briefs** — the session's actual instructions, quoted as written,
+   each paired with what it produced and what it left open. Quote verbatim,
+   including the typos and the thinking-aloud; a cleaned-up paraphrase destroys
+   exactly what makes this useful. This section feeds a separate write-up about
+   how to brief these tools, so err towards keeping too much.
+7. **Artefacts** — files produced or changed, so attachments can be reassembled
+8. **Open at end of session**
 
 `PROCESS.md` in the repo root is the running cumulative account. These session
 files are the per-day detail underneath it.

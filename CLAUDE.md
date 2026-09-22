@@ -16,6 +16,11 @@ Timings must be reconstructed from real file timestamps and commit times. Never
 estimate or invent them. Report active working time and elapsed time separately;
 the gap between them is meaningful.
 
+Quote the session's instructions verbatim in the prompts section, typos and all.
+They are raw material for a write-up about how to brief these tools, and a tidied
+paraphrase throws away the thing being studied. `STYLE_BRIEF.md` and the doc
+"Briefing Design to AI" are the current state of that thinking.
+
 The decisions section carries the most weight. Split it into the user's decisions
 and the assistant's, give each one its reasoning and the alternative that was
 rejected, and focus on design and build decisions rather than admin. These logs
