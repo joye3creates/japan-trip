@@ -1,0 +1,325 @@
+<title>A Day at a Time</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#E8DCC0; --paper-2:#DFD0AE; --paper-3:#D4C39C;
+  --sea:#BAC6C1; --land:#D9C7A2; --land-v:#C3A778;
+  --ink:#3B2F23; --ink-2:#6B5B47; --ink-3:#92836C;
+  --verm:#A83A2B; --verm-2:#8A2E22;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Spectral",Georgia,serif;font-size:14px;line-height:1.55}
+
+.lede{max-width:620px;margin:0 auto;padding:11vh 16px 3vh;text-align:center}
+.lede h1{font-family:"Shippori Mincho",serif;font-size:34px;font-weight:800;letter-spacing:.03em;margin:0}
+.lede p{color:var(--ink-2);margin:10px 0 0}
+.warn{display:inline-block;margin-top:14px;border:1px solid var(--verm);color:var(--verm);
+  padding:5px 12px;font-size:11.5px;letter-spacing:.04em}
+
+.scrolly{position:relative;max-width:1400px;margin:0 auto;padding-inline:16px;
+  display:grid;grid-template-columns:330px minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:900px){.scrolly{grid-template-columns:1fr}}
+.sticky{grid-column:2;grid-row:1;position:sticky;top:env(safe-area-inset-top,0px);
+  height:100vh;display:flex;flex-direction:column;justify-content:center}
+@media(max-width:900px){.sticky{grid-column:1}}
+.steps{grid-column:1;grid-row:1;position:relative;z-index:3;pointer-events:none}
+@media(max-width:900px){.steps{grid-column:1;margin-top:-100vh}}
+.step{min-height:96vh;display:flex;align-items:center;padding-block:10vh}
+.step .card{pointer-events:auto;max-width:312px;background:var(--paper);
+  border:1px solid var(--ink);padding:15px 17px;box-shadow:5px 5px 0 rgba(59,47,35,.13);
+  opacity:.35;transition:opacity .4s}
+.step.on .card{opacity:1}
+.step .n{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--verm)}
+.step h2{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;margin:4px 0 7px}
+.step p{margin:0;font-size:13px;color:var(--ink-2)}
+.step p+p{margin-top:7px}
+
+.bar{display:flex;align-items:center;gap:10px;padding:0 4px 8px;flex-wrap:wrap}
+.toggle{display:inline-flex;border:1px solid var(--ink);background:var(--paper)}
+.toggle button{appearance:none;background:none;border:0;padding:6px 15px;cursor:pointer;
+  font:inherit;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.toggle button:focus-visible{outline:2px solid var(--verm);outline-offset:2px}
+.hint{font-size:11px;color:var(--ink-3)}
+#stage{display:block;width:100%;flex:1;min-height:0}
+#tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .12s;
+  background:var(--ink);color:var(--paper);padding:8px 11px;font-size:11.5px;max-width:270px;
+  box-shadow:0 5px 18px rgba(59,47,35,.4)}
+#tip b{display:block;font-size:13px;margin-bottom:3px}
+#tip .r{display:flex;justify-content:space-between;gap:16px;color:var(--paper-3);font-size:10.5px}
+#tip .s{display:block;margin-top:4px;color:var(--verm);font-size:10px}
+.tail{max-width:660px;margin:0 auto;padding:7vh 16px 12vh;color:var(--ink-3);font-size:11.5px}
+.tail p{margin:0 0 7px}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+
+<div class="lede">
+  <h1>A Day at a Time</h1>
+  <p>Sixteen days across Japan, laid out by the hour. Scroll to watch the country
+     become the diary, then switch to see what any of it cost.</p>
+  <div class="warn">Times on this draft are invented, so the shape of a day is not yet real</div>
+</div>
+
+<div class="scrolly">
+  <div class="sticky">
+    <div class="bar">
+      <div class="toggle" role="group" aria-label="Choose a view">
+        <button id="v-clock"  aria-pressed="true">Clock</button>
+        <button id="v-ledger" aria-pressed="false">Ledger</button>
+      </div>
+      <span class="hint" id="hint">Hover anything for detail</span>
+    </div>
+    <svg id="stage" role="img" aria-label="Sixteen days of a trip through Japan, by hour and by price"></svg>
+  </div>
+  <div class="steps" id="steps"></div>
+</div>
+
+<div class="tail">
+  <p><b>What is real here.</b> Every price, every place, every journey and every
+  night's lodging. 126 purchases from the trip book, seven confirmed bookings and
+  two rail passes priced in yen from the original order.</p>
+  <p><b>What is not.</b> The times. Twenty-four of them are inferred from words
+  already written in the book, such as breakfast or dinner. The remaining 141 are
+  invented so the interaction can be built before the handwritten notes are
+  transcribed. Hover any mark and it tells you which it is.</p>
+  <p><b>What is missing.</b> Anything done that cost nothing, which is most of a
+  travelling day. Until those are in the notes, an empty morning here means
+  nothing was bought, not that nothing happened.</p>
+  <p><b>Left out on purpose.</b> Shopping and gifts. Personal, and of no use to
+  anyone reading this as a record of travelling in Japan.</p>
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const GEO=/*__GEO__*/, DATA=/*__TRIP_DATA__*/;
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const NS="http://www.w3.org/2000/svg";
+const el=(t,a={})=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n;};
+const svg=$("#stage"), W=1180, H=820;
+svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+svg.setAttribute("preserveAspectRatio","xMidYMid meet");
+
+const yen=v=>"¥"+Math.round(v).toLocaleString("en-US");
+const PL=Object.fromEntries(DATA.places.map(p=>[p.id,p]));
+const MARKS=DATA.marks, byId=Object.fromEntries(MARKS.map(m=>[m.id,m]));
+const DAY=["Delhi","Tokyo","Mt Fuji","Kyoto","Uji","Hiroshima","Mt Aso","Osaka",
+           "Nara","Kanazawa","Shirakawa-go","Kanazawa","Tokyo","Kamakura","Asakusa","Home"];
+let view="clock", step=0;
+
+/* ---------- geometry ---------- */
+const L=132, R=W-58, BAND_Y=46, TOP=104, LANE=(H-TOP-34)/16;
+const laneY=i=>TOP+i*LANE+LANE/2;
+const CX=h=>L+(h/24)*(R-L);                                   // clock
+const priced=MARKS.filter(m=>m.kind!=="event"&&m.amount&&m.lane!=="band").map(m=>m.amount);
+const lo10=Math.log10(Math.min(...priced)), hi10=Math.log10(Math.max(...priced));
+const BRK=R-96;                                               // break before the overflow strip
+const GUT=L-26;                                               // "price not recorded"
+const LX=v=>(!v||v<=0)?GUT:L+(Math.log10(v)-lo10)/(hi10-lo10)*(BRK-L);
+const band=MARKS.filter(m=>m.lane==="band").sort((a,b)=>a.amount-b.amount);
+// Only three things live in the band and two of them cost almost the same, so
+// they are spaced by rank rather than by value. The strip is an overflow shelf,
+// not a scale, and the tooltip carries the real figure.
+const BRANK=Object.fromEntries(band.map((m,i)=>[m.id,i]));
+const BX=m=>{const i=BRANK[m.id]??0, n=Math.max(band.length-1,1);
+  return BRK+30+(i/n)*(R-BRK-52);};
+
+/* map projection, for the opening frames */
+const merc=la=>57.29578*Math.log(Math.tan(Math.PI/4+la*Math.PI/360));
+let glo=[999,-999],gla=[999,-999];
+GEO.forEach(p=>p.r.forEach(r=>r.forEach(([x,y])=>{
+  glo[0]=Math.min(glo[0],x);glo[1]=Math.max(glo[1],x);
+  gla[0]=Math.min(gla[0],merc(y));gla[1]=Math.max(gla[1],merc(y));})));
+const MS=Math.min(W/(glo[1]-glo[0]),H/(gla[1]-gla[0]))*0.9;
+const MX=v=>(v-glo[0])*MS+(W-(glo[1]-glo[0])*MS)/2;
+const MY=v=>H-((merc(v)-gla[0])*MS)-(H-(gla[1]-gla[0])*MS)/2;
+
+/* ---------- icons: identity by shape ---------- */
+function glyph(cat,mode,isStay){
+  const g=el("g"), add=(t,a)=>g.append(el(t,a));
+  const S={fill:"none",stroke:"currentColor","stroke-width":1.5};
+  if(isStay||cat==="stays") add("path",{...S,d:"M-4.4,4 L-4.4,-1 L0,-4.2 L4.4,-1 L4.4,4 Z"});
+  else if(cat==="food"){ add("circle",{...S,r:4.2}); add("circle",{r:1.2,fill:"currentColor"}); }
+  else if(cat==="experiences") add("path",{...S,d:"M-5,-2 L5,-2 M-3.5,-2 L-3.5,4 M3.5,-2 L3.5,4 M-6,-4 L6,-4"});
+  else if(cat==="utilities") add("rect",{...S,x:-3.4,y:-3.4,width:6.8,height:6.8});
+  else if(cat==="travel"){
+    if(mode==="flight") add("path",{...S,d:"M-6,1 L6,-2 M-2,-1.5 L-4,-4.5 M0.5,-2.3 L2,-5"});
+    else if(mode==="shinkansen") add("path",{...S,d:"M-6,2 L-1,-3 L6,-3 L6,2 Z"});
+    else if(mode==="ferry") add("path",{...S,d:"M-5,1 L5,1 L3,4 L-3,4 Z M0,1 L0,-4"});
+    else if(mode==="bus") add("rect",{...S,x:-5,y:-3.4,width:10,height:6.8,rx:1.5});
+    else if(mode==="cycle"){ add("circle",{...S,cx:-3.2,cy:2,r:2.3,"stroke-width":1.2});
+                             add("circle",{...S,cx:3.2,cy:2,r:2.3,"stroke-width":1.2}); }
+    else if(mode==="walk") add("path",{...S,d:"M0,-4 L0,1 M0,1 L-2.4,4.4 M0,1 L2.4,4.4","stroke-linecap":"round"});
+    else { add("rect",{...S,x:-4.5,y:-4,width:9,height:6,rx:1});
+           add("path",{d:"M-3,2 L-3,4 M3,2 L3,4",stroke:"currentColor","stroke-width":1.2}); }
+  } else add("circle",{...S,r:3.6});
+  return g;
+}
+
+/* ---------- static scaffolding ---------- */
+const gLand=el("g"),gAxis=el("g",{opacity:0}),gBand=el("g",{opacity:0}),gMarks=el("g");
+svg.append(gLand,gAxis,gBand,gMarks);
+gLand.append(el("rect",{x:0,y:0,width:W,height:H,fill:"var(--sea)"}));
+GEO.forEach(p=>{
+  const d="M"+p.r.map(r=>r.map(([x,y])=>MX(x).toFixed(1)+","+MY(y).toFixed(1)).join("L")).join("ZM")+"Z";
+  gLand.append(el("path",{d,fill:p.v?"var(--land-v)":"var(--land)",transform:"translate(1.4,2)",opacity:.9}));
+  gLand.append(el("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":.45,opacity:p.v?.7:.3}));
+});
+const gClockAx=el("g"), gLedgAx=el("g",{opacity:0});
+gAxis.append(gClockAx,gLedgAx);
+for(let h=0;h<=24;h+=2){
+  gClockAx.append(el("line",{x1:CX(h),y1:TOP-16,x2:CX(h),y2:TOP+16*LANE-6,
+    stroke:"var(--ink-3)","stroke-width":.6,"stroke-dasharray":"2 5",opacity:h%6?.35:.7}));
+  const t=el("text",{x:CX(h),y:TOP-22,"text-anchor":"middle","font-size":10,fill:"var(--ink-2)"});
+  t.textContent=h===24?"24":String(h).padStart(2,"0"); gClockAx.append(t);
+}
+[100,1000,10000].forEach(v=>{
+  gLedgAx.append(el("line",{x1:LX(v),y1:TOP-16,x2:LX(v),y2:TOP+16*LANE-6,
+    stroke:"var(--ink-3)","stroke-width":.6,"stroke-dasharray":"2 5",opacity:.6}));
+  const t=el("text",{x:LX(v),y:TOP-22,"text-anchor":"middle","font-size":10,fill:"var(--ink-2)"});
+  t.textContent=yen(v); gLedgAx.append(t);
+});
+[0,1].forEach(i=>gLedgAx.append(el("path",{d:`M${BRK+6+i*7},${TOP-30} l-7,14`,
+  stroke:"var(--ink-2)","stroke-width":1.1,fill:"none"})));
+(()=>{const t=el("text",{x:GUT,y:TOP-22,"text-anchor":"middle","font-size":9,fill:"var(--verm)"});
+ t.textContent="n/r"; gLedgAx.append(t);
+ gLedgAx.append(el("line",{x1:GUT,y1:TOP-16,x2:GUT,y2:TOP+16*LANE-6,stroke:"var(--verm)",
+  "stroke-width":.6,"stroke-dasharray":"1 4",opacity:.5}));})();
+DATA.days.forEach((d,i)=>{
+  gAxis.append(el("line",{x1:L,y1:laneY(i),x2:R,y2:laneY(i),stroke:"var(--ink)","stroke-width":.5,opacity:.26}));
+  const n=el("text",{x:L-44,y:laneY(i)+4,"font-size":9.5,fill:"var(--ink-3)"});
+  n.textContent=String(i).padStart(2,"0");
+  const k=el("text",{x:L-32,y:laneY(i)+4,"font-size":11,fill:"var(--ink)"}); k.textContent=DAY[i];
+  gAxis.append(n,k);
+});
+/* the band: bought before leaving, and nowhere on a clock */
+gBand.append(el("line",{x1:L,y1:BAND_Y+19,x2:R,y2:BAND_Y+19,stroke:"var(--ink)","stroke-width":.9,opacity:.5}));
+const bl=el("text",{x:L-44,y:BAND_Y+4,"font-size":9.5,fill:"var(--verm)"}); bl.textContent="—";
+const bk=el("text",{x:L-32,y:BAND_Y+4,"font-size":11,fill:"var(--verm)"}); bk.textContent="Before leaving";
+gBand.append(bl,bk);
+
+/* ---------- marks ---------- */
+const nodes=MARKS.map((m,i)=>{
+  const g=el("g",{style:"cursor:pointer;transition:transform 1.15s cubic-bezier(.4,0,.2,1),opacity .55s"});
+  const dot=el("circle",{r:2.5,fill:"var(--verm)"});
+  const ic=glyph(m.category,m.mode_hint,m.category==="stays");
+  ic.setAttribute("opacity","0"); ic.style.transition="opacity .5s";
+  g.append(el("circle",{r:11,fill:"transparent"}),dot,ic);
+  g._m=m; g._dot=dot; g._ic=ic; g._i=i;
+  g.addEventListener("pointerenter",e=>tip(e,g));
+  g.addEventListener("pointerleave",untip);
+  gMarks.append(g); return g;
+});
+function homeOnMap(m){
+  const p=PL[m.place_id]||PL[(DATA.days[m.day_index]||{}).places?.[0]];
+  return p?{x:MX(p.lng),y:MY(p.lat)}:{x:W/2,y:H/2};
+}
+function pos(m){
+  if(step<2) return homeOnMap(m);
+  if(view==="clock"){
+    if(m.kind==="cost") return m.lane==="band"?{x:BX(m),y:BAND_Y+19}:{x:LX(m.amount),y:laneY(m.day_index)};
+    return {x:CX(m.hour),y:laneY(m.day_index)+off(m)};
+  }
+  if(m.kind==="event"){ const p=byId[m.merge_to]; return p?pos(p):{x:L,y:laneY(m.day_index)}; }
+  if(m.lane==="band") return {x:BX(m),y:BAND_Y+19};
+  return {x:LX(m.amount),y:laneY(m.day_index)+off(m)};
+}
+/* stack marks that share a slot, so clusters stay countable */
+const OFF={};
+function buildOffsets(){
+  const b={};
+  MARKS.forEach(m=>{
+    if(m.kind==="cost")return;
+    const x=view==="clock"?(m.hour??0)*9:(m.amount?Math.log10(m.amount)*40:0);
+    const k=m.day_index+":"+Math.round(x/8); (b[k]=b[k]||[]).push(m.id);
+  });
+  Object.values(b).forEach(l=>{const n=l.length,s=Math.min(LANE-8,n*8.5);
+    l.forEach((id,j)=>{ OFF[id] = n===1 ? 0 : -s/2 + s*j/(n-1); });});
+}
+const off=m=>OFF[m.id]||0;
+
+function render(){
+  buildOffsets();
+  const onMap=step<2;
+  gLand.style.transition="opacity 1.2s";
+  gLand.setAttribute("opacity",onMap?1:0);
+  gAxis.style.transition=gBand.style.transition="opacity .9s";
+  gAxis.setAttribute("opacity",onMap?0:1);
+  gBand.setAttribute("opacity",onMap?0:1);
+  gClockAx.style.transition=gLedgAx.style.transition="opacity .6s";
+  gClockAx.setAttribute("opacity",view==="clock"?1:0);
+  gLedgAx.setAttribute("opacity",view==="clock"?0:1);
+  nodes.forEach(g=>{
+    const m=g._m, p=pos(m);
+    g.style.transitionDelay=(g._i%22)*16+"ms";
+    g.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+    let vis=1, showIcon=!onMap;
+    if(!onMap){
+      if(view==="clock") vis = m.kind==="cost" ? (m.lane==="band"?.3:0) : 1;
+      else               vis = m.kind==="event" ? 0 : 1;
+    } else vis = step===0?.34:1;
+    g.setAttribute("opacity",vis);
+    g._ic.setAttribute("opacity",showIcon&&vis?1:0);
+    g._dot.setAttribute("opacity",showIcon?0:1);
+    const hot = m.lane==="band" || (step>=3 && m.merge_to);
+    g.style.color = hot?"var(--verm)":"var(--ink-2)";
+    g._dot.setAttribute("fill", hot?"var(--verm)":"var(--ink-2)");
+  });
+  $("#hint").textContent = onMap ? "Keep scrolling"
+    : view==="clock" ? "Switch to Ledger and watch what has no clock time fly into the band"
+                     : "Switch back to Clock to see those journeys return to their hour";
+}
+
+/* ---------- tooltip ---------- */
+function tip(e,g){
+  const m=g._m, t=$("#tip");
+  const hh=m.hour!=null?String(Math.floor(m.hour)).padStart(2,"0")+":"+String(Math.round((m.hour%1)*60)).padStart(2,"0"):null;
+  const price=m.amount?yen(m.amount):(m.kind==="event"?"no cost on the day":"price not recorded");
+  let s="";
+  if(m.time_source==="synthetic") s=`<span class="s">invented time, not from the record</span>`;
+  else if(m.time_source) s=`<span class="s">time ${m.time_source}</span>`;
+  if(m.merge_to&&byId[m.merge_to]) s+=`<span class="s">paid for by ${byId[m.merge_to].item}</span>`;
+  if(m.note) s+=`<span class="s">${m.note}</span>`;
+  t.innerHTML=`<b>${m.item||m.category}</b><div class="r"><span>${hh||"no time"}</span><span>${price}</span></div>${s}`;
+  t.style.opacity="1";
+  const mv=ev=>{t.style.left=Math.min(ev.clientX+14,innerWidth-t.offsetWidth-10)+"px";
+                t.style.top=Math.max(ev.clientY-10,8)+"px";};
+  mv(e); svg.addEventListener("pointermove",mv); t._m=mv;
+}
+function untip(){const t=$("#tip");t.style.opacity="0";
+  if(t._m){svg.removeEventListener("pointermove",t._m);t._m=null;}}
+
+/* ---------- steps + toggle ---------- */
+const STEPS=[
+ {t:"The country",b:["Thirteen prefectures of forty-seven, over sixteen days.",
+   "Every mark is one thing that happened, sitting where it happened."]},
+ {t:"A hundred and eighty marks",b:["Meals, fares, tickets, nights, two flights and two rail passes.",
+   "They are about to leave the map without losing their identity."]},
+ {t:"The diary",b:["The land dissolves and each mark travels to its day, and to the hour it happened.",
+   "Midnight to midnight, in two-hour bands. This is the shape of a day rather than the size of a bill."]},
+ {t:"What has no hour",b:["Three things were bought before the trip began and belong to no single hour: both rail passes and the return flights.",
+   "They wait in the band at the top. Switch to the Ledger and the journeys they paid for fly up and disappear into them."]},
+];
+$("#steps").innerHTML=STEPS.map((s,i)=>`<div class="step" data-i="${i}">
+  <div class="card"><div class="n">${String(i+1).padStart(2,"0")} / ${STEPS.length}</div>
+  <h2>${s.t}</h2>${s.b.map(p=>`<p>${p}</p>`).join("")}</div></div>`).join("");
+new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add("on"); step=+e.target.dataset.i; render();}
+  else e.target.classList.remove("on");
+}),{rootMargin:"-45% 0px -45% 0px"}).observe;
+$$(".step").forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add("on"); step=+e.target.dataset.i; render();}
+  else e.target.classList.remove("on");
+}),{rootMargin:"-45% 0px -45% 0px"}).observe(s));
+function setView(v){
+  view=v;
+  $("#v-clock").setAttribute("aria-pressed",v==="clock");
+  $("#v-ledger").setAttribute("aria-pressed",v==="ledger");
+  render();
+}
+$("#v-clock").onclick=()=>setView("clock");
+$("#v-ledger").onclick=()=>setView("ledger");
+render();
+</script>
