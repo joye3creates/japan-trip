@@ -51,8 +51,21 @@ Surface it rather than hiding it.
 
 ## Building
 
-`extract.py` then `build_dataset.py` then inject into `app.template.html`. The
-rebuild command is in `README.md`. `japan-map.html` is generated — edit the
+**Two datasets, on purpose.** `data/trip_full.json` holds everything including
+shopping and gifts and feeds `app.template.html` only. `data/trip.json` has
+them excluded and feeds every later page. The route map is the day-one artefact
+and keeps its original content, Japanese wordmark and all; a design decision
+taken later must not rewrite an artefact made earlier. The build pairs are:
+
+| Template | Dataset | Built file |
+|---|---|---|
+| `app.template.html` | `trip_full.json` | `japan-map.html` |
+| `ukiyo.template.html` | `trip.json` + geo | `japan-ukiyo.html` |
+| `scroll.template.html` | `trip.json` + geo | `japan-scroll.html` |
+| `clock.template.html` | `trip.json` + geo | `japan-clock.html` |
+
+`extract.py` then `build_dataset.py` then `synth_times.py`, then inject into the
+templates. The rebuild command is in `README.md`. `japan-map.html` is generated — edit the
 template, never the built file.
 
 Render the page and look at it before publishing anything visual. The one bug

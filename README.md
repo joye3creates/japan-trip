@@ -16,7 +16,8 @@ step, no server, no network required.
 | `app.template.html` | The page source, with a `/*__TRIP_DATA__*/` marker where data is injected. |
 | `extract.py` | Reads the expense workbook, emits `data/raw_expenses.json` and `data/days.json`. |
 | `build_dataset.py` | Joins expenses with the place registry, emits `data/trip.json`. |
-| `data/trip.json` | The joined dataset the page consumes. |
+| `data/trip.json` | The joined dataset, shopping and gifts excluded. |
+| `data/trip_full.json` | Everything, for the original route map only. |
 | `CAPTURE.md` | How to hand over the handwritten notes, and the step-estimation method. |
 | `SCHEMA.md` | The data model and why it is shaped this way. |
 | `FINDINGS.md` | What the first extraction turned up, including the reconciliation. |

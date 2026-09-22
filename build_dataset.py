@@ -240,6 +240,7 @@ def main():
             legs=[m for (dd,a,b_,m) in LEGS if dd==r["day_index"]]
             r["mode_hint"]=legs[0] if legs else "train"
 
+    rows_all=list(rows)
     rows=[r for r in rows if r["category"] not in EXCLUDE]
 
     days=[]
@@ -286,6 +287,13 @@ def main():
          "legs_flat":[{"day_index":dd,"mode":m,"from":a,"to":b_} for (dd,a,b_,m) in LEGS],
          "food_items":[{"day":r["day_index"],"item":r["item"],"amount":r["amount"]} for r in food]}
     (D/"trip.json").write_text(json.dumps(out,ensure_ascii=False,separators=(",",":")))
+
+    # The unfiltered companion, for the original route map only.
+    full=dict(out)
+    full["entries"]=rows_all
+    full["trip"]=dict(out["trip"],categories=["food","shopping","travel",
+        "experiences","utilities","gifts","stays"],excluded_categories=[])
+    (D/"trip_full.json").write_text(json.dumps(full,ensure_ascii=False,separators=(",",":")))
     print(f"places        : {len(places)}")
     print(f"days          : {len(days)}")
     print(f"legs          : {sum(len(d['legs']) for d in days)}")

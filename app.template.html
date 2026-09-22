@@ -176,7 +176,7 @@ footer p{margin:0 0 5px;max-width:74ch}
 <header class="top">
   <div class="wrap topin">
     <div>
-      <div class="wordmark">JAPAN</div>
+      <div class="wordmark"><span class="jp">日本</span>JAPAN</div>
       <div class="eyebrow" style="margin-top:4px">Travel memory map &middot; first draft</div>
     </div>
     <div class="topmeta">
@@ -236,8 +236,8 @@ footer p{margin:0 0 5px;max-width:74ch}
 
   <footer>
     <p><b style="color:var(--ink-2)">Where these numbers come from.</b> Every figure is read from
-    the 16 day sheets of the expense workbook, cross-checked against each day's own summary
-    block. Rupee figures convert at 0.57, the trip average. Shopping and gifts are excluded.</p>
+    the 16 day sheets of your expense workbook, 158 line items, cross-checked against each day's
+    own summary block. Rupee figures convert at 0.57, the trip average you supplied.</p>
     <p><b style="color:var(--ink-2)">What is still a placeholder.</b> Step counts, photographs and
     the handwritten notes are marked pending throughout rather than filled with invented numbers.
     Place positions come from the itinerary and the expense text; those marked inferred are my
@@ -251,9 +251,9 @@ footer p{margin:0 0 5px;max-width:74ch}
 const DATA = /*__TRIP_DATA__*/;
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const RATE=DATA.trip.rate;
-const CATS=DATA.trip.categories;   // shopping and gifts are excluded at build time
+const CATS=["food","shopping","travel","experiences","utilities","gifts"];
 const CATCOL={food:"--s1",shopping:"--s2",travel:"--s3",experiences:"--s4",utilities:"--s5",gifts:"--s6"};
-const CATLBL={food:"Food",travel:"Transport",experiences:"Experiences",utilities:"Utilities",stays:"Stays",shopping:"Shopping",gifts:"Gifts"};
+const CATLBL={food:"Food",shopping:"Shopping",travel:"Transport",experiences:"Experiences",utilities:"Utilities",gifts:"Gifts"};
 const cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const yen=v=>"¥"+Math.round(v).toLocaleString("en-US");
 const inr=v=>"₹"+Math.round(v*RATE).toLocaleString("en-IN");
@@ -644,7 +644,7 @@ function ledger(){
   const rows=DATA.entries.filter(r=>lf==="all"||r.category===lf);
   $("#p-ledger").innerHTML=`
     <div class="panel">
-      <div class="panel-h"><span class="eyebrow">Every line item, as written in the trip book</span>
+      <div class="panel-h"><span class="eyebrow">All 158 line items, as written in your workbook</span>
         <span class="eyebrow mono">${rows.length} shown</span></div>
       <div class="filters">
         <button data-f="all" aria-pressed="${lf==="all"}">All</button>
