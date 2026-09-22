@@ -231,53 +231,9 @@ words already captured well. Not the fine implementation, which does not need
 direction. The layer in between: the handful of structural choices that a style
 reference cannot encode.
 
-## What actually moved the needle
+## Beyond visual style
 
-Beyond visual style, the moments across the whole project where a choice visibly
-changed the outcome.
-
-### Sending files beat describing them
-
-The project opened with a careful workflow designed for handwritten paper notes.
-Two attachments later, that assumption was wrong and most of the workflow was
-unnecessary. More importantly, those two files contained a reconciliation error of
-roughly fifty thousand rupees and an entire spending category that had never been
-totalled. **No amount of prompt refinement surfaces that.** Only the artefact does.
-
-### "Use placeholders and just build it" unblocked a stall
-
-Three inputs were missing. The choice was to wait or ship with honest gaps.
-Shipping with gaps produced a working artefact in one session; waiting would have
-produced a plan. The corollary is that gaps must be *marked*, not filled.
-
-### Overriding a derived number was correct
-
-The data implied an exchange rate of 0.58. The instruction was 0.57, because the
-rate moved across the sixteen days. A figure derived from records is an average of
-averages contaminated by forex markup; the person who was there knows things the
-spreadsheet does not.
-
-**The general form:** an assistant will defend a number it derived. It should
-still lose to lived knowledge, and saying so plainly is enough.
-
-### Asking "is this even possible here?" reopened a closed door
-
-An early session concluded real map geography was unavailable, because geocoding
-was blocked by network policy. A later request for something more realistic
-prompted a re-test. Geocoding was still blocked, but `git clone` worked fine, so
-real coastlines were reachable all along. The environment had never changed; the
-picture of it had simply never been completed.
-
-**The lesson generalises:** a constraint accepted once tends to stay accepted.
-Pushing on it is cheap.
-
-### Looking at the output caught what review could not
-
-Two bugs shipped into first drafts, both caught by rendering the page rather than
-reading the code. One flattened a country into a horizontal band. The other was
-more instructive: Japanese labels printed on top of one another, while inspecting
-the page structure reported the layout as *correct*, a box of exactly the right
-size holding exactly two characters. Only a screenshot at three times scale
-revealed both characters drawn at the same position.
-
-**The box was right and the drawing was wrong.** The pixels are the authority.
+The rest of what this project taught, about working with these tools rather than
+about design, now lives in its own document: `docs/what-moved-the-needle.md`,
+whose living version is at
+https://claude.ai/code/artifact/61ebb4fc-280d-4643-8d2b-952318c78284
