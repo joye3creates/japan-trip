@@ -1,5 +1,10 @@
 # How to brief visual style and interactions
 
+> **This is the working draft.** It grew into a fuller document,
+> `docs/briefing-design-to-ai.md` in this repo, whose living version is a Claude
+> doc at https://claude.ai/code/artifact/7fd68c77-8280-4dc7-890f-c4fa3798add3 —
+> that one is newer and has a section on what moved the needle beyond visuals.
+
 Written after the woodblock experiment, where the brief was a reference image plus
 about six sentences and that turned out to be close to optimal. This is what to
 send, ranked by how much it buys per minute you spend on it.
