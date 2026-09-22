@@ -73,26 +73,45 @@ PLACES = [
  ("itoya",          "Itoya",                    35.6730, 139.7669, "Tokyo",     "shopping",   "ledger"),
  ("toyoko-osaka",   "Toyoko Inn Osaka Kyobashi",34.6968, 135.5342, "Osaka",     "stay",       "booking"),
  ("chisun-nagano",  "Chisun Grand Nagano",      36.6420, 138.1880, "Nagano",    "stay",       "booking"),
+ ("toyoko-fuji",    "Toyoko Inn Fuji Kawaguchiko",35.4990,138.7560,"Mt. Fuji","stay","booking"),
+ ("hale-kyoto",     "HALE Kyoto Toji",          34.9839, 135.7496, "Kyoto",     "stay",       "booking"),
+ ("nishitetsu-beppu","Nishitetsu Resort Inn Beppu",33.2804,131.5063,"Beppu",    "stay",       "booking"),
+ ("vista-kanazawa", "Hotel Vista Kanazawa",     36.5802, 136.6433, "Kanazawa",  "stay",       "booking"),
+ ("airbnb-toshima", "Airbnb, Komagome",         35.7365, 139.7470, "Tokyo",     "stay",       "booking"),
 ]
 
 # From the Expedia confirmations. Only four nights of the sixteen are covered here;
 # the rest were booked through Booking.com and Airbnb and are not yet documented.
 # Costs are in rupees as charged, not yen.
 STAYS = [
- {"place":"toyoko-shinjuku","name":"Toyoko Inn Tokyo Shinjuku Kabukicho",
-  "check_in":"2025-11-16","check_out":"2025-11-17","nights":1,"inr":8898.07,
-  "address":"2-20-15 Kabuki-cho, Shinjuku-ku, Tokyo 160-0021","status":"stayed"},
- {"place":"toyoko-osaka","name":"Toyoko Inn Osaka Kyobashi Sakuranomiya",
-  "check_in":"2025-11-22","check_out":"2025-11-24","nights":2,"inr":12569.12,
-  "address":"1-8-16 Nakanocho, Miyakojima, Osaka 534-0027","status":"stayed"},
- {"place":"chisun-nagano","name":"Chisun Grand Nagano",
-  "check_in":"2025-11-26","check_out":"2025-11-27","nights":1,"inr":5440.17,
-  "address":"2-17-1 Minami Chitose, Nagano, Nagano-ken 380-0823","status":"not used",
-  "note":"Booked, then dropped in favour of a third night in Kanazawa. "
-         "Cancellation was free until 23:59 on 25 Nov, so whether this was "
-         "refunded or forfeited is unconfirmed."},
+ {"place":"toyoko-shinjuku","name":"Toyoko Inn Tokyo Shinjuku Kabukicho","source":"Expedia",
+  "check_in":"2025-11-16","check_out":"2025-11-17","nights":1,"inr":8898.07,"jpy":None,
+  "address":"2-20-15 Kabuki-cho, Shinjuku-ku, Tokyo","status":"stayed"},
+ {"place":"toyoko-fuji","name":"Toyoko Inn Fuji Kawaguchiko Ohashi","source":"Booking.com",
+  "check_in":"2025-11-17","check_out":"2025-11-18","nights":1,"inr":7138.39,"jpy":None,
+  "address":"401-0301 Yamanashi, Fujikawaguchiko, Funatsu 294-1","status":"stayed"},
+ {"place":"hale-kyoto","name":"HALE Kyoto Toji","source":"Booking.com",
+  "check_in":"2025-11-18","check_out":"2025-11-20","nights":2,"inr":17992.00,"jpy":26892,
+  "address":"Minami-ku Tojihigashimonzencho 70, Kyoto","status":"stayed"},
+ {"place":"nishitetsu-beppu","name":"Nishitetsu Resort Inn Beppu","source":"Booking.com",
+  "check_in":"2025-11-20","check_out":"2025-11-22","nights":2,"inr":16860.00,"jpy":25200,
+  "address":"Kitahama 2-10-4, Beppu","status":"stayed"},
+ {"place":"toyoko-osaka","name":"Toyoko Inn Osaka Kyobashi Sakuranomiya","source":"Expedia",
+  "check_in":"2025-11-22","check_out":"2025-11-24","nights":2,"inr":12569.12,"jpy":None,
+  "address":"1-8-16 Nakanocho, Miyakojima, Osaka","status":"stayed"},
+ {"place":"vista-kanazawa","name":"Hotel Vista Kanazawa","source":"Booking.com",
+  "check_in":"2025-11-24","check_out":"2025-11-26","nights":2,"inr":11267.00,"jpy":16840,
+  "address":"Hirooka 2-13-27, Kanazawa","status":"stayed"},
+ {"place":"chisun-nagano","name":"Chisun Grand Nagano","source":"Expedia",
+  "check_in":"2025-11-26","check_out":"2025-11-27","nights":1,"inr":5440.17,"jpy":None,
+  "address":"2-17-1 Minami Chitose, Nagano","status":"not used",
+  "note":"Dropped in favour of a third night in Kanazawa. That replacement night is "
+         "the one accommodation record still missing."},
+ {"place":"airbnb-toshima","name":"Airbnb, Komagome","source":"Airbnb",
+  "check_in":"2025-11-27","check_out":"2025-11-30","nights":3,"inr":24116.59,"jpy":None,
+  "address":"1-chome-35-8 Komagome, Toshima City, Tokyo","status":"stayed"},
 ]
-STAY_BY_DAY = {1:0, 7:1, 8:1}
+STAY_BY_DAY = {}
 
 # day_index -> ordered place ids actually visited (best reading of itinerary + ledger)
 DAY_PLACES = {
@@ -175,12 +194,13 @@ def main():
     # --- stays become a category of their own, converted per night and flagged
     for st in STAYS:
         if st["status"]!="stayed": continue
-        per=st["inr"]/st["nights"]/RATE
+        per=(st["jpy"]/st["nights"]) if st.get("jpy") else (st["inr"]/st["nights"]/RATE)
         start=int(st["check_in"][-2:])-15
         for n in range(st["nights"]):
             rows.append({"day_index":start+n,"date":"","category":"stays",
                 "item":st["name"],"amount":round(per),"currency":"JPY",
-                "converted_from_inr":True,"payment_mode":"prepaid","paid_by":"both",
+                "converted_from_inr":not bool(st.get("jpy")),"source":st["source"],
+                "payment_mode":"prepaid","paid_by":"both",
                 "note":st["address"],"place_id":st["place"],"row":0})
 
     # --- rides the rail pass covered carry a share of the pass, not nothing
