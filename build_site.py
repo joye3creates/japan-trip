@@ -89,14 +89,14 @@ LOG_SRC = ROOT / "BUILDING_IN_PUBLIC.md"
 FIELDS = [("shipped", "Shipped"), ("number", "The number"),
           ("interesting", "The interesting thing"), ("failure", "The honest failure"),
           ("angle", "Angle worth taking"), ("second", "A second number"),
-          ("headline", "Headline")]
+          ("headline", "Headline"), ("media", "Media")]
 REQUIRED = ("shipped", "number", "interesting", "failure", "angle")
 
-# One still per day. The two screen recordings run 21s and 25s, too long to
-# loop as decoration, so the log uses stills and the videos stay for posting.
-MEDIA = {1: ("route_map.png", "The route map: day rail, route and a detail panel"),
-         2: ("woodblock_full.png", "The same trip as an aged survey sheet, on real coastlines"),
-         3: ("clock_hero.png", "The clock view: sixteen days laid out hour by hour")}
+# One still per day, found by convention so a new day needs no code change:
+# assets/day-NN.png, unless the entry names another file in assets/ with
+#     **Media:** <file> — <caption>
+# Stills only. The screen recordings run 21s and 25s, too long to loop.
+IMAGE_TYPES = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 
 WORDNUM = {w: i for i, w in enumerate(
     "zero one two three four five six seven eight nine ten eleven twelve".split())}
@@ -150,12 +150,31 @@ def parse_log(text):
         missing = [k for k in REQUIRED if not d["fields"].get(k)]
         if missing:
             raise LogError(f"Day {d['day']} (line {d['line']}) is missing: {', '.join(missing)}")
-        if d["day"] not in MEDIA:
-            raise LogError(f"Day {d['day']} has no image in MEDIA")
+        d["media"] = media_for(d)
     seen = [d["day"] for d in days]
     if sorted(seen) != list(range(1, len(seen) + 1)):
         raise LogError(f"days are not a clean run from 1: {seen}")
     return days
+
+
+def media_for(d):
+    """(filename, caption) for a day. Fails naming the exact file it wanted."""
+    caption = f"Day {d['day']}: {plain(d['title'])}"
+    if d["fields"].get("media"):
+        m = re.fullmatch(r"(\S+)(?:\s+[—–]\s+(.+))?", plain(" ".join(d["fields"]["media"])).strip())
+        name = m.group(1) if m else ""
+        if not m or "/" in name or "\\" in name or name.startswith("."):
+            raise LogError(f"Day {d['day']}: Media must read '<file in assets/> — <caption>'")
+        caption = (m.group(2) or caption).strip()
+        how = f"named by its **Media:** field"
+    else:
+        name = f"day-{d['day']:02d}.png"
+        how = "by convention, since the entry has no **Media:** field"
+    if Path(name).suffix.lower() not in IMAGE_TYPES:
+        raise LogError(f"Day {d['day']}: assets/{name} is not a still image")
+    if not (ASSETS / name).is_file():
+        raise LogError(f"Day {d['day']} wants assets/{name} ({how}); add that file")
+    return name, caption
 
 
 def inline(s):
@@ -223,7 +242,7 @@ def build_log():
                       f"big number inferred from 'The number:'. State it.")
         except LogError as e:
             sys.exit(f"\nBUILD LOG: {LOG_SRC.name}: Day {d['day']}: {e}")
-        img, alt = MEDIA[d["day"]]
+        img, alt = d["media"]
         failure = "".join(f"<p>{inline(p[:1].upper() + p[1:])}</p>" for p in f["failure"])
         entries.append(f"""  <article class="day" id="day-{d['day']}">
     <figure class="media"><img src="assets/{img}" alt="{H.escape(alt)}" loading="lazy"><figcaption>{H.escape(alt)}</figcaption></figure>

@@ -74,6 +74,8 @@ seven-hour window. Most of that window was waiting.
 
 **Headline:** ~₹50,000 — shopping never totalled on the summary
 
+**Media:** route_map.png — The route map: day rail, route and a detail panel
+
 **The interesting thing:** the source files contained a **reconciliation error of
 about ₹50,000**. An entire spending category, shopping, had never been totalled
 on the summary tab. It was the largest category of the trip. Nobody had noticed
@@ -100,6 +102,8 @@ on real prefecture coastlines.
 6,830**, about a tenth, small enough to sit inside a single HTML file at 115 KB.
 
 **Headline:** 6,830 — map points, down from 80,370
+
+**Media:** woodblock_full.png — The same trip as an aged survey sheet, on real coastlines
 
 **The interesting thing:** day one had concluded that real map geography was
 unavailable, because geocoding services were blocked by the network policy, and
@@ -128,6 +132,8 @@ one lane per day, with a switch to a price ledger.
 an unreadable smear.
 
 **Headline:** 89% — marks squeezed left on linear axis
+
+**Media:** clock_hero.png — The clock view: sixteen days laid out hour by hour
 
 **The interesting thing:** the whole project pivoted. Price is an accounting
 question; time is the travel question, and almost no travel tool answers it. The
