@@ -79,6 +79,9 @@ It reads images and video for metadata and embedded strings only. Text drawn
 into a screenshot or a video frame is pixels it cannot see, so every binary it
 lists needs a human look before it ships. Only assets a page links are copied.
 
+The log page takes each day's still from `assets/day-NN.png`, or from the file an
+entry names with `**Media:**`. A new day is an entry plus an image, never code.
+
 Audit: `git grep -ilE '<names>' -- .` plus a scan for email, phone and
 confirmation-number shapes across `site/`.
 
