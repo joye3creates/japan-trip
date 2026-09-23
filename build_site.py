@@ -52,7 +52,13 @@ def main():
     staged["builds.html"] = INDEX.replace("<!--CARDS-->", cards)
     print(f"  {'builds.html':<18} {len(INDEX)//1024:>4} KB")
 
-    staged["index.html"] = staged["log.html"] = build_log()
+    log_html, status = build_log()
+    staged["index.html"] = staged["log.html"] = log_html
+    # A tiny public fact sheet, so the card on the portfolio can read the day
+    # number instead of being edited by hand. Sorted keys and no timestamp, so
+    # it only changes when the log does.
+    staged["status.json"] = json.dumps(status, sort_keys=True, indent=2) + "\n"
+    print(f"  {'status.json':<18} {len(staged['status.json'])//1024:>4} KB   day {status['day']} of {status['total']}")
     print(f"  {'index.html':<18} {len(staged['index.html'])//1024:>4} KB   from log.template.html + BUILDING_IN_PUBLIC.md, also as log.html")
 
     # Only the media a page actually links. Anything else in assets/ would get
@@ -241,7 +247,7 @@ def build_log():
         f'    <li><span aria-disabled="true" title="Not built yet">{n:02d}</span></li>'
         for n in range(1, TOTAL_DAYS + 1))
     segs = "".join(f'<i class="{"done" if n <= latest else ""}"></i>' for n in range(1, TOTAL_DAYS + 1))
-    entries, cards = [], []
+    entries, cards, status = [], [], {}
     for d in sorted(days, key=lambda d: -d["day"]):
         f = d["fields"]
         try:
@@ -255,6 +261,11 @@ def build_log():
             sys.exit(f"\nBUILD LOG: {LOG_SRC.name}: Day {d['day']}: {e}")
         img, alt = d["media"]
         title = inline(d['title'][:1].upper() + d['title'][1:])
+        if d["day"] == latest:
+            bare = plain(d["title"])
+            status = {"day": latest, "total": TOTAL_DAYS,
+                      "title": bare[:1].upper() + bare[1:],
+                      "headline": fig, "label": label}
         failure = "".join(f"<p>{inline(p[:1].upper() + p[1:])}</p>" for p in f["failure"])
         entries.append(f"""  <article class="day" id="day-{d['day']}" data-day="{d['day']}">
     <figure class="media"><img src="assets/{img}" alt="{H.escape(alt)}" loading="lazy"><figcaption>{H.escape(alt)}</figcaption></figure>
@@ -276,11 +287,11 @@ def build_log():
     upcoming = "".join(f"""    <div class="card future" aria-hidden="true">
       <span class="card-t"><span class="num-label">Day {n:02d} of {TOTAL_DAYS}</span></span><span class="ph">Not built yet</span></div>
 """ for n in range(min(latest + 2, TOTAL_DAYS), latest, -1))
-    return ((ROOT / "log.template.html").read_text()
+    return (((ROOT / "log.template.html").read_text()
             .replace("<!--NAV-->", nav).replace("<!--SEGS-->", segs)
             .replace("<!--DAY-->", str(latest)).replace("<!--TOTAL-->", str(TOTAL_DAYS))
             .replace("<!--ENTRIES-->", "\n".join(entries))
-            .replace("<!--CARDS-->", upcoming + "\n".join(cards)))
+            .replace("<!--CARDS-->", upcoming + "\n".join(cards))), status)
 
 ROBOTS = """# This site is a personal record and is not intended for search indexing.
 # Remove or relax this when the work is ready to be found.
