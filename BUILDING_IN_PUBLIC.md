@@ -64,58 +64,36 @@ one public first, having checked what is on it.
 
 # Entries
 
-## Day 1 — a first draft in one evening
+## Day 4 — the privacy rule became code
 
-**Shipped:** an interactive map with day-by-day spending, published and working,
-built from an expense workbook and an itinerary.
+**Shipped:** a public build-log page, generated from this file, and a privacy
+gate that every file bound for the site must pass before anything is written.
 
-**The number:** two working blocks of ten and twenty-three minutes inside a
-seven-hour window. Most of that window was waiting.
+**The number:** the first version copied eight media files into the site. The
+page linked three. **Five files, 4.6 MB, including two screen recordings, would
+have had URLs** that nobody had reviewed for strangers to see. Now only what a
+page links is copied, and three stills, 1.2 MB, remain.
 
-**Headline:** ~₹50,000 — shopping never totalled on the summary
+**Headline:** 5 — unlinked files committed into the site
 
-**The interesting thing:** the source files contained a **reconciliation error of
-about ₹50,000**. An entire spending category, shopping, had never been totalled
-on the summary tab. It was the largest category of the trip. Nobody had noticed
-because the daily sheets were internally consistent and only the roll-up was
-wrong.
+**The interesting thing:** the site gets its first page meant for strangers, so
+"nothing identifying is published" stopped being a checklist and became a build
+step. One hit fails the build, and it reports file and line but never the match,
+so the build log cannot leak what it caught. The names it looks for are stored
+as salted hashes rather than plain text, and the file says plainly what that is
+worth: a list of first names reverses them. Obscurity, not secrecy.
 
-**The honest failure:** a map projection bug shipped into the first render.
-Latitude was computed in radians while longitude stayed in degrees, so the whole
-country flattened into a horizontal band. It was caught by screenshotting the
-page, not by reading the code.
+**The honest failure:** all three problems in the first version were caught in
+review, not by the build. The big number on each day was inferred from the text,
+and for Day 1 it came out as "2 working blocks", burying a ₹50,000 reconciliation
+error. The media was copied wholesale. And the gate printed "files clean" when it
+reads images only for metadata. **Text drawn into a screenshot is pixels, and it
+cannot see them.** It now says so on every run and lists each image for a human
+look.
 
-**Angle worth taking:** sending real files beat describing them. A careful
-workflow had been designed for handwritten paper notes; the actual records were a
-spreadsheet, and most of that planning was wasted. The artefact contained a
-finding no amount of specification would have surfaced.
-
-## Day 2 — the constraint that turned out not to exist
-
-**Shipped:** the repository went live and the whole pipeline became reproducible
-from committed sources. A second visual treatment, an aged Japanese survey sheet,
-on real prefecture coastlines.
-
-**The number:** Japan's prefecture geometry simplified from **80,370 points to
-6,830**, about a tenth, small enough to sit inside a single HTML file at 115 KB.
-
-**Headline:** 6,830 — map points, down from 80,370
-
-**The interesting thing:** day one had concluded that real map geography was
-unavailable, because geocoding services were blocked by the network policy, and
-settled for an abstract diagram of points and lines. Day two re-tested and found
-that `git clone` worked perfectly well even though geocoding did not. **Real
-coastlines had been reachable the whole time.** The environment had not changed;
-the picture of it had simply never been finished.
-
-**The honest failure:** Japanese day labels printed on top of one another.
-Inspecting the page structure said the layout was *correct*, a box of exactly the
-right size holding exactly two characters. Only a screenshot at three times scale
-showed both characters drawn at the same position. Vertical writing mode depends
-on font metrics that a fallback face does not carry.
-
-**Angle worth taking:** a constraint accepted once tends to stay accepted,
-because nothing prompts a re-examination. Pushing on it is cheap.
+**Angle worth taking:** a check that reports "clean" is claiming more than it
+checked. The fix was not a smarter gate but an honest one, that names its own
+blind spot every time it runs.
 
 ## Day 3 — the axis changed
 
@@ -158,3 +136,56 @@ the day. Once shared across the rides they paid for, they turn out to be the
 
 **Angle worth taking:** the most useful thing said all day was six words from the
 person who could see what the tool could not.
+
+## Day 2 — the constraint that turned out not to exist
+
+**Shipped:** the repository went live and the whole pipeline became reproducible
+from committed sources. A second visual treatment, an aged Japanese survey sheet,
+on real prefecture coastlines.
+
+**The number:** Japan's prefecture geometry simplified from **80,370 points to
+6,830**, about a tenth, small enough to sit inside a single HTML file at 115 KB.
+
+**Headline:** 6,830 — map points, down from 80,370
+
+**The interesting thing:** day one had concluded that real map geography was
+unavailable, because geocoding services were blocked by the network policy, and
+settled for an abstract diagram of points and lines. Day two re-tested and found
+that `git clone` worked perfectly well even though geocoding did not. **Real
+coastlines had been reachable the whole time.** The environment had not changed;
+the picture of it had simply never been finished.
+
+**The honest failure:** Japanese day labels printed on top of one another.
+Inspecting the page structure said the layout was *correct*, a box of exactly the
+right size holding exactly two characters. Only a screenshot at three times scale
+showed both characters drawn at the same position. Vertical writing mode depends
+on font metrics that a fallback face does not carry.
+
+**Angle worth taking:** a constraint accepted once tends to stay accepted,
+because nothing prompts a re-examination. Pushing on it is cheap.
+
+## Day 1 — a first draft in one evening
+
+**Shipped:** an interactive map with day-by-day spending, published and working,
+built from an expense workbook and an itinerary.
+
+**The number:** two working blocks of ten and twenty-three minutes inside a
+seven-hour window. Most of that window was waiting.
+
+**Headline:** ~₹50,000 — shopping never totalled on the summary
+
+**The interesting thing:** the source files contained a **reconciliation error of
+about ₹50,000**. An entire spending category, shopping, had never been totalled
+on the summary tab. It was the largest category of the trip. Nobody had noticed
+because the daily sheets were internally consistent and only the roll-up was
+wrong.
+
+**The honest failure:** a map projection bug shipped into the first render.
+Latitude was computed in radians while longitude stayed in degrees, so the whole
+country flattened into a horizontal band. It was caught by screenshotting the
+page, not by reading the code.
+
+**Angle worth taking:** sending real files beat describing them. A careful
+workflow had been designed for handwritten paper notes; the actual records were a
+spreadsheet, and most of that planning was wasted. The artefact contained a
+finding no amount of specification would have surfaced.
