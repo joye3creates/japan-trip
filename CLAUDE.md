@@ -46,6 +46,7 @@ every page built since.
 | `ukiyo.template.html` | `trip.json` | `site/woodblock.html` |
 | `scroll.template.html` | `trip.json` | `site/scroll.html` |
 | `clock.template.html` | `trip.json` | `site/clock.html` |
+| `log.template.html` | `BUILDING_IN_PUBLIC.md` (after `# Entries`) | `site/log.html` |
 
 ## Privacy
 
@@ -69,6 +70,11 @@ say so in the reply rather than dropping it silently.
 
 **Shopping and gifts are excluded at build time**, not hidden in the page, for
 every view except the route map.
+
+**`privacy_gate.py` runs inside `build_site.py`** and scans every file bound for
+`site/`, including embedded JSON and image metadata. One hit fails the build
+before anything is written, reporting file and line but never the match. Names are
+carried as salted hashes; run `python3 privacy_gate.py` to check `site/` by hand.
 
 Audit: `git grep -ilE '<names>' -- .` plus a scan for email, phone and
 confirmation-number shapes across `site/`.
