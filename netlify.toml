@@ -1,0 +1,19 @@
+# Only the site/ directory is ever deployed.
+#
+# This repository holds the original expense workbook, booking confirmations,
+# raw extractions and working notes. None of that may reach a public URL.
+# Netlify publishes site/ and nothing else, so anything outside it is private
+# by default rather than by remembering to exclude it.
+[build]
+  publish  = "site"
+  command  = "python3 build_site.py"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "no-referrer"
+    X-Frame-Options        = "SAMEORIGIN"
