@@ -1,0 +1,4 @@
+# This site is a personal record and is not intended for search indexing.
+# Remove or relax this when the work is ready to be found.
+User-agent: *
+Disallow: /
