@@ -53,14 +53,22 @@ def main():
     staged["log.html"] = build_log()
     print(f"  {'log.html':<18} {len(staged['log.html'])//1024:>4} KB   from log.template.html + BUILDING_IN_PUBLIC.md")
 
-    # Posting assets, byte for byte. The README is a working note, not media.
-    for f in sorted(ASSETS.iterdir()):
-        if f.is_file() and f.name != "README.md":
-            staged[f"assets/{f.name}"] = f.read_bytes()
-    print(f"  {'assets/':<18} {sum(len(v) for k, v in staged.items() if k.startswith('assets/'))//1024:>4} KB   copied from assets/")
+    # Only the media a page actually links. Anything else in assets/ would get
+    # a public URL without having been reviewed for this context.
+    refs = sorted({r for v in staged.values() if isinstance(v, str)
+                   for r in re.findall(r'(?:src|href)="(assets/[^"#?]+)"', v)})
+    missing = [r for r in refs if not (ROOT / r).is_file()]
+    if missing:
+        sys.exit("\nASSETS: linked from a page but not in assets/: " + ", ".join(missing))
+    for r in refs:
+        staged[r] = (ROOT / r).read_bytes()
+    print(f"  {'assets/':<18} {sum(len(staged[r]) for r in refs)//1024:>4} KB   {len(refs)} linked files from assets/")
 
     privacy_gate.enforce(staged)
 
+    # site/assets/ is wholly generated, so clear it: a file dropped from the
+    # page must not linger at its old public URL.
+    shutil.rmtree(SITE / "assets", ignore_errors=True)
     for rel, content in staged.items():
         dest = SITE / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -80,7 +88,8 @@ LOG_SRC = ROOT / "BUILDING_IN_PUBLIC.md"
 # could swallow another.
 FIELDS = [("shipped", "Shipped"), ("number", "The number"),
           ("interesting", "The interesting thing"), ("failure", "The honest failure"),
-          ("angle", "Angle worth taking"), ("second", "A second number")]
+          ("angle", "Angle worth taking"), ("second", "A second number"),
+          ("headline", "Headline")]
 REQUIRED = ("shipped", "number", "interesting", "failure", "angle")
 
 # One still per day. The two screen recordings run 21s and 25s, too long to
@@ -161,8 +170,19 @@ def plain(s):
     return re.sub(r"[*`]", "", s)
 
 
+def stated_headline(paras):
+    """**Headline:** <figure> — <label, six words max>. Stated, not inferred."""
+    m = re.fullmatch(r"(\S+)\s+[—–]\s+(.+)", plain(" ".join(paras)).strip())
+    if not m:
+        raise LogError("Headline must read '<figure> — <label>'")
+    fig, label = m.group(1), m.group(2).strip().rstrip(".")
+    if len(label.split()) > 6:
+        raise LogError(f"Headline label is {len(label.split())} words; six at most")
+    return fig, label
+
+
 def headline(paras):
-    """The big number and its label, from 'The number:'. The author's bold
+    """Fallback only. The big number and its label, from 'The number:'. The author's bold
     phrase is the source when there is one, else the first sentence. The first
     figure in it becomes the number; the words after it become the label."""
     first = paras[0]
@@ -195,7 +215,12 @@ def build_log():
     for d in sorted(days, key=lambda d: -d["day"]):
         f = d["fields"]
         try:
-            fig, label = headline(f["number"])
+            if f.get("headline"):
+                fig, label = stated_headline(f["headline"])
+            else:
+                fig, label = headline(f["number"])
+                print(f"  WARNING: Day {d['day']} has no **Headline:** field; "
+                      f"big number inferred from 'The number:'. State it.")
         except LogError as e:
             sys.exit(f"\nBUILD LOG: {LOG_SRC.name}: Day {d['day']}: {e}")
         img, alt = MEDIA[d["day"]]

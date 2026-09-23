@@ -72,6 +72,8 @@ built from an expense workbook and an itinerary.
 **The number:** two working blocks of ten and twenty-three minutes inside a
 seven-hour window. Most of that window was waiting.
 
+**Headline:** ~₹50,000 — shopping never totalled on the summary
+
 **The interesting thing:** the source files contained a **reconciliation error of
 about ₹50,000**. An entire spending category, shopping, had never been totalled
 on the summary tab. It was the largest category of the trip. Nobody had noticed
@@ -96,6 +98,8 @@ on real prefecture coastlines.
 
 **The number:** Japan's prefecture geometry simplified from **80,370 points to
 6,830**, about a tenth, small enough to sit inside a single HTML file at 115 KB.
+
+**Headline:** 6,830 — map points, down from 80,370
 
 **The interesting thing:** day one had concluded that real map geography was
 unavailable, because geocoding services were blocked by the network policy, and
@@ -122,6 +126,8 @@ one lane per day, with a switch to a price ledger.
 **89% of marks land in the leftmost tenth of the width**; on a logarithmic axis,
 5%. The log scale was not a preference, it was the difference between a chart and
 an unreadable smear.
+
+**Headline:** 89% — marks squeezed left on linear axis
 
 **The interesting thing:** the whole project pivoted. Price is an accounting
 question; time is the travel question, and almost no travel tool answers it. The

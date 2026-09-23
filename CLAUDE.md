@@ -75,6 +75,9 @@ every view except the route map.
 `site/`, including embedded JSON and image metadata. One hit fails the build
 before anything is written, reporting file and line but never the match. Names are
 carried as salted hashes; run `python3 privacy_gate.py` to check `site/` by hand.
+It reads images and video for metadata and embedded strings only. Text drawn
+into a screenshot or a video frame is pixels it cannot see, so every binary it
+lists needs a human look before it ships. Only assets a page links are copied.
 
 Audit: `git grep -ilE '<names>' -- .` plus a scan for email, phone and
 confirmation-number shapes across `site/`.

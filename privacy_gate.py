@@ -132,13 +132,17 @@ def _scan_binary(data):
             yield f"byte {offset}", "email"
 
 
+def _is_text(path, content):
+    return isinstance(content, str) or Path(path).suffix.lower() in TEXT_SUFFIXES
+
+
 def check(files):
     """files: {published path: str | bytes}. Returns a list of finding lines."""
     findings = []
     for path, content in sorted(files.items()):
         if isinstance(content, str):
             hits = [(f"line {n}", k) for n, k in _scan_text(content)]
-        elif Path(path).suffix.lower() in TEXT_SUFFIXES:
+        elif _is_text(path, content):
             hits = [(f"line {n}", k) for n, k in _scan_text(content.decode("utf-8", "replace"))]
         else:
             hits = list(_scan_binary(content))
@@ -156,7 +160,12 @@ def enforce(files):
         print("Matched text is withheld on purpose. Open the file at that line.",
               file=sys.stderr)
         sys.exit(1)
-    print(f"  privacy gate: {len(files)} files clean")
+    binaries = sorted(p for p, c in files.items() if not _is_text(p, c))
+    print(f"  privacy gate: {len(files) - len(binaries)} text files clean, contents scanned")
+    if binaries:
+        print(f"  privacy gate: {len(binaries)} binaries checked for metadata only; "
+              f"text drawn into their pixels is invisible to this gate and needs human review:")
+        print("\n".join(f"    site/{p}" for p in binaries))
 
 
 if __name__ == "__main__":

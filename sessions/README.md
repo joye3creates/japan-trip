@@ -26,7 +26,9 @@ After writing the log, add a matching entry to `BUILDING_IN_PUBLIC.md` in the
 repo root. That file is a different job: short, written for someone drafting a
 social post rather than for an engineer, and it goes to a Claude Project on
 claude.ai. One entry a working day, in the established shape — shipped, the
-number, the interesting thing, the honest failure, the angle worth taking. Keep
+number, the interesting thing, the honest failure, the angle worth taking.
+Add a `**Headline:** <figure> — <label, six words max>` line: it is the big
+number on the public log page, and the build warns when it is missing. Keep
 it under about 300 words. Never put anything in it that the safe-to-post table
 at the top of that file rules out.
 
