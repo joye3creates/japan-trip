@@ -17,3 +17,12 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy        = "no-referrer"
     X-Frame-Options        = "SAMEORIGIN"
+
+# status.json is read cross-origin by the card on the portfolio site, so it
+# needs an explicit allow. It is five public facts already on the front page,
+# nothing that is not, and it is the only path opened up this way.
+[[headers]]
+  for = "/status.json"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control               = "public, max-age=300, must-revalidate"
