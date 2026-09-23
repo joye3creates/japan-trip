@@ -36,12 +36,22 @@ def main():
         built.append((out, title, blurb, len(html) // 1024))
         print(f"  {out:<18} {len(html)//1024:>4} KB   from {tpl} + {ds}")
 
+    # robots.txt is written by hand into site/ and must survive a rebuild
+    (SITE / "robots.txt").write_text(ROBOTS)
+    print(f"  {'robots.txt':<18} {len(ROBOTS)//1024:>4} KB")
+
     cards = "\n".join(
         f'      <a class="card" href="{o}"><h2>{t}</h2><p>{b}</p>'
         f'<span class="sz">{k} KB</span></a>' for o, t, b, k in built)
     (SITE / "index.html").write_text(INDEX.replace("<!--CARDS-->", cards))
     print(f"  {'index.html':<18} {len(INDEX)//1024:>4} KB")
     print(f"\nsite/ holds {len(built)+1} files and nothing else.")
+
+ROBOTS = """# This site is a personal record and is not intended for search indexing.
+# Remove or relax this when the work is ready to be found.
+User-agent: *
+Disallow: /
+"""
 
 INDEX = """<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
