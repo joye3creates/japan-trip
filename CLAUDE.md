@@ -78,6 +78,12 @@ needs a history rewrite, and must happen before this repo is ever public.
 
 ## Deploying
 
+Netlify site **courageous-lolly-4dfc48**, linked to this repository, currently
+set to Private. `main` publishes automatically; pull requests get a preview at
+`deploy-preview-<n>--courageous-lolly-4dfc48.netlify.app`.
+
+`site/robots.txt` disallows crawling. Relax it deliberately, not by accident.
+
 Netlify publishes **`site/` and nothing else**, set in `netlify.toml`. Everything
 private is outside that directory, so it is excluded by default rather than by
 remembering to exclude it. Never move source material, datasets or notes into
@@ -123,6 +129,15 @@ Chart palettes get validated, not eyeballed.
 
 ## Open
 
-The transcribed handwritten notes are the one thing blocking a real version
+**The transcribed handwritten notes** are the one thing blocking a real version
 rather than a demonstration. They bring times, activities that cost nothing, and
-journey departures. `CAPTURE.md` says what they need to contain.
+journey departures. `CAPTURE.md` says what they need to contain. When they
+arrive, delete `synth_times.py` rather than editing it.
+
+**Micro-interactions and story placement** on the clock view are wanted but not
+yet specified. Ask rather than assume.
+
+Also outstanding: which rides each pass actually covered, which fixes a per-ride
+figure that is currently absurd for one of them; the pre-booked tickets that are
+not yet shared out; a custom icon set the owner is drawing; and photographs and
+step counts, pending since the first session.
