@@ -321,6 +321,38 @@ something is not evidence it returned everything.
 three published pages, the name mapping moved outside version control, and a
 standing rule with audit commands added to `CLAUDE.md`.
 
+## 7d. Sessions 04 and 05 in brief
+
+23 September, and the first day the project ran in two sessions at once on the
+same repository. Session 04 built the public build-log page and the privacy
+gate; session 05 handled Netlify, the stills, the portfolio card and the status
+file. Full detail in `sessions/2026-09-23-session-04.md` and
+`sessions/2026-09-23-session-05.md`.
+
+**The work became publishable.** Netlify publishes `site/` and nothing else. The
+build log is the front page, generated from `BUILDING_IN_PUBLIC.md`, so adding a
+day is an entry and an image rather than a code change. `robots.txt` still
+disallows everything, so the site is reachable by link and absent from search.
+
+**The privacy rule became code.** `privacy_gate.py` scans every file bound for
+`site/` before a byte is written, and fails the build on a hit while reporting
+the file and line but never the match. It states its own blind spot on every
+run: it reads images and video for metadata only, so text drawn into a
+screenshot is invisible to it and every binary it lists still needs a human.
+
+**The mistake worth keeping.** Every screenshot in the project had been
+rendering in a fallback typeface. The browser in this container cannot reach the
+font service, the request fails on a certificate, and the page falls back to
+Georgia without one error surfacing in the render. It survived three sessions
+because the pictures looked plausible. The fix was to fetch the fonts another
+way and then read back which ones actually loaded, and that check caught a
+second instance of the same class of bug within the hour.
+
+**Parallel sessions need owners.** A third session was set up to write the daily
+entries, then retired the same day once the 23:59 routine was found to already
+do that job. Two sessions would have opened competing pull requests against one
+file the same night. Who owns which file is now written into `CLAUDE.md`.
+
 ## 8. Open threads
 
 1. **Handwritten notes** — attractions visited and within-day ordering.
@@ -329,7 +361,13 @@ standing rule with audit commands added to `CLAUDE.md`.
 4. **Four data questions** — carried in `trip.json` under `open_questions` and
    shown on the Route tab: Day 4 Uji versus Arashiyama, Day 10 Matsumoto city
    versus drugstore, Day 13 Kamakura, and which stays map to which nights.
-5. **The push** — install the Claude GitHub App, or push from a local clone.
-6. **The real app** — this draft is one HTML file. The reference was a Vite app on
+5. **The real app** — this draft is one HTML file. The reference was a Vite app on
    localhost. Moving to that gets real map tiles back, which is the main thing the
    sandbox costs.
+6. **PP Mori** — the chosen typeface for the portfolio card. Commercial, and it
+   needs a webfont licence rather than a desktop one. Plus Jakarta Sans is
+   standing in.
+7. **The card is not in Framer yet** — component and assets delivered, upload and
+   the phone-width check outstanding.
+8. **Going public** — `robots.txt`, and before the repository could ever follow,
+   `source/` and the pre-`ffd3a2d` commit authorship.
