@@ -112,8 +112,13 @@ Build command is `python3 build_site.py`.
 4. **Wait for review.** The owner checks the Netlify deploy preview
 5. **Merge** once approved
 
-Do not push to `main` directly. A scheduled routine fires at 23:59 IST and should
-follow the same path.
+Do not push to `main` directly.
+
+**A scheduled routine fires at 23:59 IST into the main build session** and writes
+both files, then opens the PR. There is no separate logging session: one was
+tried and retired, because it duplicated the routine and produced a second PR
+against the same file. If a session is asked to write the day's entry, check the
+routine has not already done it.
 
 ## Conventions that matter
 
