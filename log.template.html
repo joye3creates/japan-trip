@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Japan, on a 24-hour clock — build log</title>
-<meta name="description" content="A sixteen-day trip through Japan rebuilt as a twenty-four hour clock, logged one working day at a time.">
+<title>Japan trip on a 24-hour clock — build log</title>
+<meta name="description" content="Sixteen days in Japan, rebuilt in sixteen days of building as a twenty-four hour clock. A daily log of what changed, what broke, and how it got fixed.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap">
 <style>
 :root{
@@ -9,55 +9,71 @@
   --paper:#E8DCC0; --paper-2:#DFD0AE;
   --ink:#3B2F23; --ink-2:#6B5B47; --ink-3:#92836C;
   --mustard:#C6922A; --mustard-tint:rgba(198,146,42,.16);
+  --rule:rgba(59,47,35,.18);
   --border:10px;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:120px}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:"Spectral",Georgia,serif;font-size:16px;line-height:1.6;
   border:var(--border) solid var(--mustard);min-height:100vh}
 a{color:inherit}
 
-/* header: mark + name left, one CTA right, day nav beneath */
-.top{position:sticky;top:0;z-index:10;background:var(--paper);
-  border-bottom:1px solid rgba(59,47,35,.18)}
-.bar{max-width:1080px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:16px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto}
+/* header: mark + name left, one CTA right, sixteen day numbers beneath */
+.top{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--rule)}
+.bar{max-width:1080px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto;min-width:0}
 .brand svg{flex:none}
 .brand b{font-family:"Shippori Mincho",serif;font-weight:800;font-size:17px;letter-spacing:.02em}
 .cta{font-size:13px;letter-spacing:.04em;text-decoration:none;padding:8px 14px;
   border:1px solid var(--ink);box-shadow:3px 3px 0 var(--mustard);transition:transform .15s,box-shadow .15s;white-space:nowrap}
 .cta:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--mustard)}
-.days{max-width:1080px;margin:0 auto;padding:0 20px 10px;display:flex;gap:6px;flex-wrap:wrap;list-style:none}
-.days a{display:block;min-width:40px;text-align:center;padding:3px 8px;font-size:13px;
-  font-variant-numeric:tabular-nums;letter-spacing:.06em;text-decoration:none;
-  color:var(--ink-2);border:1px solid transparent}
+.days{max-width:1080px;margin:0 auto;padding:0 20px 10px;display:flex;gap:4px;list-style:none;
+  overflow-x:auto;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.days a,.days span{display:block;min-width:36px;text-align:center;padding:2px 6px;font-size:13px;
+  font-variant-numeric:tabular-nums;letter-spacing:.06em;text-decoration:none;border:1px solid transparent}
+.days a{color:var(--ink-2)}
+.days span{color:var(--ink-3);opacity:.55;border:1px dashed var(--rule)}
 .days a:hover,.days a.on{color:var(--ink);border-color:var(--mustard);background:var(--mustard-tint)}
 
 main{max-width:1080px;margin:0 auto;padding:0 20px 12vh}
 
-.hero{padding:9vh 0 5vh;max-width:900px}
-.marker{display:inline-block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--ink);background:var(--mustard-tint);border-left:3px solid var(--mustard);padding:4px 10px}
-h1{font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(34px,6vw,56px);
-  line-height:1.1;letter-spacing:.01em;margin:18px 0 16px}
-.intro{font-size:18px;color:var(--ink-2);margin:0 0 22px;max-width:80ch}
-.follow{font-size:14px;text-decoration:none;border-bottom:1px solid var(--mustard);padding-bottom:1px}
+/* hero */
+.hero{padding:7vh 0 0}
+.prog{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.prog b{font-weight:500;background:var(--mustard-tint);border-left:3px solid var(--mustard);padding:4px 10px}
+.segs{display:flex;gap:3px}
+.segs i{width:12px;height:8px;background:var(--rule)}
+.segs i.done{background:var(--mustard)}
+h1{font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(34px,6vw,58px);
+  line-height:1.08;letter-spacing:.01em;margin:18px 0 16px;max-width:16ch}
+.intro{font-size:18px;color:var(--ink-2);margin:0 0 10px;max-width:62ch}
+.follow{display:inline-block;margin-top:6px;font-size:14px;text-decoration:none;border-bottom:1px solid var(--mustard);padding-bottom:1px}
 .follow:hover{background:var(--mustard-tint)}
 
-.live{margin:0 0 9vh}
-.live-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
-  font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
-.live-head a{text-transform:none;letter-spacing:.02em}
-.frame{border:1px solid var(--ink);box-shadow:6px 6px 0 rgba(59,47,35,.12);background:var(--paper)}
-.frame iframe{display:block;width:100%;height:min(82vh,860px);border:0}
+/* watch / try it */
+.stage{margin:30px 0 0}
+.stage-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
+.tabs{display:flex}
+.tabs button{font:inherit;font-size:13px;letter-spacing:.06em;padding:8px 16px;cursor:pointer;
+  border:1px solid var(--ink);background:var(--paper);color:var(--ink);margin-bottom:-1px}
+.tabs button+button{border-left:0}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.stage-head a{font-size:13px;color:var(--ink-2);margin-bottom:6px}
+.screen{position:relative;border:1px solid var(--ink);box-shadow:6px 6px 0 rgba(59,47,35,.12);background:var(--paper-2)}
+.screen [hidden]{display:none!important}
+.screen video{display:block;width:100%;height:auto;aspect-ratio:1280/760}
+.screen iframe{display:block;width:100%;height:min(80vh,820px);border:0;background:var(--paper)}
+.pause{position:absolute;right:10px;bottom:10px;font:inherit;font-size:12px;letter-spacing:.06em;
+  padding:5px 10px;border:1px solid var(--ink);background:rgba(232,220,192,.92);color:var(--ink);cursor:pointer}
+.hint{font-size:12.5px;color:var(--ink-3);margin:10px 0 0}
 
+/* featured day, then the rest */
 h2.section{font-family:"Shippori Mincho",serif;font-weight:600;font-size:14px;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--ink-3);margin:0 0 26px;padding-bottom:10px;
-  border-bottom:1px solid rgba(59,47,35,.18)}
-
+  text-transform:uppercase;color:var(--ink-3);margin:9vh 0 22px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
 .day{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:34px;
-  padding:0 0 56px;margin:0 0 56px;border-bottom:1px solid rgba(59,47,35,.18)}
+  padding:0 0 48px;margin:0 0 48px;border-bottom:1px solid var(--rule)}
 .day:last-child{border-bottom:0}
 @media(max-width:820px){.day{grid-template-columns:1fr;gap:20px}}
 .media{margin:0}
@@ -73,23 +89,48 @@ h2.section{font-family:"Shippori Mincho",serif;font-weight:600;font-size:14px;le
 .failure .k{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
 .failure p{margin:0}.failure p+p{margin-top:8px}
 code{font-size:.9em;background:rgba(59,47,35,.08);padding:0 3px}
+.back{display:none;font:inherit;font-size:14px;background:none;border:0;padding:0;margin:-28px 0 0;
+  color:var(--ink);text-decoration:underline;text-decoration-color:var(--mustard);cursor:pointer}
 
-footer{max-width:1080px;margin:0 auto;padding:22px 20px 40px;font-size:12.5px;color:var(--ink-3);
-  border-top:1px solid rgba(59,47,35,.18)}
+.cards{display:none;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.card{display:flex;flex-direction:column;text-decoration:none;background:var(--paper-2);border:1px solid var(--ink);
+  box-shadow:4px 4px 0 rgba(59,47,35,.1);transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(59,47,35,.16)}
+.card img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;object-position:top left;border-bottom:1px solid var(--ink)}
+.card-t{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px}
+.card-t b{font-family:"Shippori Mincho",serif;font-weight:600;font-size:16px;line-height:1.3}
+.card-n{font-family:"Shippori Mincho",serif;font-weight:800;font-size:26px;line-height:1.1;margin-top:6px}
+.card small{font-size:12.5px;color:var(--ink-2)}
+.card.future{background:transparent;border-style:dashed;border-color:var(--ink-3);box-shadow:none;color:var(--ink-3)}
+.card.future:hover{transform:none}
+.card.future .num-label{color:var(--ink-3)}
+.card.future{justify-content:center}
+.ph{font-size:12.5px;letter-spacing:.06em;padding:0 12px 12px}
+
+/* with script: one featured day, the rest as cards. Without: every day in full. */
+.js .day{display:none;border-bottom:0;margin-bottom:28px}
+.js .day.on{display:grid}
+.js .cards{display:grid}
+.js .card.on{display:none}
+
+footer{max-width:1080px;margin:0 auto;padding:22px 20px 40px;font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule)}
 footer p{margin:0 0 6px;max-width:72ch}
-@media(max-width:560px){:root{--border:6px}.bar{padding:12px 14px}.days,main,footer{padding-inline:14px}
-  .brand b{font-size:15px}.cta{padding:7px 10px;font-size:12px}}
+@media(max-width:560px){:root{--border:6px}.bar{padding:10px 14px;gap:10px}.days,main,footer{padding-inline:14px}
+  .brand b{font-size:14px}.brand svg{width:24px;height:24px}.cta{padding:6px 9px;font-size:12px}
+  .intro{font-size:16.5px}.segs i{width:9px}.tabs button{padding:8px 12px}
+  .cards{grid-template-columns:1fr 1fr;gap:10px}.card-n{font-size:21px}.card-t b{font-size:14px}
+  .card small{display:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style></head><body>
 <header class="top">
   <div class="bar">
-    <a class="brand" href="#top" aria-label="Japan, on a 24-hour clock">
+    <a class="brand" href="#top" aria-label="Japan trip on a 24-hour clock">
       <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
         <circle cx="15" cy="15" r="13" fill="none" stroke="#3B2F23" stroke-width="2"/>
         <circle cx="15" cy="15" r="7" fill="#C6922A"/>
         <path d="M15 4v4M15 22v4M4 15h4M22 15h4" stroke="#3B2F23" stroke-width="2"/>
       </svg>
-      <b>Japan, on a 24-hour clock</b>
+      <b>Japan trip on a 24-hour clock</b>
     </a>
     <a class="cta" href="https://shirshabiswas.framer.website">Back to portfolio</a>
   </div>
@@ -99,20 +140,39 @@ footer p{margin:0 0 6px;max-width:72ch}
 </header>
 <main id="top">
   <section class="hero">
-    <span class="marker">Day <!--DAY--> &middot; updated daily</span>
-    <h1>Japan, on a 24-hour clock</h1>
-    <p class="intro">Sixteen days in Japan, rebuilt from a real expense book as a clock rather than a receipt.<br>
-    Logged here one working day at a time: the number that mattered, and what went wrong.</p>
+    <div class="prog"><b>Day <!--DAY--> of <!--TOTAL--></b><span class="segs" aria-hidden="true"><!--SEGS--></span></div>
+    <h1>Japan trip on a 24-hour clock</h1>
+    <p class="intro">Sixteen days in Japan, rebuilt in sixteen days of building. Every purchase, meal, journey and night moves off a receipt and onto a twenty-four hour clock.</p>
+    <p class="intro">This is the log, one entry per building day: what changed, what broke, and how I got past it. Built with Claude Code.</p>
     <a class="follow" href="https://bsky.app/profile/shirshacreates.bsky.social">Follow on Bluesky &rarr;</a>
+
+    <div class="stage">
+      <div class="stage-head">
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true" data-mode="watch">&#9654; Watch</button>
+          <button role="tab" aria-selected="false" data-mode="try">Try it yourself</button>
+        </div>
+        <a href="clock.html">Open full screen &rarr;</a>
+      </div>
+      <div class="screen" id="screen">
+        <video id="demo" autoplay muted loop playsinline preload="metadata" poster="assets/clock_hero.png"
+          aria-label="Screen recording: a map of Japan dissolves into a sixteen-day clock, which then switches to a price ledger">
+          <source src="assets/interaction.mp4" type="video/mp4">
+        </video>
+        <button class="pause" id="pause" type="button">Pause</button>
+      </div>
+      <p class="hint" id="hint">The map dissolves into sixteen days by the hour, then switches to what it cost. Times are placeholders for now.</p>
+    </div>
   </section>
 
-  <section class="live" aria-label="The current build">
-    <div class="live-head"><span>The current build</span><a href="clock.html">Open full screen &rarr;</a></div>
-    <div class="frame"><iframe src="clock.html" title="The clock view: sixteen days laid out hour by hour" loading="lazy"></iframe></div>
-  </section>
-
-  <h2 class="section">Build log</h2>
+  <h2 class="section" id="feature-h">Latest &middot; Day <!--DAY--> of <!--TOTAL--></h2>
 <!--ENTRIES-->
+  <button class="back" id="back" type="button">&larr; Back to the latest day</button>
+
+  <h2 class="section" id="rest-h">Earlier days</h2>
+  <div class="cards" id="cards">
+<!--CARDS-->
+  </div>
 </main>
 <footer>
   <p>Times on the clock are invented placeholders, marked on the page, until handwritten notes are transcribed.
@@ -120,12 +180,58 @@ footer p{margin:0 0 6px;max-width:72ch}
   <p>No names, contact details or booking references appear anywhere on this site. The two travellers are A and B.</p>
 </footer>
 <script>
-// highlight the day in the nav whose entry is on screen
-const links = [...document.querySelectorAll('.days a')];
-const io = new IntersectionObserver(es => es.forEach(e => {
-  if (!e.isIntersecting) return;
-  links.forEach(a => a.classList.toggle('on', a.hash === '#' + e.target.id));
-}), {rootMargin: '-40% 0px -55% 0px'});
-document.querySelectorAll('.day').forEach(d => io.observe(d));
+document.documentElement.classList.add('js');
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const TOTAL = <!--TOTAL-->, LATEST = <!--DAY-->;
+
+// featured day: the latest by default; #day-N or a tap promotes another
+function show(n, scroll) {
+  if (!$(`.day[data-day="${n}"]`)) n = LATEST;
+  $$('.day, .card').forEach(el => el.classList.toggle('on', +el.dataset.day === n));
+  $$('.days a').forEach(a => a.classList.toggle('on', a.hash === '#day-' + n));
+  $('#feature-h').textContent = (n === LATEST ? 'Latest · ' : '') + `Day ${n} of ${TOTAL}`;
+  $('#rest-h').textContent = n === LATEST ? 'Earlier days' : 'Other days';
+  $('#back').style.display = n === LATEST ? 'none' : 'inline-block';
+  if (scroll) $('#feature-h').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+}
+const fromHash = () => +(location.hash.match(/^#day-(\d+)$/) || [])[1] || LATEST;
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#day-"]');
+  if (!a) return;
+  e.preventDefault();
+  const n = +a.hash.slice(5);
+  history.pushState(null, '', n === LATEST ? location.pathname : a.hash);
+  show(n, true);
+});
+$('#back').onclick = () => { history.pushState(null, '', location.pathname); show(LATEST, true); };
+addEventListener('popstate', () => show(fromHash(), false));
+show(fromHash(), location.hash.startsWith('#day-'));
+
+// watch / try it. The live page loads only when asked for.
+const video = $('#demo'), pause = $('#pause');
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) { video.removeAttribute('autoplay'); video.pause(); }
+const syncPause = () => pause.textContent = video.paused ? 'Play' : 'Pause';
+pause.onclick = () => { video.paused ? video.play() : video.pause(); };
+video.addEventListener('play', syncPause); video.addEventListener('pause', syncPause); syncPause();
+let frame;
+$$('.tabs button').forEach(b => b.onclick = () => {
+  const tryIt = b.dataset.mode === 'try';
+  $$('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  video.hidden = pause.hidden = tryIt;
+  if (tryIt) {
+    video.pause();
+    if (!frame) {
+      frame = Object.assign(document.createElement('iframe'),
+        {src: 'clock.html', title: 'The clock view, live: scroll inside to play it'});
+      $('#screen').append(frame);
+    }
+    frame.hidden = false;
+    $('#hint').textContent = 'Scroll inside the frame to play it. Use the Clock / Ledger switch at the top to change views.';
+  } else {
+    if (frame) frame.hidden = true;
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) video.play();
+    $('#hint').textContent = 'The map dissolves into sixteen days by the hour, then switches to what it cost. Times are placeholders for now.';
+  }
+});
 </script>
 </body></html>
