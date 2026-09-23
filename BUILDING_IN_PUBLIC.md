@@ -164,3 +164,34 @@ the day. Once shared across the rides they paid for, they turn out to be the
 
 **Angle worth taking:** the most useful thing said all day was six words from the
 person who could see what the tool could not.
+
+## Day 4 — the type had been wrong all along
+
+**Shipped:** the build log became the front page, generated from this file; a
+privacy gate every file must pass before the site is written; a card for the
+portfolio with a five-second loop; and a small status file so the day counter on
+that card keeps itself current.
+
+**The number:** the same 5.8 second loop is **226 KB as an MP4 and 2.25 MB as a
+GIF**. Ten times heavier, for worse quality.
+
+**Headline:** 10× — smaller as MP4 than GIF
+
+**The interesting thing:** the card's copy was rewritten from one sentence that
+had not been asked for. Three framings were drafted first, all about data
+visualisation and building in public, all reasonable and all wrong. Then the
+actual reason surfaced: came back from the trip and posted nothing, because
+there was too much to say, and could not answer "how was it" or "what did it
+cost" without scrolling through a thousand photographs. Every line on the card
+came from that sentence.
+
+**The honest failure:** every screenshot in this project had been rendering in
+the wrong typeface. The browser here cannot reach the font service, the request
+fails on a certificate, and the page quietly falls back to Georgia without one
+error surfacing in the render. It survived three sessions because the pictures
+looked fine. Three stills re-shot.
+
+**Angle worth taking:** a render that looks plausible is not evidence that it is
+right. The check added afterwards, reading back which fonts actually loaded
+rather than trusting the picture, caught a second version of the same bug within
+the hour.

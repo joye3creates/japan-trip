@@ -138,7 +138,7 @@ footer p{margin:0 0 6px;max-width:72ch}
     <li><a href="#day-1">01</a></li>
     <li><a href="#day-2">02</a></li>
     <li><a href="#day-3">03</a></li>
-    <li><span aria-disabled="true" title="Not built yet">04</span></li>
+    <li><a href="#day-4">04</a></li>
     <li><span aria-disabled="true" title="Not built yet">05</span></li>
     <li><span aria-disabled="true" title="Not built yet">06</span></li>
     <li><span aria-disabled="true" title="Not built yet">07</span></li>
@@ -155,7 +155,7 @@ footer p{margin:0 0 6px;max-width:72ch}
 </header>
 <main id="top">
   <section class="hero">
-    <div class="prog"><b>Day 3 of 16</b><span class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></div>
+    <div class="prog"><b>Day 4 of 16</b><span class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></div>
     <h1>Japan trip on a 24-hour clock</h1>
     <p class="intro">Sixteen days in Japan, rebuilt in sixteen days of building. Every purchase, meal, journey and night moves off a receipt and onto a twenty-four hour clock.</p>
     <p class="intro">This is the log, one entry per building day: what changed, what broke, and how I got past it. Built with Claude Code.</p>
@@ -180,7 +180,18 @@ footer p{margin:0 0 6px;max-width:72ch}
     </div>
   </section>
 
-  <h2 class="section" id="feature-h">Latest &middot; Day 3 of 16</h2>
+  <h2 class="section" id="feature-h">Latest &middot; Day 4 of 16</h2>
+  <article class="day" id="day-4" data-day="4">
+    <figure class="media"><img src="assets/day-04.png" alt="Day 4: the type had been wrong all along" loading="lazy"><figcaption>Day 4: the type had been wrong all along</figcaption></figure>
+    <div>
+      <span class="num-label">Day 04 of 16</span>
+      <h3>The type had been wrong all along</h3>
+      <div class="big">10×</div>
+      <p class="big-label">smaller as MP4 than GIF</p>
+      <p class="takeaway">A render that looks plausible is not evidence that it is right.</p>
+      <div class="failure"><span class="k">The honest failure</span><p>Every screenshot in this project had been rendering in the wrong typeface. The browser here cannot reach the font service, the request fails on a certificate, and the page quietly falls back to Georgia without one error surfacing in the render. It survived three sessions because the pictures looked fine. Three stills re-shot.</p></div>
+    </div>
+  </article>
   <article class="day" id="day-3" data-day="3">
     <figure class="media"><img src="assets/clock_hero.png" alt="The clock view: sixteen days laid out hour by hour" loading="lazy"><figcaption>The clock view: sixteen days laid out hour by hour</figcaption></figure>
     <div>
@@ -219,12 +230,17 @@ footer p{margin:0 0 6px;max-width:72ch}
   <h2 class="section" id="rest-h">Earlier days</h2>
   <div class="cards" id="cards">
     <div class="card future" aria-hidden="true">
-      <span class="card-t"><span class="num-label">Day 05 of 16</span></span><span class="ph">Not built yet</span></div>
+      <span class="card-t"><span class="num-label">Day 06 of 16</span></span><span class="ph">Not built yet</span></div>
     <div class="card future" aria-hidden="true">
-      <span class="card-t"><span class="num-label">Day 04 of 16</span></span><span class="ph">Not built yet</span></div>
+      <span class="card-t"><span class="num-label">Day 05 of 16</span></span><span class="ph">Not built yet</span></div>
+    <a class="card" href="#day-4" data-day="4">
+      <img src="assets/day-04.png" alt="" loading="lazy">
+      <span class="card-t"><span class="num-label">Day 04 · latest</span>
+      <b>The type had been wrong all along</b><span class="card-n">10×</span><small>smaller as MP4 than GIF</small></span>
+    </a>
     <a class="card" href="#day-3" data-day="3">
       <img src="assets/clock_hero.png" alt="" loading="lazy">
-      <span class="card-t"><span class="num-label">Day 03 · latest</span>
+      <span class="card-t"><span class="num-label">Day 03</span>
       <b>The axis changed</b><span class="card-n">89%</span><small>marks squeezed left on linear axis</small></span>
     </a>
     <a class="card" href="#day-2" data-day="2">
@@ -248,7 +264,7 @@ footer p{margin:0 0 6px;max-width:72ch}
 <script>
 document.documentElement.classList.add('js');
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const TOTAL = 16, LATEST = 3;
+const TOTAL = 16, LATEST = 4;
 
 // featured day: the latest by default; #day-N or a tap promotes another
 function show(n, scroll) {
