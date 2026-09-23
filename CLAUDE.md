@@ -46,7 +46,8 @@ every page built since.
 | `ukiyo.template.html` | `trip.json` | `site/woodblock.html` |
 | `scroll.template.html` | `trip.json` | `site/scroll.html` |
 | `clock.template.html` | `trip.json` | `site/clock.html` |
-| `log.template.html` | `BUILDING_IN_PUBLIC.md` (after `# Entries`) | `site/log.html` |
+| `log.template.html` | `BUILDING_IN_PUBLIC.md` (after `# Entries`) | `site/index.html`, the front page, and `site/log.html` |
+| `INDEX` in `build_site.py` | the four pages above | `site/builds.html` |
 
 ## Privacy
 

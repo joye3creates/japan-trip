@@ -47,11 +47,13 @@ def main():
     cards = "\n".join(
         f'      <a class="card" href="{o}"><h2>{t}</h2><p>{b}</p>'
         f'<span class="sz">{k} KB</span></a>' for o, t, b, k in built)
-    staged["index.html"] = INDEX.replace("<!--CARDS-->", cards)
-    print(f"  {'index.html':<18} {len(INDEX)//1024:>4} KB")
+    # The four-card index of earlier builds lives at /builds.html. The build log
+    # is the front page, and stays at /log.html too so shared links keep working.
+    staged["builds.html"] = INDEX.replace("<!--CARDS-->", cards)
+    print(f"  {'builds.html':<18} {len(INDEX)//1024:>4} KB")
 
-    staged["log.html"] = build_log()
-    print(f"  {'log.html':<18} {len(staged['log.html'])//1024:>4} KB   from log.template.html + BUILDING_IN_PUBLIC.md")
+    staged["index.html"] = staged["log.html"] = build_log()
+    print(f"  {'index.html':<18} {len(staged['index.html'])//1024:>4} KB   from log.template.html + BUILDING_IN_PUBLIC.md, also as log.html")
 
     # Only the media a page actually links. Anything else in assets/ would get
     # a public URL without having been reviewed for this context.
