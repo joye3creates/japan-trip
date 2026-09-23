@@ -56,7 +56,7 @@ def main():
     # Only the media a page actually links. Anything else in assets/ would get
     # a public URL without having been reviewed for this context.
     refs = sorted({r for v in staged.values() if isinstance(v, str)
-                   for r in re.findall(r'(?:src|href)="(assets/[^"#?]+)"', v)})
+                   for r in re.findall(r'(?:src|href|poster)="(assets/[^"#?]+)"', v)})
     missing = [r for r in refs if not (ROOT / r).is_file()]
     if missing:
         sys.exit("\nASSETS: linked from a page but not in assets/: " + ", ".join(missing))
@@ -97,6 +97,9 @@ REQUIRED = ("shipped", "number", "interesting", "failure", "angle")
 #     **Media:** <file> — <caption>
 # Stills only. The screen recordings run 21s and 25s, too long to loop.
 IMAGE_TYPES = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+
+# The trip is sixteen days, so the build is sixteen working days: "Day N of 16".
+TOTAL_DAYS = 16
 
 WORDNUM = {w: i for i, w in enumerate(
     "zero one two three four five six seven eight nine ten eleven twelve".split())}
@@ -228,9 +231,15 @@ def build_log():
     except LogError as e:
         sys.exit(f"\nBUILD LOG: {LOG_SRC.name}: {e}")
     latest = max(d["day"] for d in days)
-    nav = "\n".join(f'    <li><a href="#day-{d["day"]}">{d["day"]:02d}</a></li>'
-                    for d in sorted(days, key=lambda d: d["day"]))
-    entries = []
+    built = {d["day"] for d in days}
+    if latest > TOTAL_DAYS:
+        sys.exit(f"\nBUILD LOG: Day {latest} is past the {TOTAL_DAYS}-day plan")
+    nav = "\n".join(
+        f'    <li><a href="#day-{n}">{n:02d}</a></li>' if n in built else
+        f'    <li><span aria-disabled="true" title="Not built yet">{n:02d}</span></li>'
+        for n in range(1, TOTAL_DAYS + 1))
+    segs = "".join(f'<i class="{"done" if n <= latest else ""}"></i>' for n in range(1, TOTAL_DAYS + 1))
+    entries, cards = [], []
     for d in sorted(days, key=lambda d: -d["day"]):
         f = d["fields"]
         try:
@@ -243,21 +252,33 @@ def build_log():
         except LogError as e:
             sys.exit(f"\nBUILD LOG: {LOG_SRC.name}: Day {d['day']}: {e}")
         img, alt = d["media"]
+        title = inline(d['title'][:1].upper() + d['title'][1:])
         failure = "".join(f"<p>{inline(p[:1].upper() + p[1:])}</p>" for p in f["failure"])
-        entries.append(f"""  <article class="day" id="day-{d['day']}">
+        entries.append(f"""  <article class="day" id="day-{d['day']}" data-day="{d['day']}">
     <figure class="media"><img src="assets/{img}" alt="{H.escape(alt)}" loading="lazy"><figcaption>{H.escape(alt)}</figcaption></figure>
     <div>
-      <span class="num-label">Day {d['day']:02d}</span>
-      <h3>{inline(d['title'][:1].upper() + d['title'][1:])}</h3>
+      <span class="num-label">Day {d['day']:02d} of {TOTAL_DAYS}</span>
+      <h3>{title}</h3>
       <div class="big">{H.escape(fig)}</div>
       <p class="big-label">{H.escape(label)}</p>
       <p class="takeaway">{H.escape(first_sentence(f['angle']))}</p>
       <div class="failure"><span class="k">The honest failure</span>{failure}</div>
     </div>
   </article>""")
+        cards.append(f"""    <a class="card" href="#day-{d['day']}" data-day="{d['day']}">
+      <img src="assets/{img}" alt="" loading="lazy">
+      <span class="card-t"><span class="num-label">Day {d['day']:02d}{' · latest' if d['day'] == latest else ''}</span>
+      <b>{title}</b><span class="card-n">{H.escape(fig)}</span><small>{H.escape(label)}</small></span>
+    </a>""")
+    # the next two days, dashed, so progress reads at a glance
+    upcoming = "".join(f"""    <div class="card future" aria-hidden="true">
+      <span class="card-t"><span class="num-label">Day {n:02d} of {TOTAL_DAYS}</span></span><span class="ph">Not built yet</span></div>
+""" for n in range(min(latest + 2, TOTAL_DAYS), latest, -1))
     return ((ROOT / "log.template.html").read_text()
-            .replace("<!--NAV-->", nav).replace("<!--DAY-->", str(latest))
-            .replace("<!--ENTRIES-->", "\n".join(entries)))
+            .replace("<!--NAV-->", nav).replace("<!--SEGS-->", segs)
+            .replace("<!--DAY-->", str(latest)).replace("<!--TOTAL-->", str(TOTAL_DAYS))
+            .replace("<!--ENTRIES-->", "\n".join(entries))
+            .replace("<!--CARDS-->", upcoming + "\n".join(cards)))
 
 ROBOTS = """# This site is a personal record and is not intended for search indexing.
 # Remove or relax this when the work is ready to be found.
