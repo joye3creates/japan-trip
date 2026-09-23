@@ -45,7 +45,8 @@ def main():
         f'<span class="sz">{k} KB</span></a>' for o, t, b, k in built)
     (SITE / "index.html").write_text(INDEX.replace("<!--CARDS-->", cards))
     print(f"  {'index.html':<18} {len(INDEX)//1024:>4} KB")
-    print(f"\nsite/ holds {len(built)+1} files and nothing else.")
+    n = len(list(SITE.iterdir()))
+    print(f"\nsite/ holds {n} files and nothing else. Only this directory deploys.")
 
 ROBOTS = """# This site is a personal record and is not intended for search indexing.
 # Remove or relax this when the work is ready to be found.
