@@ -18,7 +18,7 @@ Draft format: header lines, a line of three dashes, then the post text.
     media: assets/route_map.png
     media: assets/woodblock_full.png | optional alt text override
     ---
-    Day 2/16 · Japan trip, visualized 🇯🇵
+    Day 2/16 · Japan Trip visualised 🇯🇵
     ...
 
 Alt text defaults to the file's row in assets/README.md.
@@ -34,7 +34,7 @@ import privacy_gate  # noqa: E402
 RECORD = ROOT / "social" / "posted.json"
 SERVICE = "https://bsky.social"
 LIMIT = 300                       # graphemes, as Bluesky counts them
-HEADER = "Day {n}/16 · Japan trip, visualized 🇯🇵"
+HEADER = "Day {n}/16 · Japan Trip visualised 🇯🇵"
 FOOTER = "#buildinpublic #dataviz"
 IMAGE_MAX = 1_000_000             # Bluesky rejects images over ~976 KB
 VIDEO_MAX = 100_000_000

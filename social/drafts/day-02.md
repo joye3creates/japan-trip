@@ -2,7 +2,7 @@ day: 2
 media: assets/route_map.png
 media: assets/woodblock_full.png
 ---
-Day 2/16 · Japan trip, visualized 🇯🇵
+Day 2/16 · Japan Trip visualised 🇯🇵
 
 Day 1 was bare bones: a map, a spending dashboard. It looked like an expense report.
 

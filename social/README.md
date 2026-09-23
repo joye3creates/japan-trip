@@ -11,23 +11,24 @@ One post a day to @shirshacreates.bsky.social, drafted from that day's entry in
    metadata, not pixels.
 3. Show the owner the full text, the count the script printed, and the media.
    **Wait.**
-4. Only on an explicit "post it": `python3 social/bsky.py post ...`. It checks
-   the account for an existing "Day N/16" post before posting anything, then
-   appends to `posted.json`. Commit that record to a branch and open a PR, as
+4. The owner posts it by hand. When they say it is up, add the day to
+   `posted.json` (link if given) and commit that to a branch with a PR, as
    with everything else here.
 
-Never auto-post. Never schedule without asking.
+`bsky.py post` exists but is not in use: the owner posts. Run it only if the
+owner explicitly says "post it" to you. Never auto-post. Never schedule.
 
 ## Credentials
 
-`BLUESKY_HANDLE` and `BLUESKY_APP_PASSWORD`, set as environment variables in
+Only needed if `bsky.py post` is ever used. `BLUESKY_HANDLE` and
+`BLUESKY_APP_PASSWORD`, set as environment variables in
 the cloud environment's settings. An app password, never the account password.
 Never committed, never pasted into a chat. The network policy must allow
 `bsky.social` and `bsky.network` (and `video.bsky.app` for video).
 
 ## Format
 
-- First line exactly `Day N/16 · Japan trip, visualized 🇯🇵`
+- First line exactly `Day N/16 · Japan Trip visualised 🇯🇵`
 - Blank line between paragraphs; hashtags on the line directly under the last
   one, as on Day 1
 - One main detail. At most 300 characters as Bluesky counts them, hashtags
