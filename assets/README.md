@@ -10,6 +10,7 @@ Stills are 2x.
 | `numbers_tab.png` | The analytics tab: spend by day, by category, transport mix |
 | `woodblock_full.png` | The full aged survey sheet, whole page |
 | `site_index.png` | The index of the four builds |
+| `day-04.png` | The build-log page: a generated day card, header and day nav |
 | `interaction.mp4` | 21s. Map dissolving into the clock, then toggling to the ledger and back |
 | `tabs-route-numbers-ledger.mp4` | 25s. Route, day isolation, Numbers, Ledger with filters |
 | `interaction.gif` | The first video at 600px, for places that will not take video |
@@ -18,6 +19,11 @@ Stills are 2x.
 
 Only the files a page actually links are copied into `site/assets/`. The rest
 live here and are posted by hand.
+
+The build log looks for `day-NN.png` for day N unless that day's entry names
+another file with a `**Media:**` line, so a new day needs a file here and no
+code change. Days 1-3 are mapped to their existing stills rather than renamed,
+so the names in this table stay true.
 
 ## How the stills are captured
 
