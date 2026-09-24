@@ -89,10 +89,9 @@ body{margin:0;background:var(--paper);color:var(--ink);
 <div class="dock" id="dock">
   <div class="grp" id="dock-view">
     <div class="toggle" role="group" aria-label="Choose a view">
-      <button id="v-clock"  aria-pressed="true">Clock</button>
-      <button id="v-ledger" aria-pressed="false">Ledger</button>
+      <button id="v-ledger" aria-pressed="false">Expense</button>
+      <button id="v-clock"  aria-pressed="true">Journey</button>
     </div>
-    <span class="t" id="hint"></span>
   </div>
   <div class="grp" id="dock-step" hidden>
     <span class="t" id="step-t"></span>
@@ -283,6 +282,9 @@ const nodes=MARKS.map((m,i)=>{
   ic.setAttribute("opacity","0"); ic.style.transition="opacity .5s";
   g.append(el("circle",{r:11,fill:"transparent"}),dot,ic);
   g._m=m; g._dot=dot; g._ic=ic; g._i=i;
+  // scattered, not sequential: a straight run of delays arrives as a
+  // visible wave, which reads as the marks smearing into lines
+  g._delay=Math.round(((i*97+i*i*31)%211)/211*260);
   g.addEventListener("pointerenter",e=>tip(e,g));
   g.addEventListener("pointerleave",untip);
   gMarks.append(g); return g;
@@ -315,6 +317,7 @@ function buildOffsets(){
 }
 const off=m=>OFF[m.id]||0;
 
+let moving=false, settle=null;
 function render(){
   buildOffsets();
   const onMap=step<1||mapHold;
@@ -327,7 +330,7 @@ function render(){
   gLedgAx.setAttribute("opacity",view==="clock"?0:1);
   nodes.forEach(g=>{
     const m=g._m, p=pos(m);
-    g.style.transitionDelay=(g._i%22)*16+"ms";
+    g.style.transitionDelay=g._delay+"ms";
     g.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
     let vis=1, showIcon=!onMap;
     if(!onMap){
@@ -335,13 +338,21 @@ function render(){
       else               vis = m.kind==="event" ? 0 : 1;
     } else vis = 1;
     g.setAttribute("opacity",vis);
-    g._ic.setAttribute("opacity",showIcon&&vis?1:0);
-    g._dot.setAttribute("opacity",showIcon?0:1);
+    // Never cross-fade an icon while the mark is still moving: a dot turning
+    // into an icon mid-flight is what made them look like streaks.
+    if(moving){ g._ic.setAttribute("opacity",0); g._dot.setAttribute("opacity",vis?1:0); }
+    else { g._ic.setAttribute("opacity",showIcon&&vis?1:0);
+           g._dot.setAttribute("opacity",showIcon?0:1); }
     const hot = m.lane==="band" || (step>=2 && m.merge_to);
     g.style.color = hot?"var(--verm)":"var(--ink-2)";
     g._dot.setAttribute("fill", hot?"var(--verm)":"var(--ink-2)");
   });
-  $("#hint").textContent = view==="clock" ? "what it cost \u2192" : "\u2190 when it happened";
+  clearTimeout(settle);
+  settle=setTimeout(()=>{ moving=false; nodes.forEach(g=>{
+    const m=g._m, showIcon=!(step<1||mapHold);
+    const vis=+g.getAttribute("opacity");
+    g._ic.setAttribute("opacity",showIcon&&vis?1:0);
+    g._dot.setAttribute("opacity",showIcon?0:1); }); }, 1500);
 }
 
 /* ---------- tooltip ---------- */
@@ -365,8 +376,9 @@ function untip(){const t=$("#tip");t.style.opacity="0";
 
 /* ---------- steps + toggle ---------- */
 const STEPS=[
- {t:"The country",b:["Forty-seven prefectures. Thirteen of them saw something over sixteen days.",
-   "Every mark is one thing that happened, sitting where it happened."]},
+ {t:"Thirteen prefectures in sixteen days",
+  b:["182 things happened and were written down: 81 meals, 47 journeys, 35 nights, 9 things to see.",
+     "23 trains, 9 shinkansen, 9 buses, 3 flights. 53 places. Every mark below is one of them, sitting where it happened."]},
  {t:"What it cost",b:["The land falls away and each mark travels to what it cost, on a scale where every tenfold step is the same distance.",
    "Three things have no hour at all and wait in the band at the top: both rail passes and the return flights."]},
  {t:"When it happened",b:["The same marks again, moved to the hour instead of the price.",
@@ -385,6 +397,7 @@ new IntersectionObserver(es=>es.forEach(e=>{
 }),{rootMargin:"-45% 0px -45% 0px"}).observe;
 let mapHold=false;
 function setStep(n){
+  moving=true;
   const leavingMap = step<1 && n>=1;
   step=n;
   cam = n<1 ? CAM_HOME : CAM_TRIP;
