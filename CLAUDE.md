@@ -83,6 +83,17 @@ lists needs a human look before it ships. Only assets a page links are copied.
 The log page takes each day's still from `assets/day-NN.png`, or from the file an
 entry names with `**Media:**`. A new day is an entry plus an image, never code.
 
+**Photographs go through `scrub_photos.py`, never straight into `assets/`.**
+Originals live in `pics/`, which is gitignored, because they carry capture
+times, a device fingerprint and often GPS. The script reads those into
+`data/photo_meta.json`, matches each photo to a day, and writes a copy with
+every APP segment removed. The gate then refuses **any** image carrying
+metadata at all, rather than a list of known-bad tags: the phone that took
+these wrote its model name into two private vendor tags, so an allowlist loses
+by definition. `python3 privacy_gate.py --selftest` checks that protection is
+still in place. The scrubber needs Pillow; nothing in the build does, so
+Netlify installs nothing.
+
 Audit: `git grep -ilE '<names>' -- .` plus a scan for email, phone and
 confirmation-number shapes across `site/`.
 
