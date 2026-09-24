@@ -27,7 +27,12 @@ body{margin:0;background:var(--paper);color:var(--ink);
 @media(max-width:980px){.sticky{grid-column:1}}
 .steps{grid-column:2;grid-row:1;position:relative;z-index:3;pointer-events:none}
 @media(max-width:980px){.steps{grid-column:1;margin-top:-100vh}}
-.step{min-height:96vh;display:flex;align-items:center;padding-block:10vh}
+/* The card parks rather than sweeps. Centred in its block, it entered the
+   viewport at the bottom edge exactly when its step became active and left
+   through the top while still active, so it read as arriving late and
+   leaving early. Sticky holds it at a readable height for the whole step. */
+.step{min-height:96vh;display:flex;align-items:flex-start;padding-block:2vh}
+.step .card{position:sticky;top:34vh}
 .step .card{pointer-events:auto;max-width:296px;opacity:0;background:color-mix(in srgb,var(--paper) 88%,transparent);
   backdrop-filter:blur(3px);border:1px solid var(--ink-3);padding:15px 17px;
   box-shadow:0 6px 22px rgba(59,47,35,.13);transition:opacity .2s ease-out}
