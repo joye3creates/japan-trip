@@ -65,6 +65,12 @@ def main():
         html = html.replace("/*__TRIP_DATA__*/", (DATA / ds).read_text())
         html = html.replace("/*__GEO__*/", geo)
         html = html.replace("/*__PHOTOS__*/", json.dumps(photos(), separators=(",", ":")))
+        # Netlify sends a charset header, so a missing declaration never shows
+        # up on the deployed page. Every review copy is opened as a local file,
+        # where the browser guesses instead, and yen signs and em dashes come
+        # out as mojibake. Declared here so no template can forget.
+        if "charset" not in html[:2048]:
+            html = '<meta charset="utf-8">\n' + html
         staged[out] = html
         built.append((out, title, blurb, len(html) // 1024))
         print(f"  {out:<18} {len(html)//1024:>4} KB   from {tpl} + {ds}")
