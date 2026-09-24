@@ -13,38 +13,54 @@ html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:"Spectral",Georgia,serif;font-size:14px;line-height:1.55}
 
-.lede{max-width:620px;margin:0 auto;padding:11vh 16px 3vh;text-align:center}
+.lede{max-width:640px;margin:0 auto;padding:7vh 16px 2vh;text-align:center}
 .lede h1{font-family:"Shippori Mincho",serif;font-size:34px;font-weight:800;letter-spacing:.03em;margin:0}
 .lede p{color:var(--ink-2);margin:10px 0 0}
 .warn{display:inline-block;margin-top:14px;border:1px solid var(--verm);color:var(--verm);
   padding:5px 12px;font-size:11.5px;letter-spacing:.04em}
 
-.scrolly{position:relative;max-width:1400px;margin:0 auto;padding-inline:16px;
-  display:grid;grid-template-columns:330px minmax(0,1fr);gap:22px;align-items:start}
-@media(max-width:900px){.scrolly{grid-template-columns:1fr}}
-.sticky{grid-column:2;grid-row:1;position:sticky;top:env(safe-area-inset-top,0px);
+.scrolly{position:relative;max-width:1720px;margin:0 auto;padding-inline:20px;
+  display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:26px;align-items:start}
+@media(max-width:980px){.scrolly{grid-template-columns:1fr;padding-inline:14px}}
+.sticky{grid-column:1;grid-row:1;position:sticky;top:env(safe-area-inset-top,0px);
   height:100vh;display:flex;flex-direction:column;justify-content:center}
-@media(max-width:900px){.sticky{grid-column:1}}
-.steps{grid-column:1;grid-row:1;position:relative;z-index:3;pointer-events:none}
-@media(max-width:900px){.steps{grid-column:1;margin-top:-100vh}}
+@media(max-width:980px){.sticky{grid-column:1}}
+.steps{grid-column:2;grid-row:1;position:relative;z-index:3;pointer-events:none}
+@media(max-width:980px){.steps{grid-column:1;margin-top:-100vh}}
 .step{min-height:96vh;display:flex;align-items:center;padding-block:10vh}
-.step .card{pointer-events:auto;max-width:312px;background:var(--paper);
-  border:1px solid var(--ink);padding:15px 17px;box-shadow:5px 5px 0 rgba(59,47,35,.13);
-  opacity:.35;transition:opacity .4s}
+.step .card{pointer-events:auto;max-width:296px;background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:blur(3px);border:1px solid var(--ink-3);padding:15px 17px;
+  box-shadow:0 6px 22px rgba(59,47,35,.13);opacity:.3;transition:opacity .4s}
 .step.on .card{opacity:1}
 .step .n{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--verm)}
 .step h2{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;margin:4px 0 7px}
 .step p{margin:0;font-size:13px;color:var(--ink-2)}
 .step p+p{margin-top:7px}
 
-.bar{display:flex;align-items:center;gap:10px;padding:0 4px 8px;flex-wrap:wrap}
-.toggle{display:inline-flex;border:1px solid var(--ink);background:var(--paper)}
-.toggle button{appearance:none;background:none;border:0;padding:6px 15px;cursor:pointer;
+/* One floating control. At rest it switches the view; once a mark is pinned it
+   steps between points. Two bars fighting for the same edge would be worse. */
+.dock{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:9px;
+  background:var(--paper);border:1px solid var(--ink);border-radius:999px;
+  padding:6px 8px;box-shadow:0 8px 26px rgba(59,47,35,.22);
+  opacity:0;pointer-events:none;transition:opacity .28s,transform .28s cubic-bezier(.2,.85,.25,1)}
+.dock.on{opacity:1;pointer-events:auto}
+.dock .grp{display:flex;align-items:center;gap:9px}
+.dock .grp[hidden]{display:none}
+.dock .t{font-size:11.5px;color:var(--ink-2);white-space:nowrap;padding-left:6px}
+.dock .sq{width:30px;height:27px;border:1px solid var(--ink-3);background:none;color:var(--ink-2);
+  cursor:pointer;border-radius:3px;font:inherit;font-size:13px;line-height:1;padding:0}
+.dock .sq:hover:not([disabled]){background:var(--ink);color:var(--paper)}
+.dock .sq[disabled]{opacity:.3;cursor:default}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.toggle{display:inline-flex;border:1px solid var(--ink-3);border-radius:999px;overflow:hidden;background:var(--paper)}
+.toggle button{appearance:none;background:none;border:0;padding:6px 16px;cursor:pointer;
   font:inherit;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
 .toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .toggle button:focus-visible{outline:2px solid var(--verm);outline-offset:2px}
 .hint{font-size:11px;color:var(--ink-3)}
 #stage{display:block;width:100%;flex:1;min-height:0}
+.hint{display:none}
 #tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .12s;
   background:var(--ink);color:var(--paper);padding:8px 11px;font-size:11.5px;max-width:270px;
   box-shadow:0 5px 18px rgba(59,47,35,.4)}
@@ -65,16 +81,25 @@ body{margin:0;background:var(--paper);color:var(--ink);
 
 <div class="scrolly">
   <div class="sticky">
-    <div class="bar">
-      <div class="toggle" role="group" aria-label="Choose a view">
-        <button id="v-clock"  aria-pressed="true">Clock</button>
-        <button id="v-ledger" aria-pressed="false">Ledger</button>
-      </div>
-      <span class="hint" id="hint">Hover anything for detail</span>
-    </div>
     <svg id="stage" role="img" aria-label="Sixteen days of a trip through Japan, by hour and by price"></svg>
   </div>
   <div class="steps" id="steps"></div>
+</div>
+
+<div class="dock" id="dock">
+  <div class="grp" id="dock-view">
+    <div class="toggle" role="group" aria-label="Choose a view">
+      <button id="v-clock"  aria-pressed="true">Clock</button>
+      <button id="v-ledger" aria-pressed="false">Ledger</button>
+    </div>
+    <span class="t" id="hint"></span>
+  </div>
+  <div class="grp" id="dock-step" hidden>
+    <span class="t" id="step-t"></span>
+    <button class="sq" id="p-prev" aria-label="Previous point">&larr;</button>
+    <button class="sq" id="p-next" aria-label="Next point">&rarr;</button>
+    <button class="sq" id="p-close" aria-label="Release">&times;</button>
+  </div>
 </div>
 
 <div class="tail">
@@ -128,11 +153,17 @@ const BX=m=>{const i=BRANK[m.id]??0, n=Math.max(band.length-1,1);
 
 /* map projection, for the opening frames */
 const merc=la=>57.29578*Math.log(Math.tan(Math.PI/4+la*Math.PI/360));
+// Fit to the prefectures the route actually touched, not to all forty-seven.
+// Hokkaido and Okinawa are a third of the bounding box and nothing happened in
+// either, so fitting the whole country spends most of the frame on empty sea.
 let glo=[999,-999],gla=[999,-999];
-GEO.forEach(p=>p.r.forEach(r=>r.forEach(([x,y])=>{
+const fitTo=GEO.filter(p=>p.v).length?GEO.filter(p=>p.v):GEO;
+fitTo.forEach(p=>p.r.forEach(r=>r.forEach(([x,y])=>{
   glo[0]=Math.min(glo[0],x);glo[1]=Math.max(glo[1],x);
   gla[0]=Math.min(gla[0],merc(y));gla[1]=Math.max(gla[1],merc(y));})));
-const MS=Math.min(W/(glo[1]-glo[0]),H/(gla[1]-gla[0]))*0.9;
+const PAD=0.16, dlo=(glo[1]-glo[0])*PAD, dla=(gla[1]-gla[0])*PAD;
+glo=[glo[0]-dlo,glo[1]+dlo]; gla=[gla[0]-dla,gla[1]+dla];
+const MS=Math.min(W/(glo[1]-glo[0]),H/(gla[1]-gla[0]));
 const MX=v=>(v-glo[0])*MS+(W-(glo[1]-glo[0])*MS)/2;
 const MY=v=>H-((merc(v)-gla[0])*MS)-(H-(gla[1]-gla[0])*MS)/2;
 
@@ -161,7 +192,9 @@ function glyph(cat,mode,isStay){
 /* ---------- static scaffolding ---------- */
 const gLand=el("g"),gAxis=el("g",{opacity:0}),gBand=el("g",{opacity:0}),gMarks=el("g");
 svg.append(gLand,gAxis,gBand,gMarks);
-gLand.append(el("rect",{x:0,y:0,width:W,height:H,fill:"var(--sea)"}));
+// Oversized on purpose. The viewBox letterboxes inside the element, so a sea
+// exactly the size of the viewBox leaves paper bands top and bottom.
+gLand.append(el("rect",{x:-W,y:-H,width:W*3,height:H*3,fill:"var(--sea)"}));
 GEO.forEach(p=>{
   const d="M"+p.r.map(r=>r.map(([x,y])=>MX(x).toFixed(1)+","+MY(y).toFixed(1)).join("L")).join("ZM")+"Z";
   gLand.append(el("path",{d,fill:p.v?"var(--land-v)":"var(--land)",transform:"translate(1.4,2)",opacity:.9}));
@@ -217,7 +250,7 @@ function homeOnMap(m){
   return p?{x:MX(p.lng),y:MY(p.lat)}:{x:W/2,y:H/2};
 }
 function pos(m){
-  if(step<2) return homeOnMap(m);
+  if(step<1) return homeOnMap(m);
   if(view==="clock"){
     if(m.kind==="cost") return m.lane==="band"?{x:BX(m),y:BAND_Y+19}:{x:LX(m.amount),y:laneY(m.day_index)};
     return {x:CX(m.hour),y:laneY(m.day_index)+off(m)};
@@ -242,7 +275,7 @@ const off=m=>OFF[m.id]||0;
 
 function render(){
   buildOffsets();
-  const onMap=step<2;
+  const onMap=step<1;
   gLand.style.transition="opacity 1.2s";
   gLand.setAttribute("opacity",onMap?1:0);
   gAxis.style.transition=gBand.style.transition="opacity .9s";
@@ -259,17 +292,15 @@ function render(){
     if(!onMap){
       if(view==="clock") vis = m.kind==="cost" ? (m.lane==="band"?.3:0) : 1;
       else               vis = m.kind==="event" ? 0 : 1;
-    } else vis = step===0?.34:1;
+    } else vis = 1;
     g.setAttribute("opacity",vis);
     g._ic.setAttribute("opacity",showIcon&&vis?1:0);
     g._dot.setAttribute("opacity",showIcon?0:1);
-    const hot = m.lane==="band" || (step>=3 && m.merge_to);
+    const hot = m.lane==="band" || (step>=2 && m.merge_to);
     g.style.color = hot?"var(--verm)":"var(--ink-2)";
     g._dot.setAttribute("fill", hot?"var(--verm)":"var(--ink-2)");
   });
-  $("#hint").textContent = onMap ? "Keep scrolling"
-    : view==="clock" ? "Switch to Ledger and watch what has no clock time fly into the band"
-                     : "Switch back to Clock to see those journeys return to their hour";
+  $("#hint").textContent = view==="clock" ? "what it cost \u2192" : "\u2190 when it happened";
 }
 
 /* ---------- tooltip ---------- */
@@ -295,12 +326,14 @@ function untip(){const t=$("#tip");t.style.opacity="0";
 const STEPS=[
  {t:"The country",b:["Thirteen prefectures of forty-seven, over sixteen days.",
    "Every mark is one thing that happened, sitting where it happened."]},
- {t:"A hundred and eighty marks",b:["Meals, fares, tickets, nights, two flights and two rail passes.",
-   "They are about to leave the map without losing their identity."]},
  {t:"The diary",b:["The land dissolves and each mark travels to its day, and to the hour it happened.",
-   "Midnight to midnight, in two-hour bands. This is the shape of a day rather than the size of a bill."]},
- {t:"What has no hour",b:["Three things were bought before the trip began and belong to no single hour: both rail passes and the return flights.",
-   "They wait in the band at the top. Switch to the Ledger and the journeys they paid for fly up and disappear into them."]},
+   "Midnight to midnight, sixteen rows. This is the shape of a day rather than the size of a bill."]},
+ {t:"What it cost",b:["The same marks, moved to what they cost, on a scale where every tenfold step is the same distance.",
+   "Three things have no hour at all and wait in the band at the top: both rail passes and the return flights."]},
+ {t:"Anything can be asked",b:["Hover any mark for the place, the hour and the price.",
+   "Where a photograph exists, it comes with it."]},
+ {t:"Stay a while",b:["Click to pin a mark. The control at the foot of the screen becomes a way to walk that day in order.",
+   "Arrow keys do the same. Escape lets go."]},
 ];
 $("#steps").innerHTML=STEPS.map((s,i)=>`<div class="step" data-i="${i}">
   <div class="card"><div class="n">${String(i+1).padStart(2,"0")} / ${STEPS.length}</div>
@@ -310,8 +343,14 @@ new IntersectionObserver(es=>es.forEach(e=>{
   else e.target.classList.remove("on");
 }),{rootMargin:"-45% 0px -45% 0px"}).observe;
 $$(".step").forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{
-  if(e.isIntersecting){e.target.classList.add("on"); step=+e.target.dataset.i; render();}
-  else e.target.classList.remove("on");
+  if(e.isIntersecting){
+    e.target.classList.add("on");
+    step=+e.target.dataset.i;
+    // step 2 is the ledger; every other step is the clock. The toggle still
+    // works afterwards, this only sets where each step lands.
+    setView(step===2?"ledger":"clock");
+    $("#dock").classList.toggle("on", step>=1);
+  } else e.target.classList.remove("on");
 }),{rootMargin:"-45% 0px -45% 0px"}).observe(s));
 function setView(v){
   view=v;
