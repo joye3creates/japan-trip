@@ -27,6 +27,9 @@ repo root. That file is a different job: short, written for someone drafting a
 social post rather than for an engineer, and it goes to a Claude Project on
 claude.ai. One entry a working day, in the established shape — shipped, the
 number, the interesting thing, the honest failure, the angle worth taking.
+On a day whose argument is an interaction, add an `**Explorations:**` field, one
+`[name](explore/file.html) — one line` per line, after putting the study in
+`explorations/`. The build refuses a link it does not publish.
 Add a `**Headline:** <figure> — <label, six words max>` line: it is the big
 number on the public log page, and the build warns when it is missing.
 Each day's still is `assets/day-NN.png` (Day 4 is `day-04.png`). To use another

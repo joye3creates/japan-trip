@@ -1,0 +1,277 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reaching a Cluster</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#E8DCC0; --paper-2:#DFD0AE; --paper-3:#D4C39C;
+  --ink:#3B2F23; --ink-2:#6B5B47; --ink-3:#92836C;
+  --verm:#A83A2B; --rule:rgba(59,47,35,.26);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#221B14; --paper-2:#2C2419; --paper-3:#3A2F22;
+    --ink:#E4D8BE; --ink-2:#B6A488; --ink-3:#8A7A61;
+    --verm:#D9614B; --rule:rgba(228,216,190,.26);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#221B14; --paper-2:#2C2419; --paper-3:#3A2F22;
+  --ink:#E4D8BE; --ink-2:#B6A488; --ink-3:#8A7A61;
+  --verm:#D9614B; --rule:rgba(228,216,190,.26);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Spectral",Georgia,serif;font-size:14px;line-height:1.55}
+.wrap{max-width:900px;margin:0 auto;padding-inline:16px;padding-block:5vh 8vh}
+
+h1{font-family:"Shippori Mincho",serif;font-size:29px;font-weight:800;letter-spacing:.02em;
+  margin:0 0 10px;text-wrap:balance}
+.lede{color:var(--ink-2);margin:0;max-width:60ch}
+.lede b{color:var(--ink);font-weight:500}
+
+.dials{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center;
+  margin:22px 0 4px;padding:12px 0;border-block:1px solid var(--rule)}
+.dial{display:flex;align-items:center;gap:9px}
+.dial label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.dial input{width:118px;accent-color:var(--verm)}
+.dial output{font-size:11.5px;color:var(--ink-2);min-width:42px;
+  font-variant-numeric:tabular-nums}
+.dials .note{font-size:11.5px;color:var(--ink-3);font-style:italic}
+
+.panel{margin-top:34px;padding-top:18px;border-top:1px solid var(--rule)}
+.panel:first-of-type{border-top:0}
+.hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.hd h2{font-family:"Shippori Mincho",serif;font-size:19px;font-weight:600;margin:0}
+.hd .kind{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--verm)}
+.panel .what{margin:7px 0 0;color:var(--ink-2);max-width:62ch}
+.panel .cost{margin:5px 0 0;color:var(--ink-3);font-style:italic;max-width:62ch}
+
+.rows{margin-top:16px;display:grid;grid-template-columns:auto minmax(0,1fr);
+  gap:2px 14px;align-items:center}
+.rows .nm{font-size:11px;color:var(--ink-3);white-space:nowrap;text-align:right}
+.rows svg{display:block;width:100%;height:56px;touch-action:none}
+@media(max-width:560px){
+  .rows{grid-template-columns:minmax(0,1fr);gap:0}
+  .rows .nm{text-align:left;padding-top:8px}
+}
+.mk{cursor:pointer}
+.mk circle.hit{fill:transparent}
+.mk circle.d{fill:var(--ink-2);transition:fill .12s,r .12s}
+.mk.near circle.d{fill:var(--verm);r:4.2}
+
+.read{margin-top:10px;display:flex;align-items:center;gap:10px;min-height:22px;
+  font-size:11.5px;color:var(--ink-3)}
+.read b{font-family:"Shippori Mincho",serif;font-weight:600;font-size:13px;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.read .empty{font-style:italic}
+
+.tail{margin-top:40px;padding-top:16px;border-top:1px solid var(--rule);
+  color:var(--ink-3);font-size:11.5px;max-width:64ch}
+.tail p{margin:0 0 7px}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+
+<div class="wrap">
+  <h1>Reaching a Cluster</h1>
+  <p class="lede">Every mark sits on its day's line, which is right, and it means marks
+  a few minutes apart land on top of each other. In the journey view one pair shares an
+  hour exactly; in the expense view fifteen groups share a price exactly. Three ways for
+  the line to notice the cursor and let you reach in. <b>Move along a row. Click a mark.</b></p>
+
+  <div class="dials">
+    <div class="dial">
+      <label for="reach">Reach</label>
+      <input id="reach" type="range" min="18" max="90" step="2" value="46">
+      <output id="reach-o">46px</output>
+    </div>
+    <div class="dial">
+      <label for="force">Strength</label>
+      <input id="force" type="range" min="4" max="26" step="1" value="13">
+      <output id="force-o">13px</output>
+    </div>
+    <span class="note">Same two dials drive all three.</span>
+  </div>
+
+  <section class="panel" data-mode="spread">
+    <div class="hd"><span class="kind">One</span><h2>Spread</h2></div>
+    <p class="what">Only the group you are pointing at moves, and only sideways. Its members
+    push apart along the line until each has room, keeping the group's centre where it was.
+    Every other mark in the row holds still.</p>
+    <p class="cost">Costs: inside a group, position stops meaning the exact hour while you hover.</p>
+    <div class="rows"></div>
+    <div class="read"><span class="empty">nothing reached yet</span></div>
+  </section>
+
+  <section class="panel" data-mode="fan">
+    <div class="hd"><span class="kind">Two</span><h2>Fan</h2></div>
+    <p class="what">The group lifts off the line into a short arc above it, in the order it
+    already had, and drops back when you leave. The arc makes each member a separate target
+    at a glance, and you can count them without reading anything.</p>
+    <p class="cost">Costs: marks leave the line, which is the thing that made the row readable,
+    and an arc has to open sideways as well as up.</p>
+    <div class="rows"></div>
+    <div class="read"><span class="empty">nothing reached yet</span></div>
+  </section>
+
+  <section class="panel" data-mode="lens">
+    <div class="hd"><span class="kind">Three</span><h2>Lens</h2></div>
+    <p class="what">No groups, no thresholds. The whole stretch of line under the cursor
+    re-spaces, pushing outward from the point you are on and easing back to nothing at the
+    edge of its reach. The mark under the cursor does not move, so the thing you are aiming
+    at never runs away.</p>
+    <p class="cost">Costs: a wide neighbourhood is always in motion, not just the crowded bit.</p>
+    <div class="rows"></div>
+    <div class="read"><span class="empty">nothing reached yet</span></div>
+  </section>
+
+  <div class="tail">
+    <p><b>These are real rows.</b> Nara, Hiroshima and Shirakawa-go, at their real
+    positions on the real 24-hour axis. Hiroshima holds two marks at the identical
+    minute and a third less than two pixels off; Shirakawa-go has three inside fourteen.</p>
+    <p>Low fidelity on purpose: plain dots, no icons, no card, no photograph. The only
+    question here is whether you can get at the mark you meant.</p>
+  </div>
+</div>
+
+<script>
+/* The real geometry, so the density is the density. x is in the clock page's own
+   1180-wide viewBox, where the axis runs from 132 at midnight to 1122 at 24:00. */
+const L=132, R=1122;
+const ROWS=[
+ {nm:"08 Nara", m:[[478.5,"food"],[503.7,"utilities"],[578.7,"travel"],[619.2,"travel"],
+   [630.3,"food"],[648.0,"utilities"],[656.3,"travel"],[686.0,"travel"],[688.0,"food"],
+   [761.5,"experiences"],[802.3,"travel"],[804.8,"travel"],[852.2,"food"],[900.1,"travel"],
+   [901.3,"travel"],[962.8,"food"],[1027.1,"stays"]]},
+ {nm:"05 Hiroshima", m:[[469.4,"travel"],[516.5,"travel"],[524.3,"food"],[613.4,"travel"],
+   [646.4,"food"],[683.1,"travel"],[716.9,"food"],[800.2,"stays"],[820.9,"utilities"],
+   [822.5,"food"],[822.5,"utilities"],[945.5,"food"],[959.5,"food"],[1027.1,"stays"]]},
+ {nm:"10 Shirakawa-go", m:[[447.6,"food"],[537.5,"food"],[636.5,"food"],[639.8,"food"],
+   [650.1,"food"],[673.6,"travel"],[724.3,"food"],[729.3,"experiences"],[894.3,"travel"],
+   [898.4,"food"],[986.7,"food"],[1027.1,"stays"]]},
+];
+const VB=[430,-26,620,52];                       // x, y, w, h of every row's viewBox
+const NS="http://www.w3.org/2000/svg";
+const el=(t,a={})=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n;};
+const hhmm=x=>{const h=(x-L)/(R-L)*24, m=Math.round(h%1*60);
+  return String(Math.floor(h)).padStart(2,"0")+":"+String(m).padStart(2,"0");};
+const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let REACH=46, FORCE=13;
+const GAP=12;                                    // closer than this and they are one group
+
+/* Runs of marks whose neighbours are within GAP. Singles are groups of one and
+   never move, in every mode. */
+function groups(xs){
+  const g=[]; let cur=[0];
+  for(let i=1;i<xs.length;i++){
+    if(xs[i]-xs[i-1]<GAP) cur.push(i); else { g.push(cur); cur=[i]; }
+  }
+  g.push(cur); return g;
+}
+
+function build(panel, mode){
+  const host=panel.querySelector(".rows"), read=panel.querySelector(".read");
+  ROWS.forEach(row=>{
+    const nm=document.createElement("div"); nm.className="nm"; nm.textContent=row.nm;
+    const svg=el("svg",{viewBox:VB.join(" "),preserveAspectRatio:"xMidYMid meet",
+      role:"img","aria-label":row.nm+", "+row.m.length+" marks"});
+    svg.append(el("line",{x1:VB[0]+6,y1:0,x2:VB[0]+VB[2]-6,y2:0,
+      stroke:"var(--rule)","stroke-width":1}));
+    const xs=row.m.map(d=>d[0]), grp=groups(xs);
+    const marks=row.m.map(([x,cat],i)=>{
+      const g=el("g",{class:"mk",tabindex:"0",role:"button",
+        "aria-label":cat+" at "+hhmm(x)});
+      g.append(el("circle",{class:"hit",r:11}), el("circle",{class:"d",r:3.2}));
+      g.style.transition=calm?"none":"transform .16s cubic-bezier(.3,.9,.3,1)";
+      g._x=x; g._cat=cat; g._i=i;
+      const say=()=>{ read.innerHTML='reached <b>'+cat+'</b> at <b>'+hhmm(x)+'</b>'; };
+      g.addEventListener("click",say);
+      g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();say();} });
+      svg.append(g); return g;
+    });
+    marks.forEach(g=>g.setAttribute("transform","translate("+g._x+",0)"));
+
+    const rest=()=>{ marks.forEach(g=>{ g.classList.remove("near");
+      g.setAttribute("transform","translate("+g._x+",0)"); }); };
+
+    svg.addEventListener("pointermove",e=>{
+      const r=svg.getBoundingClientRect();
+      const px=VB[0]+(e.clientX-r.left)/r.width*VB[2];
+      const py=VB[1]+(e.clientY-r.top)/r.height*VB[3];
+      layout(mode, marks, grp, xs, px, py);
+    });
+    svg.addEventListener("pointerleave",rest);
+    svg.addEventListener("pointercancel",rest);
+    host.append(nm,svg);
+  });
+}
+
+function layout(mode, marks, grp, xs, px, py){
+  const near=Math.abs(py)<24 ? nearest(xs,px) : -1;
+  marks.forEach(g=>g.classList.toggle("near", g._i===near));
+  const place=(g,x,y)=>g.setAttribute("transform","translate("+x.toFixed(2)+","+y.toFixed(2)+")");
+
+  if(mode==="lens"){
+    if(near<0){ marks.forEach(g=>place(g,g._x,0)); return; }
+    // Outward from the cursor, nothing at the cursor itself and nothing at the
+    // edge of reach, so the neighbourhood stretches in place.
+    const out=xs.map(x=>{ const d=x-px, a=Math.abs(d);
+      return a>=REACH ? x : x+Math.sign(d||1)*FORCE*Math.sin(Math.PI*a/REACH); });
+    // A smooth push alone can never part two marks at the identical minute: they
+    // are the same distance from the cursor and get the same nudge. So walk out
+    // from the mark under the cursor and hold a readable gap, as far as it takes.
+    const gap=Math.max(FORCE*0.8,9);
+    for(let i=near+1;i<xs.length;i++){
+      const want=Math.max(out[i],out[i-1]+gap); if(want===out[i]) break; out[i]=want; }
+    for(let i=near-1;i>=0;i--){
+      const want=Math.min(out[i],out[i+1]-gap); if(want===out[i]) break; out[i]=want; }
+    marks.forEach((g,i)=>place(g,out[i],0));
+    return;
+  }
+
+  // Both group modes act on one group: the one holding the nearest mark.
+  const hot = near<0 ? null : grp.find(ix=>ix.includes(near));
+  marks.forEach(g=>place(g,g._x,0));
+  if(!hot || hot.length<2) return;
+
+  const c=(xs[hot[0]]+xs[hot[hot.length-1]])/2;
+  const t=Math.max(0,Math.min(1,1-Math.abs(px-c)/REACH));   // how close, 0..1
+  if(t<=0) return;
+
+  if(mode==="spread"){
+    const step=Math.max(FORCE, GAP), span=step*(hot.length-1);
+    hot.forEach((ix,k)=>{
+      const want=c-span/2+step*k;
+      place(marks[ix], xs[ix]+(want-xs[ix])*t, 0);
+    });
+  } else {                                        // fan
+    const Rr=Math.max(FORCE, 10)+3, n=hot.length;
+    hot.forEach((ix,k)=>{
+      const ang=(n===1)?-90:(-150+120*k/(n-1));   // degrees, above the line
+      const rad=ang*Math.PI/180;
+      place(marks[ix], xs[ix]+(c+Rr*Math.cos(rad)-xs[ix])*t, Rr*Math.sin(rad)*t);
+    });
+  }
+}
+
+function nearest(xs,px){
+  let best=-1, bd=1e9;
+  xs.forEach((x,i)=>{ const d=Math.abs(x-px); if(d<bd){bd=d;best=i;} });
+  return bd<=REACH?best:-1;
+}
+
+document.querySelectorAll(".panel").forEach(p=>build(p,p.dataset.mode));
+
+const bind=(id,set)=>{
+  const s=document.getElementById(id), o=document.getElementById(id+"-o");
+  const go=()=>{ set(+s.value); o.textContent=s.value+"px"; };
+  s.addEventListener("input",go); go();
+};
+bind("reach",v=>REACH=v);
+bind("force",v=>FORCE=v);
+</script>

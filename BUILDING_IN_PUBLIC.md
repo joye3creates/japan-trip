@@ -164,3 +164,41 @@ the day. Once shared across the rides they paid for, they turn out to be the
 
 **Angle worth taking:** the most useful thing said all day was six words from the
 person who could see what the tool could not.
+
+## Day 4 — a photograph does not know where it belongs
+
+**Shipped:** photographs on the clock view. Hover any mark and a card comes up
+with the picture, the place, the hour and the price; click to pin it and the bar
+at the foot becomes a way to walk that day in order.
+
+**The number:** the Mt Aso photograph was taken at 12:50. The nearest marks are
+an ice cream at 11:52 and a lunch at 13:50 — **58 minutes one way, 60 the other**.
+Matching a photograph to its nearest timestamp would have been a coin flip
+between two wrong answers. So photographs attach to a place on a day, or to one
+named mark, and never to a moment.
+
+**Headline:** 58/60 — minutes to the two wrong marks
+
+**Media:** day-04-photographs.png — A photograph on the mark it belongs to, and the bar that walks the day
+
+**The interesting thing:** four of the day's five hours went on interaction,
+not on pipeline. Five models were built as a throwaway study and three were
+rejected in a single message, each with a reason — two because they hid the
+photographs behind a click, one because hovering it made the row expand, which
+moved the mark out from under the cursor, which unhovered it. All four studies are published below as they were made; three are dead ends.
+
+**The honest failure:** everything worked and almost nothing was attached. Two
+of six photographs reached the page, on 7 of 182 marks, and it took "I can't see
+any image on these right now" to find out. Three separate faults, each of which
+failed by showing nothing at all rather than by complaining. The build now
+refuses an unknown place, and a place on a day that did not go there.
+
+**Explorations:** [Five ways a photograph can live on the clock](explore/01-five-ways.html) — the first pass, at two-day density
+[The card at real density](explore/02-hover-card-at-density.html) — the same idea against all 165 marks
+[Stepping through a day](explore/03-stepping-card.html) — sizing the card, and what the arrows do
+[Reaching a cluster](explore/04-reaching-a-cluster.html) — three ways to open a crowded line, still open
+
+**Angle worth taking:** the questions that changed the most were three words
+long. "Or any identifiers" rewrote the privacy gate from a list of known-bad
+tags into a refusal of anything that is not pixel data — the phone had written
+its model name into two private vendor tags, so any list would have lost.

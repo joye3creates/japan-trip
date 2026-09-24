@@ -12,6 +12,7 @@ import privacy_gate
 
 ROOT = Path(__file__).resolve().parent
 DATA, SITE, ASSETS = ROOT / "data", ROOT / "site", ROOT / "assets"
+EXPLORE = ROOT / "explorations"
 
 # template, dataset, output. The route map keeps the unfiltered dataset on
 # purpose: it is the day-one artefact and later exclusions must not rewrite it.
@@ -117,6 +118,13 @@ def main():
         built.append((out, title, blurb, len(html) // 1024))
         print(f"  {out:<18} {len(html)//1024:>4} KB   from {tpl} + {ds}")
 
+    # The interaction studies, served as they were made. They are dead ends and
+    # chosen designs both, and the log entries point at them, so they go up
+    # beside the pages rather than living only in a chat.
+    for f in sorted(EXPLORE.glob("*.html")) if EXPLORE.is_dir() else []:
+        staged[f"explore/{f.name}"] = f.read_text()
+        print(f"  {'explore/'+f.name:<18} {len(staged['explore/'+f.name])//1024:>4} KB")
+
     # robots.txt is written by hand into site/ and must survive a rebuild
     staged["robots.txt"] = ROBOTS
     print(f"  {'robots.txt':<18} {len(ROBOTS)//1024:>4} KB")
@@ -129,7 +137,7 @@ def main():
     staged["builds.html"] = INDEX.replace("<!--CARDS-->", cards)
     print(f"  {'builds.html':<18} {len(INDEX)//1024:>4} KB")
 
-    log_html, status = build_log()
+    log_html, status = build_log(set(staged))
     staged["index.html"] = staged["log.html"] = log_html
     # A tiny public fact sheet, so the card on the portfolio can read the day
     # number instead of being edited by hand. Sorted keys and no timestamp, so
@@ -179,7 +187,11 @@ LOG_SRC = ROOT / "BUILDING_IN_PUBLIC.md"
 FIELDS = [("shipped", "Shipped"), ("number", "The number"),
           ("interesting", "The interesting thing"), ("failure", "The honest failure"),
           ("angle", "Angle worth taking"), ("second", "A second number"),
-          ("headline", "Headline"), ("media", "Media")]
+          ("headline", "Headline"), ("media", "Media"),
+          # One markdown link per line, to a page on this site. The studies are
+          # the day's real argument on an interaction day, and until now the
+          # page had nowhere to put them.
+          ("explore", "Explorations")]
 REQUIRED = ("shipped", "number", "interesting", "failure", "angle")
 
 # One still per day, found by convention so a new day needs no code change:
@@ -194,6 +206,11 @@ TOTAL_DAYS = 16
 WORDNUM = {w: i for i, w in enumerate(
     "zero one two three four five six seven eight nine ten eleven twelve".split())}
 FIGURE = re.compile(r"[¥₹$€£]?\d[\d,]*(?:\.\d+)?%?|\b(?:" + "|".join(WORDNUM) + r")\b", re.I)
+
+
+# [name](page.html) — an optional note, running to the next link or the end.
+EXPLORE_LINK = re.compile(r"\[([^\]]+)\]\((?!\w+:)([A-Za-z0-9._\-/#?=]+)\)"
+                          r"(?:\s*[—–-]\s*([^\[]+))?")
 
 
 class LogError(Exception):
@@ -275,6 +292,10 @@ def inline(s):
     s = H.escape(s, quote=False)
     s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
+    # [text](target), relative targets only. A log entry has no business
+    # sending a reader off this site, and a scheme here would be a way to.
+    s = re.sub(r"\[([^\]]+)\]\((?!\w+:)([A-Za-z0-9._\-/#?=]+)\)",
+               r'<a href="\2">\1</a>', s)
     return re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<i>\1</i>", s)
 
 
@@ -315,7 +336,7 @@ def first_sentence(paras):
     return s[:1].upper() + s[1:]
 
 
-def build_log():
+def build_log(staged_names=()):
     try:
         days = parse_log(LOG_SRC.read_text())
     except LogError as e:
@@ -349,6 +370,23 @@ def build_log():
                       "title": bare[:1].upper() + bare[1:],
                       "headline": fig, "label": label}
         failure = "".join(f"<p>{inline(p[:1].upper() + p[1:])}</p>" for p in f["failure"])
+        links = ""
+        if f.get("explore"):
+            text = " ".join(f["explore"]).strip()
+            items, rest = [], text
+            for m in EXPLORE_LINK.finditer(text):
+                if m.group(2) not in staged_names:
+                    sys.exit(f"\nBUILD LOG: Day {d['day']}: Explorations points at "
+                             f"{m.group(2)}, which this build does not publish")
+                note = (m.group(3) or "").strip(" .")
+                items.append(f'<li><a href="{m.group(2)}">{H.escape(m.group(1))}</a>'
+                             + (f"<span>{H.escape(note)}</span>" if note else "") + "</li>")
+                rest = rest.replace(m.group(0), "", 1)
+            if not items or rest.strip():
+                sys.exit(f"\nBUILD LOG: Day {d['day']}: Explorations takes only "
+                         f"'[name](page.html) — note' entries; left over: {rest.strip()[:60]!r}")
+            links = ('<div class="explore"><span class="k">Explorations</span>'
+                     f'<ul>{"".join(items)}</ul></div>')
         entries.append(f"""  <article class="day" id="day-{d['day']}" data-day="{d['day']}">
     <figure class="media"><img src="assets/{img}" alt="{H.escape(alt)}" loading="lazy"><figcaption>{H.escape(alt)}</figcaption></figure>
     <div>
@@ -357,7 +395,7 @@ def build_log():
       <div class="big">{H.escape(fig)}</div>
       <p class="big-label">{H.escape(label)}</p>
       <p class="takeaway">{H.escape(first_sentence(f['angle']))}</p>
-      <div class="failure"><span class="k">The honest failure</span>{failure}</div>
+      <div class="failure"><span class="k">The honest failure</span>{failure}</div>{links}
     </div>
   </article>""")
         cards.append(f"""    <a class="card" href="#day-{d['day']}" data-day="{d['day']}">

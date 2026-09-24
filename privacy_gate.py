@@ -21,7 +21,7 @@ still belongs in a private repository.
 To add a name: append (len(name), sha256(SALT + name.lower())) to NAME_HASHES.
     python3 -c "import hashlib;n='x';print(len(n),hashlib.sha256(('japan-trip/privacy-gate/v1:'+n).encode()).hexdigest())"
 """
-import hashlib, re, struct, sys, zlib
+import base64, binascii, hashlib, re, struct, sys, zlib
 from pathlib import Path
 
 SALT = "japan-trip/privacy-gate/v1:"
@@ -87,8 +87,36 @@ def _has_name(text, _seen={}):
     return False
 
 
+DATA_URI = re.compile(r"data:([\w.+-]+/[\w.+-]+);base64,([A-Za-z0-9+/=]+)")
+
+
+def _inline_images(text):
+    """An image pasted into a page as a data: URI is still an image, and until
+    now it came in through the text door, where nothing looks for metadata. It
+    gets the same refusal as a file on disk: anything that is not pixel data."""
+    for m in DATA_URI.finditer(text):
+        if not m.group(1).startswith("image/"):
+            continue
+        line = text.count("\n", 0, m.start()) + 1
+        try:
+            blob = base64.b64decode(m.group(2), validate=True)
+        except (binascii.Error, ValueError):
+            yield line, "unreadable inline image"
+            continue
+        for where, kind in _image_metadata(blob):
+            yield line, f"inline image: {kind} ({where})"
+        for where, kind in _scan_binary(blob):
+            yield line, f"inline image: {kind} ({where})"
+
+
 def _scan_text(text):
     """Yield (line number, kind) for each finding. Never the match itself."""
+    yield from _inline_images(text)
+    # Base64 is bytes written down, so a digit run inside one is no more a
+    # booking reference than the same run inside a JPEG. Blanked to the same
+    # length, so every line number still points where it should.
+    text = DATA_URI.sub(lambda m: "data:" + m.group(1) + ";base64,"
+                        + "A" * len(m.group(2)), text)
     text = _blank_allowlist(text)
     for no, line in enumerate(text.splitlines(), 1):
         if _has_name(line):

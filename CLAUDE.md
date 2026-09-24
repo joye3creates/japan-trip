@@ -22,6 +22,7 @@ source/             original workbook and itinerary; never deployed, never publi
 notes/              raw dumps, render checks; working material
 sessions/           one log per working day
 docs/               archived copies of the living documents
+explorations/       interaction studies, served at /explore/ as they were made
 assets/             screenshots and screen recordings for posting
 names.local.txt     traveller names, gitignored, read at extraction time
 ```
@@ -83,6 +84,12 @@ lists needs a human look before it ships. Only assets a page links are copied.
 The log page takes each day's still from `assets/day-NN.png`, or from the file an
 entry names with `**Media:**`. A new day is an entry plus an image, never code.
 
+**An image inlined as a `data:` URI is still an image.** The gate decodes every
+one it finds in a page and puts it through the same refusal as a file on disk,
+because a study with a photograph pasted into it used to walk in through the
+text door where nothing looks for metadata. `scrub_inline.py` strips them in
+place; run it over `explorations/` whenever a study is added.
+
 **Photographs go through `scrub_photos.py`, never straight into `assets/`.**
 Originals live in `pics/`, which is gitignored, because they carry capture
 times, a device fingerprint and often GPS. The script reads those into
@@ -140,6 +147,13 @@ against the same file. If a session is asked to write the day's entry, check the
 routine has not already done it.
 
 ## Conventions that matter
+
+**Studies get published, not screenshotted.** Anything in `explorations/` is
+copied to `site/explore/` and can be linked from a log entry with an
+`**Explorations:** [name](explore/file.html) — one line` field. They are kept as
+they were made, dead ends included, because the rejected four-fifths is the part
+that shows how a decision was reached. The build refuses a link to a page it does
+not publish.
 
 **Placeholders are marked, never filled.** A night with no recorded price shows
 no price, not an estimate from the nightly rate. Invented times are labelled in
