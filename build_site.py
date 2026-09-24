@@ -44,13 +44,35 @@ def photos():
         if a.get("mark"):
             rec["mark"] = a["mark"]
         else:
-            day = meta[name].get("day_index")
+            # The file's own day wins where it has one. Where the two disagree
+            # the hand-edit is wrong about a file that knew better, and that is
+            # worth stopping for rather than quietly preferring one.
+            fday, hday = meta[name].get("day_index"), a.get("day_index")
+            if fday is not None and hday is not None and fday != hday:
+                sys.exit(f"\nPHOTOS: {name} was taken on day {fday} but is attached to day {hday}")
+            day = fday if fday is not None else hday
             if day is None or not a.get("place_id"):
                 continue                      # nowhere to put it; say nothing
             rec["day"], rec["place"] = day, a["place_id"]
         if meta[name].get("taken"):
             rec["taken"] = meta[name]["taken"]
         out.append(rec)
+
+    # A mistyped place or mark attaches a photograph to nothing at all, and the
+    # page has no way to say so: the picture simply never appears.
+    trip = json.loads((DATA / "trip.json").read_text())
+    places = {p["id"] for p in trip["places"]}
+    marks = {m["id"] for m in trip["marks"]}
+    day_places = [set(d.get("places") or []) for d in trip["days"]]
+    for r in out:
+        if "mark" in r and r["mark"] not in marks:
+            sys.exit(f"\nPHOTOS: {r['file']} names mark {r['mark']}, which is not in the dataset")
+        if "place" in r:
+            if r["place"] not in places:
+                sys.exit(f"\nPHOTOS: {r['file']} names place {r['place']}, which is not in the registry")
+            if r["place"] not in day_places[r["day"]]:
+                sys.exit(f"\nPHOTOS: {r['file']} puts {r['place']} on day {r['day']}, "
+                         f"which did not go there")
     return out
 
 
@@ -98,8 +120,13 @@ def main():
 
     # Only the media a page actually links. Anything else in assets/ would get
     # a public URL without having been reviewed for this context.
-    refs = sorted({r for v in staged.values() if isinstance(v, str)
-                   for r in re.findall(r'(?:src|href|poster)="(assets/[^"#?]+)"', v)})
+    refs = {r for v in staged.values() if isinstance(v, str)
+            for r in re.findall(r'(?:src|href|poster)="(assets/[^"#?]+)"', v)}
+    # Photographs are named by the data, not by a tag in the template. Adding
+    # one to photo_attach.json used to need a matching <link> hand-written into
+    # the page or the file silently never reached site/.
+    refs |= {"assets/photos/" + p["file"] for p in photos()}
+    refs = sorted(refs)
     missing = [r for r in refs if not (ROOT / r).is_file()]
     if missing:
         sys.exit("\nASSETS: linked from a page but not in assets/: " + ", ".join(missing))

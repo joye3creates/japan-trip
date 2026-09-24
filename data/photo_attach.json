@@ -7,5 +7,19 @@
   "totoro-puffs.jpg": {
     "mark": "e5",
     "caption": "Two of them, in a box, carried back on the train."
+  },
+  "beppu-steam.jpg": {
+    "place_id": "beppu-hells",
+    "caption": "Steam off one of the hells, the water milk-blue under it.",
+    "day_index": 7
+  },
+  "shirakawa-go.jpg": {
+    "place_id": "shirakawago",
+    "caption": "The village from under a thatched eave.",
+    "day_index": 10
+  },
+  "_unplaced": {
+    "koi-pond.jpg": "No landmark in the frame and no metadata in the file. Could be Kenroku-en, Byodo-in, Nara Park or Oshino Hakkai. Needs telling.",
+    "osaka-castle.jpg": "Osaka Castle at night, but Osaka Castle is not a place in the registry and appears on no day. Day 7 or day 8; needs telling."
   }
 }

@@ -94,7 +94,7 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .hc .pips{position:absolute;left:0;right:0;bottom:6px;display:flex;gap:4px;justify-content:center}
 .hc .pips i{width:4px;height:4px;border-radius:50%;background:#fff;opacity:.45}
 .hc .pips i.on{opacity:1}
-.hc .meta{height:84px;overflow:hidden}
+.hc .meta{height:100px;overflow:hidden}
 .hc.bare .meta{height:auto;overflow:visible}
 .hc.bare .foot{margin-top:9px}
 .hc .plc{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--verm);
@@ -104,8 +104,8 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .hc .r{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--ink-2)}
 .hc .r em{font-style:normal;color:var(--verm);font-size:9px;letter-spacing:.07em;
   text-transform:uppercase;margin-left:5px}
-.hc .nt{font-size:11.5px;font-style:italic;color:var(--ink-3);margin-top:4px;
-  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.hc .nt{font-size:11.5px;font-style:italic;color:var(--ink-3);margin-top:4px;line-height:1.38;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hc .foot{height:28px;margin-top:6px;border-top:1px solid var(--paper-3);display:flex;
   align-items:center;justify-content:space-between}
 .hc .foot span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
@@ -113,9 +113,6 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .tail p{margin:0 0 7px}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
 </style>
-
-<link rel="preload" as="image" href="assets/photos/mt-aso.jpg">
-<link rel="preload" as="image" href="assets/photos/totoro-puffs.jpg">
 
 <div class="lede">
   <h1>A Day at a Time</h1>
@@ -510,6 +507,14 @@ function hcFollow(){
     followRAF = performance.now()<followTill ? requestAnimationFrame(tick) : 0; };
   followRAF=requestAnimationFrame(tick);
 }
+
+// Fetched once the page is otherwise done, so the first hover has the picture
+// already rather than a blank well that fills a moment later. Listed by the
+// data, so a photograph added to photo_attach.json is warmed without being
+// named anywhere in this page.
+(window.requestIdleCallback||(f=>setTimeout(f,2400)))(()=>{
+  PHOTOS.forEach(p=>{ const i=new Image(); i.src=PHDIR+p.file; });
+});
 
 function show(g,anim){ fill(g); hc.classList.add("on"); place(anim); }
 function hcEnter(g){ if(pin) return; hov=g; shot=0; show(g,false); }
