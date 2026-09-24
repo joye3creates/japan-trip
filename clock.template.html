@@ -47,15 +47,19 @@ body{margin:0;background:var(--paper);color:var(--ink);
 /* One floating control. At rest it switches the view; once a mark is pinned it
    steps between points. Two bars fighting for the same edge would be worse. */
 .dock{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));
-  transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:9px;
+  transform:translateX(-50%);z-index:50;display:grid;align-items:center;justify-items:center;
   background:var(--paper);border:1px solid var(--ink);border-radius:999px;
   padding:6px 8px;box-shadow:0 8px 26px rgba(59,47,35,.22);
   opacity:0;pointer-events:none;transition:opacity .28s,transform .28s cubic-bezier(.2,.85,.25,1)}
 .dock.on{opacity:1;pointer-events:auto}
-.dock .grp{display:flex;align-items:center;gap:9px}
-.dock .grp[hidden]{display:none}
+/* Both groups sit in the same grid cell, so the bar is sized by the wider of
+   the two and is exactly the same shape whichever job it is doing. The one
+   that is not in use stays laid out and merely invisible, rather than being
+   taken out of the flow and letting the bar resize under the cursor. */
+.dock .grp{grid-area:1/1;display:flex;align-items:center;gap:9px}
+.dock .grp[hidden]{display:flex;visibility:hidden}
 .dock .t{font-size:11.5px;color:var(--ink-2);white-space:nowrap;padding-left:6px}
-.dock .sq{width:30px;height:27px;border:1px solid var(--ink-3);background:none;color:var(--ink-2);
+.dock .sq{width:34px;height:31px;border:1px solid var(--ink-3);background:none;color:var(--ink-2);
   cursor:pointer;border-radius:3px;font:inherit;font-size:13px;line-height:1;padding:0}
 .dock .sq:hover:not([disabled]){background:var(--ink);color:var(--paper)}
 .dock .sq[disabled]{opacity:.3;cursor:default}
@@ -100,8 +104,8 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .hc .pips{position:absolute;left:0;right:0;bottom:6px;display:flex;gap:4px;justify-content:center}
 .hc .pips i{width:4px;height:4px;border-radius:50%;background:#fff;opacity:.45}
 .hc .pips i.on{opacity:1}
-.hc .meta{min-height:56px;max-height:100px;overflow:hidden}
-.hc.bare .meta{min-height:0}
+.hc .meta{height:78px;overflow:hidden}
+.hc.bare .meta{height:auto}
 .hc.bare .foot{margin-top:9px}
 .hc .plc{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--verm);
   line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -111,7 +115,7 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .hc .r em{font-style:normal;color:var(--verm);font-size:9px;letter-spacing:.07em;
   text-transform:uppercase;margin-left:5px}
 .hc .nt{font-size:11.5px;font-style:italic;color:var(--ink-3);margin-top:4px;line-height:1.38;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hc .foot{height:28px;margin-top:6px;border-top:1px solid var(--paper-3);display:flex;
   align-items:center;justify-content:space-between}
 .hc .foot span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
@@ -145,7 +149,6 @@ body{margin:0;background:var(--paper);color:var(--ink);
     <span class="t" id="step-t"></span>
     <button class="sq" id="p-prev" aria-label="Previous point">&larr;</button>
     <button class="sq" id="p-next" aria-label="Next point">&rarr;</button>
-    <button class="sq" id="p-close" aria-label="Release">&times;</button>
   </div>
 </div>
 
@@ -362,28 +365,19 @@ function pos(m){
   if(step<1||mapHold) return homeOnMap(m);
   if(view==="clock"){
     if(m.kind==="cost") return m.lane==="band"?{x:BX(m),y:BAND_Y+19}:{x:LX(m.amount),y:laneY(m.day_index)};
-    return {x:CX(m.hour),y:laneY(m.day_index)+off(m)};
+    return {x:CX(m.hour),y:laneY(m.day_index)};
   }
   if(m.kind==="event"){ const p=byId[m.merge_to]; return p?pos(p):{x:L,y:laneY(m.day_index)}; }
   if(m.lane==="band") return {x:BX(m),y:BAND_Y+19};
-  return {x:LX(m.amount),y:laneY(m.day_index)+off(m)};
+  return {x:LX(m.amount),y:laneY(m.day_index)};
 }
-/* stack marks that share a slot, so clusters stay countable */
-const OFF={};
-function buildOffsets(){
-  const b={};
-  MARKS.forEach(m=>{
-    if(m.kind==="cost")return;
-    const x=view==="clock"?(m.hour??0)*9:(m.amount?Math.log10(m.amount)*40:0);
-    const k=m.day_index+":"+Math.round(x/8); (b[k]=b[k]||[]).push(m.id);
-  });
-  Object.values(b).forEach(l=>{const n=l.length,s=Math.min(LANE-8,n*8.5);
-    l.forEach((id,j)=>{ OFF[id] = n===1 ? 0 : -s/2 + s*j/(n-1); });});
-}
-const off=m=>OFF[m.id]||0;
-
+/* Every mark sits on its day's line. Marks that share a slot used to be
+   spread vertically so a cluster stayed countable, but it put icons above and
+   below the rule for no reason a reader could see, and made the card bob up
+   and down while stepping. One pair shares an hour exactly; in the expense
+   view fifteen groups share a price exactly and now overlap. The arrows still
+   walk through every one of them in order, so nothing is unreachable. */
 function render(){
-  buildOffsets();
   const onMap=step<1||mapHold;
   gLand.setAttribute("opacity",onMap?1:0);
   gAxis.style.transition=gBand.style.transition="opacity .9s";
@@ -492,7 +486,7 @@ function fill(g){
                                  : "click to pin";
   if(pin===g){
     $("#step-t").textContent=(m.lane==="band"?"Before leaving":DAY[m.day_index])
-                            +(i<0?"":" · "+(i+1)+" of "+list.length);
+                            +(i<0?"":" "+(i+1));
     $("#p-prev").disabled = i<=0;
     $("#p-next").disabled = i<0 || i>=list.length-1;
   }
@@ -561,16 +555,27 @@ function photoTo(dir){
 }
 $("#p-prev").onclick=()=>stepTo(-1);
 $("#p-next").onclick=()=>stepTo(1);
-$("#p-close").onclick=hcRelease;
 $("#hc-prev").onclick=e=>{e.stopPropagation();photoTo(-1);};
 $("#hc-next").onclick=e=>{e.stopPropagation();photoTo(1);};
-svg.addEventListener("click",hcRelease);
+// Clicking anywhere that is not a mark, the card or the bar lets go. Marks
+// stop their own click, so this never fires for them.
+addEventListener("click",e=>{
+  if(pin && !hc.contains(e.target) && !$("#dock").contains(e.target)) hcRelease();
+});
 addEventListener("keydown",e=>{
   if(e.key==="Escape"){ hcRelease(); return; }
   if(!pin) return;
   const go={ArrowRight:()=>stepTo(1),ArrowLeft:()=>stepTo(-1),
             ArrowDown:()=>photoTo(1),ArrowUp:()=>photoTo(-1)}[e.key];
   if(go){ e.preventDefault(); go(); }
+});
+// The label reserves room for the longest thing it will ever say, so the bar
+// does not breathe as you step from Uji to Shirakawa-go.
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{
+  const t=$("#step-t"), keep=t.textContent;
+  t.textContent=[...DAY,"Before leaving"].reduce((a,b)=>b.length>a.length?b:a)+" 00";
+  t.style.minWidth=Math.ceil(t.getBoundingClientRect().width)+"px";
+  t.textContent=keep;
 });
 addEventListener("scroll",()=>{ if(pin||hov) place(false); },{passive:true});
 addEventListener("resize",()=>{ if(pin||hov) place(false); });
