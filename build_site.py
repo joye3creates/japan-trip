@@ -62,12 +62,18 @@ def photos():
     # photographs are still being chosen. They carry no caption and the page
     # labels them, because a real photograph shown against a purchase it has
     # nothing to do with is the one thing this project must not do quietly.
-    for cat, file in sorted((attach.get("_placeholder_by_category") or {}).items()):
+    for cat, entries in sorted((attach.get("_placeholder_by_category") or {}).items()):
         if cat.startswith("_"):
             continue
-        if file not in meta:
-            sys.exit(f"\nPHOTOS: placeholder for {cat} names {file}, which is not in assets/photos/")
-        out.append({"file": file, "category": cat, "placeholder": True})
+        for e in ([entries] if isinstance(entries, (str, dict)) else entries):
+            e = {"file": e} if isinstance(e, str) else e
+            if e["file"] not in meta:
+                sys.exit(f"\nPHOTOS: placeholder for {cat} names {e['file']}, "
+                         f"which is not in assets/photos/")
+            rec = {"file": e["file"], "category": cat, "placeholder": True}
+            if e.get("rotate"):
+                rec["rotate"] = e["rotate"]
+            out.append(rec)
 
     # A mistyped place or mark attaches a photograph to nothing at all, and the
     # page has no way to say so: the picture simply never appears.

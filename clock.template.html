@@ -417,7 +417,7 @@ function render(){
    what it is a picture of. */
 const P_MARK={}, P_PLACE={}, P_DAY={}, P_CAT={};
 PHOTOS.forEach(p=>{
-  if(p.placeholder)                P_CAT[p.category]=p;
+  if(p.placeholder)                (P_CAT[p.category]=P_CAT[p.category]||[]).push(p);
   else if(p.mark)                  (P_MARK[p.mark]=P_MARK[p.mark]||[]).push(p);
   else if(p.day!=null&&p.place)    (P_PLACE[p.day+"/"+p.place]=P_PLACE[p.day+"/"+p.place]||[]).push(p);
   else if(p.day!=null)             (P_DAY[p.day]=P_DAY[p.day]||[]).push(p);
@@ -430,8 +430,7 @@ function shots(m){
                        m.place_id?(P_PLACE[m.day_index+"/"+m.place_id]||[]):[],
                        P_DAY[m.day_index]||[]);
   if(real.length) return real;
-  const ph=P_CAT[m.category];
-  return ph?[ph]:[];
+  return P_CAT[m.category]||[];
 }
 
 const PHDIR="assets/photos"+"/";   // split, so the build's asset scan does not read this as a link
@@ -457,8 +456,11 @@ function fill(g){
   if(p){ fr.classList.remove("none");
          const u=PHDIR+p.file;
          if(img.getAttribute("src")!==u) img.src=u;
+         // Same file, turned on the page: a second stand-in that is plainly the
+         // same picture, so the arrows can be felt without shipping a copy.
+         img.style.transform=p.rotate?`rotate(${p.rotate}deg)`:"";
          img.alt=p.placeholder?"":(p.caption||m.item||""); }
-  else { fr.classList.add("none"); img.removeAttribute("src"); img.alt=""; }
+  else { fr.classList.add("none"); img.removeAttribute("src"); img.alt=""; img.style.transform=""; }
   $("#hc-tag").hidden=!(p&&p.placeholder);
   $("#hc-pips").innerHTML = ph.length>1 ? ph.map((_,i)=>`<i class="${i===shot?"on":""}"></i>`).join("") : "";
   $("#hc-prev").disabled=$("#hc-next").disabled=ph.length<2;
