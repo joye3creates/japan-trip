@@ -1,5 +1,5 @@
 day: 3
-media: assets/interaction.mp4 | The map of Japan dissolves into a 24-hour clock, one lane per day, then toggles to a price ledger and back
+media: assets/day-03-toggle.mp4 | The map of Japan dissolves into a 24-hour clock, one lane per day, then toggles to a price ledger and back
 ---
 Day 3/16 · Japan Trip visualised 🇯🇵
 
