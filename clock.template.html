@@ -153,19 +153,31 @@ const BX=m=>{const i=BRANK[m.id]??0, n=Math.max(band.length-1,1);
 
 /* map projection, for the opening frames */
 const merc=la=>57.29578*Math.log(Math.tan(Math.PI/4+la*Math.PI/360));
-// Fit to the prefectures the route actually touched, not to all forty-seven.
-// Hokkaido and Okinawa are a third of the bounding box and nothing happened in
-// either, so fitting the whole country spends most of the frame on empty sea.
+// The whole country, so the first frame can show all forty-seven prefectures.
+// Narrowing to the thirteen the route touched is a camera move on scroll, not
+// a different projection, so the land can travel rather than cut.
 let glo=[999,-999],gla=[999,-999];
-const fitTo=GEO.filter(p=>p.v).length?GEO.filter(p=>p.v):GEO;
-fitTo.forEach(p=>p.r.forEach(r=>r.forEach(([x,y])=>{
+GEO.forEach(p=>p.r.forEach(r=>r.forEach(([x,y])=>{
   glo[0]=Math.min(glo[0],x);glo[1]=Math.max(glo[1],x);
   gla[0]=Math.min(gla[0],merc(y));gla[1]=Math.max(gla[1],merc(y));})));
-const PAD=0.16, dlo=(glo[1]-glo[0])*PAD, dla=(gla[1]-gla[0])*PAD;
-glo=[glo[0]-dlo,glo[1]+dlo]; gla=[gla[0]-dla,gla[1]+dla];
-const MS=Math.min(W/(glo[1]-glo[0]),H/(gla[1]-gla[0]));
+const MS=Math.min(W/(glo[1]-glo[0]),H/(gla[1]-gla[0]))*0.94;
 const MX=v=>(v-glo[0])*MS+(W-(glo[1]-glo[0])*MS)/2;
 const MY=v=>H-((merc(v)-gla[0])*MS)-(H-(gla[1]-gla[0])*MS)/2;
+
+/* The camera. One number and two offsets, applied to the land as a transform
+   and to every mark by the same arithmetic, so the two can never disagree. */
+let cam={k:1,x:0,y:0};
+const CAM_HOME={k:1,x:0,y:0};
+const camPt=(x,y)=>({x:x*cam.k+cam.x, y:y*cam.k+cam.y});
+const CAM_TRIP=(()=>{
+  let a=[1e9,-1e9], b=[1e9,-1e9];
+  GEO.filter(p=>p.v).forEach(p=>p.r.forEach(r=>r.forEach(([lo,la])=>{
+    const x=MX(lo), y=MY(la);
+    a[0]=Math.min(a[0],x); a[1]=Math.max(a[1],x);
+    b[0]=Math.min(b[0],y); b[1]=Math.max(b[1],y);})));
+  const k=Math.min(W/(a[1]-a[0]), H/(b[1]-b[0]))*0.82;
+  return {k, x:W/2-k*(a[0]+a[1])/2, y:H/2-k*(b[0]+b[1])/2};
+})();
 
 /* ---------- icons: identity by shape ---------- */
 function glyph(cat,mode,isStay){
@@ -195,11 +207,41 @@ svg.append(gLand,gAxis,gBand,gMarks);
 // Oversized on purpose. The viewBox letterboxes inside the element, so a sea
 // exactly the size of the viewBox leaves paper bands top and bottom.
 gLand.append(el("rect",{x:-W,y:-H,width:W*3,height:H*3,fill:"var(--sea)"}));
+gLand.style.transformOrigin="0 0";
+gLand.style.transition="transform 1.05s cubic-bezier(.45,.05,.2,1),opacity 1.2s";
+const fills=[], lines=[];
 GEO.forEach(p=>{
   const d="M"+p.r.map(r=>r.map(([x,y])=>MX(x).toFixed(1)+","+MY(y).toFixed(1)).join("L")).join("ZM")+"Z";
-  gLand.append(el("path",{d,fill:p.v?"var(--land-v)":"var(--land)",transform:"translate(1.4,2)",opacity:.9}));
-  gLand.append(el("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":.45,opacity:p.v?.7:.3}));
+  // every prefecture starts as plain land; the visited ones darken later
+  const f=el("path",{d,fill:"var(--land)",transform:"translate(1.4,2)",opacity:.9});
+  f.style.transition="fill .7s ease-out";
+  const s=el("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":.45,opacity:0});
+  gLand.append(f,s); fills.push([f,p.v]); lines.push([s,p.v]);
 });
+
+/* The opening. Land first, then the prefecture lines draw themselves in, then
+   the thirteen that were visited darken, then the marks arrive. Staged rather
+   than simultaneous, so it reads as a map being made rather than a page
+   loading. Skipped whole if the reader has asked for less motion. */
+function intro(){
+  const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(calm){ lines.forEach(([s,v])=>s.setAttribute("opacity",v?.7:.3));
+            fills.forEach(([f,v])=>{ if(v) f.setAttribute("fill","var(--land-v)"); });
+            gMarks.style.opacity=1; return; }
+  gMarks.style.opacity=0;
+  gMarks.style.transition="opacity .9s ease-out";
+  lines.forEach(([s,v],i)=>{
+    let len=0; try{ len=s.getTotalLength(); }catch(e){}
+    if(!len) { s.setAttribute("opacity",v?.7:.3); return; }
+    s.style.strokeDasharray=len; s.style.strokeDashoffset=len;
+    s.style.transition=`stroke-dashoffset 1.15s cubic-bezier(.4,0,.2,1) ${340+i*11}ms, opacity .3s ${340+i*11}ms`;
+    requestAnimationFrame(()=>{ s.setAttribute("opacity",v?.7:.3); s.style.strokeDashoffset=0; });
+  });
+  const lastLine=340+lines.length*11+1150;
+  fills.forEach(([f,v],i)=>{ if(!v) return;
+    setTimeout(()=>f.setAttribute("fill","var(--land-v)"), lastLine-260+i*34); });
+  setTimeout(()=>{ gMarks.style.opacity=1; }, lastLine+180);
+}
 const gClockAx=el("g"), gLedgAx=el("g",{opacity:0});
 gAxis.append(gClockAx,gLedgAx);
 for(let h=0;h<=24;h+=2){
@@ -247,10 +289,10 @@ const nodes=MARKS.map((m,i)=>{
 });
 function homeOnMap(m){
   const p=PL[m.place_id]||PL[(DATA.days[m.day_index]||{}).places?.[0]];
-  return p?{x:MX(p.lng),y:MY(p.lat)}:{x:W/2,y:H/2};
+  return p?camPt(MX(p.lng),MY(p.lat)):camPt(W/2,H/2);
 }
 function pos(m){
-  if(step<1) return homeOnMap(m);
+  if(step<1||mapHold) return homeOnMap(m);
   if(view==="clock"){
     if(m.kind==="cost") return m.lane==="band"?{x:BX(m),y:BAND_Y+19}:{x:LX(m.amount),y:laneY(m.day_index)};
     return {x:CX(m.hour),y:laneY(m.day_index)+off(m)};
@@ -275,8 +317,7 @@ const off=m=>OFF[m.id]||0;
 
 function render(){
   buildOffsets();
-  const onMap=step<1;
-  gLand.style.transition="opacity 1.2s";
+  const onMap=step<1||mapHold;
   gLand.setAttribute("opacity",onMap?1:0);
   gAxis.style.transition=gBand.style.transition="opacity .9s";
   gAxis.setAttribute("opacity",onMap?0:1);
@@ -324,12 +365,12 @@ function untip(){const t=$("#tip");t.style.opacity="0";
 
 /* ---------- steps + toggle ---------- */
 const STEPS=[
- {t:"The country",b:["Thirteen prefectures of forty-seven, over sixteen days.",
+ {t:"The country",b:["Forty-seven prefectures. Thirteen of them saw something over sixteen days.",
    "Every mark is one thing that happened, sitting where it happened."]},
- {t:"The diary",b:["The land dissolves and each mark travels to its day, and to the hour it happened.",
-   "Midnight to midnight, sixteen rows. This is the shape of a day rather than the size of a bill."]},
- {t:"What it cost",b:["The same marks, moved to what they cost, on a scale where every tenfold step is the same distance.",
+ {t:"What it cost",b:["The land falls away and each mark travels to what it cost, on a scale where every tenfold step is the same distance.",
    "Three things have no hour at all and wait in the band at the top: both rail passes and the return flights."]},
+ {t:"When it happened",b:["The same marks again, moved to the hour instead of the price.",
+   "Midnight to midnight, sixteen rows. This is the shape of a day rather than the size of a bill."]},
  {t:"Anything can be asked",b:["Hover any mark for the place, the hour and the price.",
    "Where a photograph exists, it comes with it."]},
  {t:"Stay a while",b:["Click to pin a mark. The control at the foot of the screen becomes a way to walk that day in order.",
@@ -342,15 +383,27 @@ new IntersectionObserver(es=>es.forEach(e=>{
   if(e.isIntersecting){e.target.classList.add("on"); step=+e.target.dataset.i; render();}
   else e.target.classList.remove("on");
 }),{rootMargin:"-45% 0px -45% 0px"}).observe;
+let mapHold=false;
+function setStep(n){
+  const leavingMap = step<1 && n>=1;
+  step=n;
+  cam = n<1 ? CAM_HOME : CAM_TRIP;
+  gLand.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.k})`;
+  // The first step lands on the ledger, not the clock. Price is the frame
+  // people arrive with; the hour is the thing worth revealing second.
+  view = n===1 ? "ledger" : "clock";
+  $("#v-clock").setAttribute("aria-pressed", view==="clock");
+  $("#v-ledger").setAttribute("aria-pressed", view==="ledger");
+  $("#dock").classList.toggle("on", n>=1);
+  if(leavingMap){
+    // hold the marks on the land while it zooms, then let them travel
+    mapHold=true; render();
+    setTimeout(()=>{ mapHold=false; render(); }, 780);
+  } else render();
+}
 $$(".step").forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{
-  if(e.isIntersecting){
-    e.target.classList.add("on");
-    step=+e.target.dataset.i;
-    // step 2 is the ledger; every other step is the clock. The toggle still
-    // works afterwards, this only sets where each step lands.
-    setView(step===2?"ledger":"clock");
-    $("#dock").classList.toggle("on", step>=1);
-  } else e.target.classList.remove("on");
+  if(e.isIntersecting){ e.target.classList.add("on"); setStep(+e.target.dataset.i); }
+  else e.target.classList.remove("on");
 }),{rootMargin:"-45% 0px -45% 0px"}).observe(s));
 function setView(v){
   view=v;
@@ -361,4 +414,5 @@ function setView(v){
 $("#v-clock").onclick=()=>setView("clock");
 $("#v-ledger").onclick=()=>setView("ledger");
 render();
+intro();
 </script>
