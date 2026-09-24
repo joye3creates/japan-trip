@@ -109,11 +109,18 @@ Build command is `python3 build_site.py`.
 1. **Branch** off `main`, named for the day's work
 2. **Write the entry**: a session log in `sessions/`, plus a matching short entry
    in `BUILDING_IN_PUBLIC.md`
-3. **Open a PR**
-4. **Wait for review.** The owner checks the Netlify deploy preview
-5. **Merge** once approved
+3. **Push the branch. Do not open a pull request.**
+4. **Send the owner the built file** with `SendUserFile`, so it is reviewed
+   locally rather than on a deploy preview
+5. **Open the PR only when asked**, then merge once approved
 
 Do not push to `main` directly.
+
+**Netlify builds cost credits, and a pull request is what spends them.** Every
+push to an *open* PR rebuilds its preview, so the old habit of opening a PR and
+then pushing fixes to it spent one build per commit. A branch with no PR
+normally builds nothing. Previews are worth it for a final look before merging;
+they are not worth it for iteration. Send the file instead.
 
 **A scheduled routine fires at 23:59 IST into the main build session** and writes
 both files, then opens the PR. There is no separate logging session: one was
