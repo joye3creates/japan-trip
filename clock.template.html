@@ -63,15 +63,26 @@ body{margin:0;background:var(--paper);color:var(--ink);
   cursor:pointer;border-radius:3px;font:inherit;font-size:13px;line-height:1;padding:0}
 .dock .sq:hover:not([disabled]){background:var(--ink);color:var(--paper)}
 .dock .sq[disabled]{opacity:.3;cursor:default}
-.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .toggle{display:inline-flex;border:1px solid var(--ink-3);border-radius:999px;overflow:hidden;background:var(--paper)}
 .toggle button{appearance:none;background:none;border:0;padding:6px 16px;cursor:pointer;
   font:inherit;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
 .toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .toggle button:focus-visible{outline:2px solid var(--verm);outline-offset:2px}
-.hint{font-size:11px;color:var(--ink-3)}
 #stage{display:block;width:100%;flex:1;min-height:0}
-.hint{display:none}
+/* One mark asks to be hovered, once, on the step that explains hovering. It
+   stops for good the moment the reader hovers anything at all. */
+.cue circle{transform-box:fill-box;transform-origin:center;
+  animation:hpulse 2.5s cubic-bezier(.2,.62,.3,1) infinite}
+.cue circle:nth-of-type(2){animation-delay:1.25s}
+.cue text{font-size:9px;letter-spacing:.18em;text-transform:uppercase;fill:var(--verm)}
+@keyframes hpulse{
+  0%{transform:scale(.5);opacity:0}
+  14%{opacity:.85}
+  100%{transform:scale(3.1);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .cue circle{animation:none;opacity:.5;transform:scale(1.7)}
+}
 /* ---------- the mark card ---------- */
 /* One size at every point. The picture well is a fixed 4:3 and the image is
    contained inside it, so a portrait and a landscape make the same block, and
@@ -268,7 +279,10 @@ function glyph(cat,mode,isStay){
 
 /* ---------- static scaffolding ---------- */
 const gLand=el("g"),gAxis=el("g",{opacity:0}),gBand=el("g",{opacity:0}),gMarks=el("g");
-svg.append(gLand,gAxis,gBand,gMarks);
+const gHint=el("g",{class:"cue",opacity:0,"pointer-events":"none"});
+svg.append(gLand,gAxis,gBand,gMarks,gHint);
+[0,1].forEach(()=>gHint.append(el("circle",{r:8,fill:"none",stroke:"var(--verm)","stroke-width":1.3})));
+(()=>{ const x=el("text",{x:25,y:3.5}); x.textContent="hover"; gHint.append(x); })();
 // Oversized on purpose. The viewBox letterboxes inside the element, so a sea
 // exactly the size of the viewBox leaves paper bands top and bottom.
 gLand.append(el("rect",{x:-W,y:-H,width:W*3,height:H*3,fill:"var(--sea)"}));
@@ -344,11 +358,17 @@ gBand.append(bl,bk);
 /* ---------- marks ---------- */
 const nodes=MARKS.map((m,i)=>{
   const g=el("g",{style:"cursor:pointer;transition:transform .92s cubic-bezier(.33,0,.2,1),opacity .45s"});
+  // Two transforms, not one. The outer carries the mark to where it belongs,
+  // over most of a second; the inner carries the nudge that makes room under
+  // the cursor, in a sixth of one. Sharing a transform would make the nudge
+  // inherit the travel's easing and arrive long after the cursor had gone.
+  const gi=el("g",{style:"transition:transform .16s cubic-bezier(.3,.9,.3,1)"});
   const dot=el("circle",{r:2.5,fill:"var(--verm)"});
   const ic=glyph(m.category,m.mode_hint,m.category==="stays");
   ic.setAttribute("opacity","0"); ic.style.transition="opacity .5s";
-  g.append(el("circle",{r:11,fill:"transparent"}),dot,ic);
-  g._m=m; g._dot=dot; g._ic=ic; g._i=i;
+  gi.append(el("circle",{r:11,fill:"transparent"}),dot,ic);
+  g.append(gi);
+  g._m=m; g._dot=dot; g._ic=ic; g._i=i; g._in=gi;
   // scattered, not sequential: a straight run of delays arrives as a
   // visible wave, which reads as the marks smearing into lines
   g._delay=Math.round(((i*97+i*i*31)%211)/211*260);
@@ -377,6 +397,18 @@ function pos(m){
    and down while stepping. One pair shares an hour exactly; in the expense
    view fifteen groups share a price exactly and now overlap. The arrows still
    walk through every one of them in order, so nothing is unreachable. */
+/* The crater at Mt Aso: alone on its line, at a civil hour, and one of the
+   fifteen marks whose photograph is really of that place, so the hover it
+   invites actually pays off. */
+const HINT_AT="e38";
+let hintDone=false;
+function hint(){
+  const g=nodes.find(n=>n._m.id===HINT_AT);
+  const on = !hintDone && !pin && !hov && step===3 && g && g._vis>0 && !mapHold;
+  gHint.setAttribute("opacity", on?1:0);
+  if(on) gHint.setAttribute("transform",`translate(${g._px.toFixed(1)},${g._py.toFixed(1)})`);
+}
+
 function render(){
   const onMap=step<1||mapHold;
   gLand.setAttribute("opacity",onMap?1:0);
@@ -388,6 +420,7 @@ function render(){
   gLedgAx.setAttribute("opacity",view==="clock"?0:1);
   nodes.forEach(g=>{
     const m=g._m, p=pos(m);
+    g._px=p.x; g._py=p.y;
     g.style.transitionDelay=g._delay+"ms";
     g.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
     let vis=1, showIcon=!onMap;
@@ -405,10 +438,68 @@ function render(){
   });
   // A mark that has just left the view cannot stay pinned, and every other
   // pinned mark is about to travel, so the card travels with it.
+  rows=null; clearSpread(); hint();
   if(pin && !pin._vis) hcRelease();
   else if(pin){ fill(pin); hcFollow(); }
   else if(hov) hcFollow();
 }
+
+/* ---------- making room under the cursor ---------- */
+/* Every mark sits on its day's line, so marks minutes apart land on each other.
+   Rather than move them apart for good, the group under the cursor opens
+   sideways and closes again: only that group, only while you are there, and
+   always about its own centre, so the row reads the same at rest. */
+const SP={reach:72, force:10, gap:12};
+let rows=null, spreadOn=new Set();
+const rowKey=m=>m.lane==="band"?"band":"d"+m.day_index;
+function clearSpread(){
+  if(!spreadOn.size) return;
+  spreadOn.forEach(g=>g._in.removeAttribute("transform"));
+  spreadOn=new Set();
+}
+function buildRows(){
+  rows={};
+  nodes.forEach(g=>{ if(!g._vis) return;
+    const k=rowKey(g._m); (rows[k]=rows[k]||[]).push(g); });
+  Object.values(rows).forEach(l=>l.sort((a,b)=>a._px-b._px));
+}
+function spread(e){
+  // Frozen once a mark is pinned: the card is covering that stretch of chart
+  // and the arrows are walking the row, so nothing should move underfoot.
+  if(pin || step<1 || mapHold) return clearSpread();
+  if(!rows) buildRows();
+  const r=svg.getBoundingClientRect(), s=Math.min(r.width/W, r.height/H);
+  const px=(e.clientX-r.left-(r.width-W*s)/2)/s;
+  const py=(e.clientY-r.top-(r.height-H*s)/2)/s;
+
+  let best=null, bd=1e9;
+  for(const k in rows) for(const g of rows[k]){
+    const dy=Math.abs(g._py-py); if(dy>LANE*0.55) continue;
+    const dx=Math.abs(g._px-px); if(dx>SP.reach) continue;
+    const d=dx+dy*0.2; if(d<bd){ bd=d; best=g; }
+  }
+  if(!best) return clearSpread();
+
+  const list=rows[rowKey(best._m)];
+  let a=list.indexOf(best), b=a;
+  while(a>0 && list[a]._px-list[a-1]._px<SP.gap) a--;
+  while(b<list.length-1 && list[b+1]._px-list[b]._px<SP.gap) b++;
+  if(b===a) return clearSpread();
+
+  const c=(list[a]._px+list[b]._px)/2;
+  const t=Math.max(0,Math.min(1,1-Math.abs(px-c)/SP.reach));
+  if(t<=0) return clearSpread();
+  const st=Math.max(SP.force,SP.gap), span=st*(b-a), keep=new Set();
+  for(let i=a;i<=b;i++){
+    const g=list[i], want=c-span/2+st*(i-a);
+    g._in.setAttribute("transform",`translate(${((want-g._px)*t).toFixed(2)},0)`);
+    keep.add(g);
+  }
+  spreadOn.forEach(g=>{ if(!keep.has(g)) g._in.removeAttribute("transform"); });
+  spreadOn=keep;
+}
+svg.addEventListener("pointermove",spread);
+svg.addEventListener("pointerleave",clearSpread);
 
 /* ---------- the mark card ---------- */
 /* Photographs attach to a place on a day, or to one named mark, never to the
@@ -530,9 +621,9 @@ function hcFollow(){
 });
 
 function show(g,anim){ fill(g); hc.classList.add("on"); place(anim); }
-function hcEnter(g){ if(pin) return; hov=g; shot=0; show(g,false); }
+function hcEnter(g){ if(pin) return; hintDone=true; hint(); hov=g; shot=0; show(g,false); }
 function hcLeave(g){ if(pin||hov!==g) return; hov=null; hc.classList.remove("on"); }
-function hcPin(g){ pin=g; hov=null; shot=0; hc.classList.add("pinned"); show(g,true); dockMode(); }
+function hcPin(g){ pin=g; hov=null; shot=0; hintDone=true; hint(); clearSpread(); hc.classList.add("pinned"); show(g,true); dockMode(); }
 function hcRelease(){ if(!pin) return; pin=null; hc.classList.remove("pinned","on"); dockMode(); }
 
 /* One dock, two jobs. Pinned, it stops offering the view and starts walking
@@ -591,10 +682,9 @@ const STEPS=[
    "Three things have no hour at all and wait in the band at the top: both rail passes and the return flights."]},
  {t:"When it happened",b:["The same marks again, moved to the hour instead of the price.",
    "Midnight to midnight, sixteen rows. This is the shape of a day rather than the size of a bill."]},
- {t:"Anything can be asked",b:["Hover any mark for the place, the hour and the price.",
-   "Where a photograph exists, it comes with it."]},
- {t:"Stay a while",b:["Click to pin a mark. The control at the foot of the screen becomes a way to walk that day in order.",
-   "Arrow keys do the same. Escape lets go."]},
+ {t:"Anything can be asked",b:["Hover any mark for the place, the hour and the price. Where several sit on top of one another, that group opens under the cursor so you can reach the one you meant.",
+   "Where a photograph exists it comes with it, and the arrows across it turn the page.",
+   "Click to pin a mark. The bar at the foot becomes a way to walk that day in order, and so do the arrow keys. Escape lets go."]},
 ];
 $("#steps").innerHTML=STEPS.map((s,i)=>`<div class="step" data-i="${i}">
   <div class="card"><div class="n">${String(i+1).padStart(2,"0")} / ${STEPS.length}</div>
