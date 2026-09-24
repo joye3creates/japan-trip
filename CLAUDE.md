@@ -109,9 +109,16 @@ needs a history rewrite, and must happen before this repo is ever public.
 
 ## Deploying
 
-Netlify site **courageous-lolly-4dfc48**, linked to this repository, currently
-set to Private. `main` publishes automatically; pull requests get a preview at
-`deploy-preview-<n>--courageous-lolly-4dfc48.netlify.app`.
+Netlify site **japantripon24hrclock**, linked to this repository, currently set
+to Private. `main` publishes automatically at `japantripon24hrclock.netlify.app`;
+pull requests get a preview at
+`deploy-preview-<n>--japantripon24hrclock.netlify.app`.
+
+Netlify posts a check on a pull request when the preview is ready, so a preview
+can be waited for. It posts nothing for a production deploy, so a merge cannot be
+confirmed from the repository — check the Netlify dashboard. `netlify.app` is not
+reachable from the build session either, so the live page cannot be fetched from
+here.
 
 `site/robots.txt` disallows crawling. Relax it deliberately, not by accident.
 
