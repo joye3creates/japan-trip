@@ -26,6 +26,34 @@ PAGES = [
      "The current build. Sixteen days by the hour, with a switch to the ledger."),
 ]
 
+def photos():
+    """What the page needs to show a photograph on a mark.
+
+    `photo_meta.json` is written by scrub_photos.py and holds only what the
+    original file knew: a capture time, sometimes coordinates. `photo_attach.json`
+    is hand-edited and supplies what the file could not, which for a photograph
+    sent through a messaging app is everything. A record ends up attached either
+    to one named mark, or to a place on a day.
+    """
+    meta = json.loads((DATA / "photo_meta.json").read_text()) if (DATA / "photo_meta.json").is_file() else {}
+    attach = json.loads((ROOT / "data/photo_attach.json").read_text()) if (ROOT / "data/photo_attach.json").is_file() else {}
+    out = []
+    for name in sorted(meta):
+        a = attach.get(name) or {}
+        rec = {"file": name, "caption": a.get("caption", "")}
+        if a.get("mark"):
+            rec["mark"] = a["mark"]
+        else:
+            day = meta[name].get("day_index")
+            if day is None or not a.get("place_id"):
+                continue                      # nowhere to put it; say nothing
+            rec["day"], rec["place"] = day, a["place_id"]
+        if meta[name].get("taken"):
+            rec["taken"] = meta[name]["taken"]
+        out.append(rec)
+    return out
+
+
 def main():
     # Everything is staged in memory first. The privacy gate reads all of it,
     # and only a clean pass lets a single byte reach site/.
@@ -36,6 +64,7 @@ def main():
         html = (ROOT / tpl).read_text()
         html = html.replace("/*__TRIP_DATA__*/", (DATA / ds).read_text())
         html = html.replace("/*__GEO__*/", geo)
+        html = html.replace("/*__PHOTOS__*/", json.dumps(photos(), separators=(",", ":")))
         staged[out] = html
         built.append((out, title, blurb, len(html) // 1024))
         print(f"  {out:<18} {len(html)//1024:>4} KB   from {tpl} + {ds}")

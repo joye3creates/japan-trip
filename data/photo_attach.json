@@ -1,0 +1,11 @@
+{
+  "_comment": "Hand-edited. photo_meta.json holds what each file knew about itself; this says where it belongs when the file could not say. A photograph attaches to a place on a day, or to one named mark.",
+  "mt-aso.jpg": {
+    "place_id": "mt-aso",
+    "caption": "The crater plain, a little before one."
+  },
+  "totoro-puffs.jpg": {
+    "mark": "e5",
+    "caption": "Two of them, in a box, carried back on the train."
+  }
+}

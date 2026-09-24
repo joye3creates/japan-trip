@@ -68,16 +68,54 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .hint{font-size:11px;color:var(--ink-3)}
 #stage{display:block;width:100%;flex:1;min-height:0}
 .hint{display:none}
-#tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .12s;
-  background:var(--ink);color:var(--paper);padding:8px 11px;font-size:11.5px;max-width:270px;
-  box-shadow:0 5px 18px rgba(59,47,35,.4)}
-#tip b{display:block;font-size:13px;margin-bottom:3px}
-#tip .r{display:flex;justify-content:space-between;gap:16px;color:var(--paper-3);font-size:10.5px}
-#tip .s{display:block;margin-top:4px;color:var(--verm);font-size:10px}
+/* ---------- the mark card ---------- */
+/* One size at every point. The picture well is a fixed 4:3 and the image is
+   contained inside it, so a portrait and a landscape make the same block, and
+   the room for the controls is reserved whether or not they are showing. */
+.hc{position:fixed;z-index:60;width:266px;background:var(--paper);border:1px solid var(--ink);
+  box-shadow:0 12px 34px rgba(59,47,35,.22);padding:10px;opacity:0;pointer-events:none;
+  transform:scale(.978);transition:opacity .13s ease-out,transform .15s cubic-bezier(.2,.85,.25,1),
+  left .26s cubic-bezier(.35,.9,.3,1),top .26s cubic-bezier(.35,.9,.3,1)}
+.hc.on{opacity:1}.hc.on{transform:none}
+.hc.snap{transition:opacity .13s ease-out,transform .15s cubic-bezier(.2,.85,.25,1)}
+.hc.pinned{pointer-events:auto;border-color:var(--verm)}
+.hc .frame{position:relative;width:100%;aspect-ratio:4/3;background:var(--paper-3);
+  border:1px solid var(--rule,var(--ink-3));display:flex;align-items:center;justify-content:center;
+  overflow:hidden;margin-bottom:9px}
+.hc .frame.none{aspect-ratio:auto;height:0;border:0;margin:0}
+.hc .frame img{max-width:100%;max-height:100%;width:auto;height:auto;display:block}
+.hc .fnav{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;
+  padding:0 5px;opacity:0;transition:opacity .15s}
+.hc.pinned .fnav{opacity:1}
+.hc .fnav button{width:26px;height:26px;border-radius:50%;border:0;cursor:pointer;color:#fff;
+  background:rgba(30,25,20,.5);font-size:13px;line-height:1;padding:0;transition:background .13s,transform .13s}
+.hc .fnav button:hover{background:rgba(30,25,20,.78);transform:scale(1.08)}
+.hc .fnav button[disabled]{opacity:0;pointer-events:none}
+.hc .pips{position:absolute;left:0;right:0;bottom:6px;display:flex;gap:4px;justify-content:center}
+.hc .pips i{width:4px;height:4px;border-radius:50%;background:#fff;opacity:.45}
+.hc .pips i.on{opacity:1}
+.hc .meta{height:84px;overflow:hidden}
+.hc.bare .meta{height:auto;overflow:visible}
+.hc.bare .foot{margin-top:9px}
+.hc .plc{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--verm);
+  line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc .it{font-family:"Shippori Mincho",serif;font-weight:600;font-size:14.5px;line-height:1.28;
+  margin:3px 0 5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hc .r{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--ink-2)}
+.hc .r em{font-style:normal;color:var(--verm);font-size:9px;letter-spacing:.07em;
+  text-transform:uppercase;margin-left:5px}
+.hc .nt{font-size:11.5px;font-style:italic;color:var(--ink-3);margin-top:4px;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.hc .foot{height:28px;margin-top:6px;border-top:1px solid var(--paper-3);display:flex;
+  align-items:center;justify-content:space-between}
+.hc .foot span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .tail{max-width:660px;margin:0 auto;padding:7vh 16px 12vh;color:var(--ink-3);font-size:11.5px}
 .tail p{margin:0 0 7px}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
 </style>
+
+<link rel="preload" as="image" href="assets/photos/mt-aso.jpg">
+<link rel="preload" as="image" href="assets/photos/totoro-puffs.jpg">
 
 <div class="lede">
   <h1>A Day at a Time</h1>
@@ -108,6 +146,21 @@ body{margin:0;background:var(--paper);color:var(--ink);
   </div>
 </div>
 
+
+<div class="hc" id="hc">
+  <div class="frame" id="hc-frame">
+    <img id="hc-img" alt="">
+    <div class="fnav"><button id="hc-prev" aria-label="Previous photograph">&lsaquo;</button><button id="hc-next" aria-label="Next photograph">&rsaquo;</button></div>
+    <div class="pips" id="hc-pips"></div>
+  </div>
+  <div class="meta">
+    <div class="plc" id="hc-plc"></div><div class="it" id="hc-it"></div>
+    <div class="r"><span id="hc-h"></span><span id="hc-a"></span></div>
+    <div class="nt" id="hc-nt"></div>
+  </div>
+  <div class="foot"><span id="hc-pos"></span><span id="hc-cue"></span></div>
+</div>
+
 <div class="tail">
   <p><b>What is real here.</b> Every price, every place, every journey and every
   night's lodging. 126 purchases from the trip book, seven confirmed bookings and
@@ -122,10 +175,9 @@ body{margin:0;background:var(--paper);color:var(--ink);
   <p><b>Left out on purpose.</b> Shopping and gifts. Personal, and of no use to
   anyone reading this as a record of travelling in Japan.</p>
 </div>
-<div id="tip" role="status" aria-live="polite"></div>
 
 <script>
-const GEO=/*__GEO__*/, DATA=/*__TRIP_DATA__*/;
+const GEO=/*__GEO__*/, DATA=/*__TRIP_DATA__*/, PHOTOS=/*__PHOTOS__*/;
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const NS="http://www.w3.org/2000/svg";
 const el=(t,a={})=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n;};
@@ -235,6 +287,7 @@ function intro(){
             fills.forEach(([f,v])=>{ if(v) f.setAttribute("fill","var(--land-v)"); });
             gMarks.style.opacity=1; return; }
   gMarks.style.opacity=0;
+  gMarks.style.pointerEvents="none";
   gMarks.style.transition="opacity .9s ease-out";
   lines.forEach(([s,v],i)=>{
     let len=0; try{ len=s.getTotalLength(); }catch(e){}
@@ -246,7 +299,7 @@ function intro(){
   const lastLine=340+lines.length*11+1150;
   fills.forEach(([f,v],i)=>{ if(!v) return;
     setTimeout(()=>f.setAttribute("fill","var(--land-v)"), lastLine-260+i*34); });
-  setTimeout(()=>{ gMarks.style.opacity=1; }, lastLine+180);
+  setTimeout(()=>{ gMarks.style.opacity=1; gMarks.style.pointerEvents=""; }, lastLine+180);
 }
 const gClockAx=el("g"), gLedgAx=el("g",{opacity:0});
 gAxis.append(gClockAx,gLedgAx);
@@ -292,8 +345,9 @@ const nodes=MARKS.map((m,i)=>{
   // scattered, not sequential: a straight run of delays arrives as a
   // visible wave, which reads as the marks smearing into lines
   g._delay=Math.round(((i*97+i*i*31)%211)/211*260);
-  g.addEventListener("pointerenter",e=>tip(e,g));
-  g.addEventListener("pointerleave",untip);
+  g.addEventListener("pointerenter",()=>hcEnter(g));
+  g.addEventListener("pointerleave",()=>hcLeave(g));
+  g.addEventListener("click",e=>{e.stopPropagation();hcPin(g);});
   gMarks.append(g); return g;
 });
 function homeOnMap(m){
@@ -343,6 +397,7 @@ function render(){
       if(view==="clock") vis = m.kind==="cost" ? (m.lane==="band"?.3:0) : 1;
       else               vis = m.kind==="event" ? 0 : 1;
     } else vis = 1;
+    g._vis=vis;
     g.setAttribute("opacity",vis);
     g._ic.setAttribute("opacity",showIcon&&vis?1:0);
     g._dot.setAttribute("opacity",showIcon?0:1);
@@ -350,26 +405,153 @@ function render(){
     g.style.color = hot?"var(--verm)":"var(--ink-2)";
     g._dot.setAttribute("fill", hot?"var(--verm)":"var(--ink-2)");
   });
+  // A mark that has just left the view cannot stay pinned, and every other
+  // pinned mark is about to travel, so the card travels with it.
+  if(pin && !pin._vis) hcRelease();
+  else if(pin){ fill(pin); hcFollow(); }
+  else if(hov) hcFollow();
 }
 
-/* ---------- tooltip ---------- */
-function tip(e,g){
-  const m=g._m, t=$("#tip");
-  const hh=m.hour!=null?String(Math.floor(m.hour)).padStart(2,"0")+":"+String(Math.round((m.hour%1)*60)).padStart(2,"0"):null;
-  const price=m.amount?yen(m.amount):(m.kind==="event"?"no cost on the day":"price not recorded");
-  let s="";
-  if(m.time_source==="synthetic") s=`<span class="s">invented time, not from the record</span>`;
-  else if(m.time_source) s=`<span class="s">time ${m.time_source}</span>`;
-  if(m.merge_to&&byId[m.merge_to]) s+=`<span class="s">paid for by ${byId[m.merge_to].item}</span>`;
-  if(m.note) s+=`<span class="s">${m.note}</span>`;
-  t.innerHTML=`<b>${m.item||m.category}</b><div class="r"><span>${hh||"no time"}</span><span>${price}</span></div>${s}`;
-  t.style.opacity="1";
-  const mv=ev=>{t.style.left=Math.min(ev.clientX+14,innerWidth-t.offsetWidth-10)+"px";
-                t.style.top=Math.max(ev.clientY-10,8)+"px";};
-  mv(e); svg.addEventListener("pointermove",mv); t._m=mv;
+/* ---------- the mark card ---------- */
+/* Photographs attach to a place on a day, or to one named mark, never to the
+   nearest timestamp. The crater photograph sits at 12:50 between an ice cream
+   at 11:52 and a lunch at 13:50, almost equidistant, and neither of them is
+   what it is a picture of. */
+const P_MARK={}, P_PLACE={}, P_DAY={};
+PHOTOS.forEach(p=>{
+  if(p.mark)                       (P_MARK[p.mark]=P_MARK[p.mark]||[]).push(p);
+  else if(p.day!=null&&p.place)    (P_PLACE[p.day+"/"+p.place]=P_PLACE[p.day+"/"+p.place]||[]).push(p);
+  else if(p.day!=null)             (P_DAY[p.day]=P_DAY[p.day]||[]).push(p);
+});
+const shots=m=>[].concat(P_MARK[m.id]||[],
+                         m.place_id?(P_PLACE[m.day_index+"/"+m.place_id]||[]):[],
+                         P_DAY[m.day_index]||[]);
+
+const PHDIR="assets/photos"+"/";   // split, so the build's asset scan does not read this as a link
+const hc=$("#hc");
+let pin=null, hov=null, shot=0, followRAF=0, followTill=0;
+const hhmm=h=>h==null?null:String(Math.floor(h)).padStart(2,"0")+":"+String(Math.round((h%1)*60)).padStart(2,"0");
+
+/* What the arrows walk: the rest of that day, in the order the current view
+   puts them, skipping whatever this view is not showing. The three band marks
+   belong to no day and walk among themselves. */
+function peers(g){
+  const m=g._m, inBand=m.lane==="band";
+  return nodes.filter(o=>o._vis>0 && (inBand ? o._m.lane==="band"
+                                             : o._m.lane!=="band" && o._m.day_index===m.day_index))
+              .sort((a,b)=>pos(a._m).x-pos(b._m).x);
 }
-function untip(){const t=$("#tip");t.style.opacity="0";
-  if(t._m){svg.removeEventListener("pointermove",t._m);t._m=null;}}
+
+function fill(g){
+  const m=g._m, ph=shots(m);
+  if(shot>=ph.length) shot=0;
+  const p=ph[shot], fr=$("#hc-frame"), img=$("#hc-img");
+  hc.classList.toggle("bare",!p);
+  if(p){ fr.classList.remove("none");
+         const u=PHDIR+p.file;
+         if(img.getAttribute("src")!==u) img.src=u;
+         img.alt=p.caption||m.item||""; }
+  else { fr.classList.add("none"); img.removeAttribute("src"); img.alt=""; }
+  $("#hc-pips").innerHTML = ph.length>1 ? ph.map((_,i)=>`<i class="${i===shot?"on":""}"></i>`).join("") : "";
+  $("#hc-prev").disabled=$("#hc-next").disabled=ph.length<2;
+
+  const pl=PL[m.place_id];
+  $("#hc-plc").textContent = m.lane==="band" ? "Before leaving" : (pl?pl.name:DAY[m.day_index]);
+  $("#hc-it").textContent  = m.item||m.category;
+  const hh=hhmm(m.hour);
+  $("#hc-h").innerHTML = (hh||"no hour") + (m.time_source==="synthetic"?"<em>invented</em>":"");
+  $("#hc-a").textContent = m.amount?yen(m.amount):(m.kind==="event"?"no cost on the day":"price not recorded");
+
+  // The caption wins the line when there is a picture, and carries the hour the
+  // photograph itself knew, so nobody reads it as a picture of this purchase.
+  let nt="";
+  if(p){ const t=p.taken?p.taken.slice(11,16):null;
+         nt=(p.caption||"")+(t&&t!==hh?"  ·  "+t:""); }
+  else if(m.merge_to&&byId[m.merge_to]) nt="paid for by "+byId[m.merge_to].item;
+  else if(m.note) nt=m.note;
+  $("#hc-nt").textContent=nt;
+
+  const list=peers(g), i=list.indexOf(g);
+  $("#hc-pos").textContent = (m.lane==="band"?"band":"day "+String(m.day_index).padStart(2,"0"))
+                           + (i<0?"":" · "+(i+1)+" of "+list.length);
+  $("#hc-cue").textContent = pin ? "← → day"+(ph.length>1?"  ·  ↑ ↓ photographs":"")+"  ·  esc"
+                                 : "click to pin";
+  if(pin===g){
+    $("#step-t").textContent=(m.lane==="band"?"Before leaving":DAY[m.day_index])
+                            +(i<0?"":" · "+(i+1)+" of "+list.length);
+    $("#p-prev").disabled = i<=0;
+    $("#p-next").disabled = i<0 || i>=list.length-1;
+  }
+}
+
+/* Rows in the top half open downward and rows in the bottom half open upward,
+   so the picture is never the thing off the screen. */
+function place(anim){
+  const g=pin||hov; if(!g) return;
+  const r=g.getBoundingClientRect(), st=svg.getBoundingClientRect();
+  const w=hc.offsetWidth, h=hc.offsetHeight, M=10, GAP=16, DOCKROOM=76;
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  let below=(cy-st.top)<st.height*0.5;
+  if(below && cy+GAP+h>innerHeight-DOCKROOM) below=false;
+  if(!below && cy-GAP-h<M) below=true;
+  const top=Math.max(M,Math.min(below?cy+GAP:cy-GAP-h, innerHeight-h-M));
+  const left=Math.max(M,Math.min(cx-w/2, innerWidth-w-M));
+  hc.classList.toggle("snap",!anim);
+  hc.style.left=left.toFixed(1)+"px";
+  hc.style.top =top.toFixed(1)+"px";
+}
+// The marks take just under a second to travel. The card rides along rather
+// than jumping to where the mark will be.
+function hcFollow(){
+  if(!pin&&!hov) return;
+  followTill=performance.now()+1500;
+  if(followRAF) return;
+  const tick=()=>{ place(false);
+    followRAF = performance.now()<followTill ? requestAnimationFrame(tick) : 0; };
+  followRAF=requestAnimationFrame(tick);
+}
+
+function show(g,anim){ fill(g); hc.classList.add("on"); place(anim); }
+function hcEnter(g){ if(pin) return; hov=g; shot=0; show(g,false); }
+function hcLeave(g){ if(pin||hov!==g) return; hov=null; hc.classList.remove("on"); }
+function hcPin(g){ pin=g; hov=null; shot=0; hc.classList.add("pinned"); show(g,true); dockMode(); }
+function hcRelease(){ if(!pin) return; pin=null; hc.classList.remove("pinned","on"); dockMode(); }
+
+/* One dock, two jobs. Pinned, it stops offering the view and starts walking
+   the day; released, it goes back to being the toggle. */
+function dockMode(){
+  const d=$("#dock");
+  $("#dock-view").hidden=!!pin;
+  $("#dock-step").hidden=!pin;
+  if(pin){ clearTimeout(dockT); d.classList.add("on"); }
+  else d.classList.toggle("on", step>=1);
+}
+function stepTo(dir){
+  if(!pin) return;
+  const list=peers(pin), i=list.indexOf(pin), j=i+dir;
+  if(i<0||j<0||j>=list.length) return;
+  pin=list[j]; shot=0; show(pin,true);
+}
+function photoTo(dir){
+  const g=pin||hov; if(!g) return;
+  const n=shots(g._m).length; if(n<2) return;
+  shot=(shot+dir+n)%n; fill(g);
+}
+$("#p-prev").onclick=()=>stepTo(-1);
+$("#p-next").onclick=()=>stepTo(1);
+$("#p-close").onclick=hcRelease;
+$("#hc-prev").onclick=e=>{e.stopPropagation();photoTo(-1);};
+$("#hc-next").onclick=e=>{e.stopPropagation();photoTo(1);};
+svg.addEventListener("click",hcRelease);
+addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ hcRelease(); return; }
+  if(!pin) return;
+  const go={ArrowRight:()=>stepTo(1),ArrowLeft:()=>stepTo(-1),
+            ArrowDown:()=>photoTo(1),ArrowUp:()=>photoTo(-1)}[e.key];
+  if(go){ e.preventDefault(); go(); }
+});
+addEventListener("scroll",()=>{ if(pin||hov) place(false); },{passive:true});
+addEventListener("resize",()=>{ if(pin||hov) place(false); });
 
 /* ---------- steps + toggle ---------- */
 const STEPS=[
@@ -410,6 +592,7 @@ function setStep(n){
   clearTimeout(dockT);
   if(n>=1) dockT=setTimeout(()=>$("#dock").classList.add("on"),260);
   else $("#dock").classList.remove("on");
+  if(pin) dockMode();
   // A second of zooming with the marks still on the land, then they scatter.
   // The camera is mild enough that nothing leaves the frame and has to return.
   clearTimeout(holdT);
