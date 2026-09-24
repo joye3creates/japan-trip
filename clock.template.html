@@ -30,10 +30,10 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .step{min-height:96vh;display:flex;align-items:center;padding-block:10vh}
 .step .card{pointer-events:auto;max-width:296px;opacity:0;background:color-mix(in srgb,var(--paper) 88%,transparent);
   backdrop-filter:blur(3px);border:1px solid var(--ink-3);padding:15px 17px;
-  box-shadow:0 6px 22px rgba(59,47,35,.13);transition:opacity .24s ease-out}
-/* the outgoing card clears before the new one arrives, so they are never
-   both legible at once */
-.step.on .card{opacity:1;transition:opacity .34s ease-out .16s}
+  box-shadow:0 6px 22px rgba(59,47,35,.13);transition:opacity .2s ease-out}
+/* No delay. The card changing is part of the same movement as the chart
+   changing, and a gap between them reads as lag. */
+.step.on .card{opacity:1;transition:opacity .26s ease-out}
 .step .n{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--verm)}
 .step h2{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;margin:4px 0 7px}
 .step p{margin:0;font-size:13px;color:var(--ink-2)}
@@ -176,7 +176,7 @@ const CAM_TRIP=(()=>{
     const x=MX(lo), y=MY(la);
     a[0]=Math.min(a[0],x); a[1]=Math.max(a[1],x);
     b[0]=Math.min(b[0],y); b[1]=Math.max(b[1],y);})));
-  const k=Math.min(W/(a[1]-a[0]), H/(b[1]-b[0]))*0.82;
+  const k=Math.min(W/(a[1]-a[0]), H/(b[1]-b[0]))*0.44;
   return {k, x:W/2-k*(a[0]+a[1])/2, y:H/2-k*(b[0]+b[1])/2};
 })();
 
@@ -296,7 +296,7 @@ function homeOnMap(m){
   return p?camPt(MX(p.lng),MY(p.lat)):camPt(W/2,H/2);
 }
 function pos(m){
-  if(step<1) return homeOnMap(m);
+  if(step<1||mapHold) return homeOnMap(m);
   if(view==="clock"){
     if(m.kind==="cost") return m.lane==="band"?{x:BX(m),y:BAND_Y+19}:{x:LX(m.amount),y:laneY(m.day_index)};
     return {x:CX(m.hour),y:laneY(m.day_index)+off(m)};
@@ -321,7 +321,7 @@ const off=m=>OFF[m.id]||0;
 
 function render(){
   buildOffsets();
-  const onMap=step<1;
+  const onMap=step<1||mapHold;
   gLand.setAttribute("opacity",onMap?1:0);
   gAxis.style.transition=gBand.style.transition="opacity .9s";
   gAxis.setAttribute("opacity",onMap?0:1);
@@ -387,9 +387,10 @@ new IntersectionObserver(es=>es.forEach(e=>{
   if(e.isIntersecting){e.target.classList.add("on"); step=+e.target.dataset.i; render();}
   else e.target.classList.remove("on");
 }),{rootMargin:"-45% 0px -45% 0px"}).observe;
-let dockT=null;
+let dockT=null, holdT=null, mapHold=false;
 function setStep(n){
   if(n===step && $(".step.on")) return;
+  const leavingMap = step<1 && n>=1;
   step=n;
   // exactly one card, swapped at the moment the chart changes, so the two
   // never sit on screen together and none is left behind
@@ -402,8 +403,13 @@ function setStep(n){
   $("#v-clock").setAttribute("aria-pressed", view==="clock");
   $("#v-ledger").setAttribute("aria-pressed", view==="ledger");
   clearTimeout(dockT);
-  if(n>=1) dockT=setTimeout(()=>$("#dock").classList.add("on"),620);
+  if(n>=1) dockT=setTimeout(()=>$("#dock").classList.add("on"),260);
   else $("#dock").classList.remove("on");
+  // A second of zooming with the marks still on the land, then they scatter.
+  // The camera is mild enough that nothing leaves the frame and has to return.
+  clearTimeout(holdT);
+  if(leavingMap){ mapHold=true; holdT=setTimeout(()=>{mapHold=false;render();}, 980); }
+  else if(n<1) mapHold=false;
   render();
 }
 $$(".step").forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{
