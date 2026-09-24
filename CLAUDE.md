@@ -146,6 +146,17 @@ tried and retired, because it duplicated the routine and produced a second PR
 against the same file. If a session is asked to write the day's entry, check the
 routine has not already done it.
 
+## How to write here
+
+**Plain words, short sentences.** In logs, entries, commit messages and replies.
+Say what happened, not what it means. Titles are labels, not lines of writing.
+No clever openers and nothing that needs re-reading.
+
+**The work is the design and the interaction.** What was tried, what got thrown
+out, how it feels to use. The data and the code are how it gets made, not what
+it is about; they come up when they changed a design decision, and otherwise
+stay out of the way.
+
 ## Conventions that matter
 
 **Studies get published, not screenshotted.** Anything in `explorations/` is

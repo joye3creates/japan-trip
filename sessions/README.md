@@ -3,6 +3,14 @@
 One document per working session, written at the end of it. These are the raw
 material for a case study later — keep them specific rather than tidy.
 
+**Plain words, short sentences.** The title is a plain label for what the day
+was — "photos on the clock view", not a line of writing. Say what happened, not
+what it means.
+
+**The subject is the design and the interaction.** What was tried, what got
+thrown out, how it behaves. Data and code work belongs in the log, but as how it
+got made rather than as the story, and in proportion to the time it took.
+
 Naming: `YYYY-MM-DD-session-NN.md`
 
 Each one covers, in this order:
