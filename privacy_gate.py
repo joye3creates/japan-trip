@@ -212,6 +212,14 @@ def _mp4_metadata(data, off, end, depth=0):
         i += n
 
 
+# An email shape is only about six characters, so random bytes throw one every
+# few hundred kilobytes: a screen recording stopped a build over `d@K.Yv`. In a
+# binary a hit has to be long enough that chance will not produce it. Text files
+# keep the unrestricted pattern, since that is where a real address would be
+# written. Every binary is listed for human review regardless.
+BIN_EMAIL_MIN = 12
+
+
 def _scan_binary(data):
     """Random bytes make phone and reference shapes meaningless, so binaries
     are checked for names and emails only, in their embedded strings."""
@@ -219,7 +227,7 @@ def _scan_binary(data):
         s = _blank_allowlist(s)
         if _has_name(s):
             yield f"byte {offset}", "name"
-        if EMAIL.search(s):
+        if any(len(m.group()) >= BIN_EMAIL_MIN for m in EMAIL.finditer(s)):
             yield f"byte {offset}", "email"
 
 
@@ -282,12 +290,24 @@ def _selftest():
         ("PNG with tEXt",         png + chunk(b"IHDR") + chunk(b"tEXt", b"k\x00v") + chunk(b"IEND"), True),
         ("PNG, pixels only",      png + chunk(b"IHDR") + chunk(b"IDAT", b"x") + chunk(b"IEND"), False),
     ]
+    # The other half: what the string scan inside a binary must and must not
+    # stop the build over.
+    strings = [
+        ("binary, a real address",  b"\x00\x01contact someone@example.com here\x02",  True),
+        ("binary, six random bytes", b"\x00\x01d@K.Yv\x02\x03",                       False),
+    ]
     bad = 0
     for label, data, should_refuse in cases:
         refused = bool(list(_image_metadata(data)))
         ok = refused == should_refuse
         bad += not ok
         print(f"  {'ok  ' if ok else 'FAIL'}  {label:24} {'refused' if refused else 'passed'}")
+    for label, data, should_refuse in strings:
+        refused = bool(list(_scan_binary(data)))
+        ok = refused == should_refuse
+        bad += not ok
+        print(f"  {'ok  ' if ok else 'FAIL'}  {label:24} {'refused' if refused else 'passed'}")
+    cases = cases + strings
     if bad:
         sys.exit(f"\n{bad} self-test(s) failed. The gate is not protecting what it claims to.")
     print(f"\n  {len(cases)} self-tests passed.")

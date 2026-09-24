@@ -55,6 +55,8 @@ h1{font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(34px,6vw,
 /* watch / try it */
 .stage{margin:30px 0 0}
 .stage-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
+.stage-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mustard);
+  font-weight:500;margin:0 0 8px}
 .tabs{display:flex}
 .tabs button{font:inherit;font-size:13px;letter-spacing:.06em;padding:8px 16px;cursor:pointer;
   border:1px solid var(--ink);background:var(--paper);color:var(--ink);margin-bottom:-1px}
@@ -75,6 +77,16 @@ h2.section{font-family:"Shippori Mincho",serif;font-weight:600;font-size:14px;le
 .day{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:34px;
   padding:0 0 48px;margin:0 0 48px;border-bottom:1px solid var(--rule)}
 .day:last-child{border-bottom:0}
+.body{display:flex;flex-direction:column;gap:20px}
+.body>*{min-width:0}
+.lede>*:last-child{margin-bottom:0}
+/* the day whose recording plays at the top has no still of its own, so its
+   two halves sit side by side rather than in one column with the page empty
+   beside them */
+.day.no-media{grid-template-columns:1fr}
+.day.no-media .body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+  gap:34px;align-items:start}
+@media(max-width:820px){.day.no-media .body{grid-template-columns:1fr;gap:20px}}
 @media(max-width:820px){.day{grid-template-columns:1fr;gap:20px}}
 .media{margin:0}
 .media img{display:block;width:100%;height:auto;border:1px solid var(--ink)}
@@ -156,6 +168,7 @@ footer p{margin:0 0 6px;max-width:72ch}
     <a class="follow" href="https://bsky.app/profile/shirshacreates.bsky.social">Follow on Bluesky &rarr;</a>
 
     <div class="stage">
+      <p class="stage-label">Latest &middot; Day <!--DAY--> of <!--TOTAL--></p>
       <div class="stage-head">
         <div class="tabs" role="tablist">
           <button role="tab" aria-selected="true" data-mode="watch">&#9654; Watch</button>
@@ -164,13 +177,13 @@ footer p{margin:0 0 6px;max-width:72ch}
         <a href="clock.html">Open full screen &rarr;</a>
       </div>
       <div class="screen" id="screen">
-        <video id="demo" autoplay muted loop playsinline preload="metadata" poster="assets/clock_hero.png"
-          aria-label="Screen recording: a map of Japan dissolves into a sixteen-day clock, which then switches to a price ledger">
-          <source src="assets/interaction.mp4" type="video/mp4">
+        <video id="demo" autoplay muted loop playsinline preload="metadata" poster="assets/<!--POSTER-->"
+          aria-label="Screen recording of day <!--DAY-->: <!--HINT-->">
+          <source src="assets/<!--WATCH-->" type="video/mp4">
         </video>
         <button class="pause" id="pause" type="button">Pause</button>
       </div>
-      <p class="hint" id="hint">The map dissolves into sixteen days by the hour, then switches to what it cost. Times are placeholders for now.</p>
+      <p class="hint" id="hint"><!--HINT--></p>
     </div>
   </section>
 
@@ -192,7 +205,7 @@ footer p{margin:0 0 6px;max-width:72ch}
 <script>
 document.documentElement.classList.add('js');
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const TOTAL = <!--TOTAL-->, LATEST = <!--DAY-->;
+const TOTAL = <!--TOTAL-->, LATEST = <!--DAY-->, WATCH_HINT = <!--HINT_JS-->;
 
 // featured day: the latest by default; #day-N or a tap promotes another
 function show(n, scroll) {
@@ -236,11 +249,11 @@ $$('.tabs button').forEach(b => b.onclick = () => {
       $('#screen').append(frame);
     }
     frame.hidden = false;
-    $('#hint').textContent = 'Scroll inside the frame to play it. Use the Clock / Ledger switch at the top to change views.';
+    $('#hint').textContent = 'Scroll inside the frame to play it. The bar at the foot switches between Expense and Journey.';
   } else {
     if (frame) frame.hidden = true;
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) video.play();
-    $('#hint').textContent = 'The map dissolves into sixteen days by the hour, then switches to what it cost. Times are placeholders for now.';
+    $('#hint').textContent = WATCH_HINT;
   }
 });
 </script>

@@ -84,6 +84,13 @@ lists needs a human look before it ships. Only assets a page links are copied.
 The log page takes each day's still from `assets/day-NN.png`, or from the file an
 entry names with `**Media:**`. A new day is an entry plus an image, never code.
 
+**The recording at the top of the log page is the latest day's.** An entry names
+it with `**Watch:** <file in assets/> — <what it shows>`, and that line is what
+the page prints under the video. The day's `**Media:**` still is its poster. The
+latest day's article then leaves its still out, because the video above it is the
+same thing twice. Nothing about this needs a code change from one day to the
+next: write the field, drop the file in `assets/`, and the hero follows.
+
 **An image inlined as a `data:` URI is still an image.** The gate decodes every
 one it finds in a page and puts it through the same refusal as a file on disk,
 because a study with a photograph pasted into it used to walk in through the
