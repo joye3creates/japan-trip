@@ -11,3 +11,9 @@ __pycache__/
 
 # Traveller names, kept out of version control
 names.local.txt
+
+# Original photographs. They carry capture times, device fingerprints and
+# often coordinates. scrub_photos.py reads what is useful into
+# data/photo_meta.json and writes clean copies to assets/photos/; the
+# originals themselves never enter version control.
+pics/

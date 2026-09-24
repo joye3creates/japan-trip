@@ -12,6 +12,7 @@ import privacy_gate
 
 ROOT = Path(__file__).resolve().parent
 DATA, SITE, ASSETS = ROOT / "data", ROOT / "site", ROOT / "assets"
+EXPLORE = ROOT / "explorations"
 
 # template, dataset, output. The route map keeps the unfiltered dataset on
 # purpose: it is the day-one artefact and later exclusions must not rewrite it.
@@ -26,6 +27,76 @@ PAGES = [
      "The current build. Sixteen days by the hour, with a switch to the ledger."),
 ]
 
+def photos():
+    """What the page needs to show a photograph on a mark.
+
+    `photo_meta.json` is written by scrub_photos.py and holds only what the
+    original file knew: a capture time, sometimes coordinates. `photo_attach.json`
+    is hand-edited and supplies what the file could not, which for a photograph
+    sent through a messaging app is everything. A record ends up attached either
+    to one named mark, or to a place on a day.
+    """
+    meta = json.loads((DATA / "photo_meta.json").read_text()) if (DATA / "photo_meta.json").is_file() else {}
+    attach = json.loads((ROOT / "data/photo_attach.json").read_text()) if (ROOT / "data/photo_attach.json").is_file() else {}
+    out = []
+    for name in sorted(meta):
+        a = attach.get(name) or {}
+        rec = {"file": name, "caption": a.get("caption", "")}
+        if a.get("mark"):
+            rec["mark"] = a["mark"]
+        else:
+            # The file's own day wins where it has one. Where the two disagree
+            # the hand-edit is wrong about a file that knew better, and that is
+            # worth stopping for rather than quietly preferring one.
+            fday, hday = meta[name].get("day_index"), a.get("day_index")
+            if fday is not None and hday is not None and fday != hday:
+                sys.exit(f"\nPHOTOS: {name} was taken on day {fday} but is attached to day {hday}")
+            day = fday if fday is not None else hday
+            if day is None or not a.get("place_id"):
+                continue                      # nowhere to put it; say nothing
+            rec["day"], rec["place"] = day, a["place_id"]
+        if meta[name].get("taken"):
+            rec["taken"] = meta[name]["taken"]
+        out.append(rec)
+
+    # Stand-ins, one per category, so every mark has a picture while the real
+    # photographs are still being chosen. They carry no caption and the page
+    # labels them, because a real photograph shown against a purchase it has
+    # nothing to do with is the one thing this project must not do quietly.
+    for cat, entries in sorted((attach.get("_placeholder_by_category") or {}).items()):
+        if cat.startswith("_"):
+            continue
+        for e in ([entries] if isinstance(entries, (str, dict)) else entries):
+            e = {"file": e} if isinstance(e, str) else e
+            if e["file"] not in meta:
+                sys.exit(f"\nPHOTOS: placeholder for {cat} names {e['file']}, "
+                         f"which is not in assets/photos/")
+            rec = {"file": e["file"], "category": cat, "placeholder": True}
+            if e.get("rotate"):
+                rec["rotate"] = e["rotate"]
+            out.append(rec)
+
+    # A mistyped place or mark attaches a photograph to nothing at all, and the
+    # page has no way to say so: the picture simply never appears.
+    trip = json.loads((DATA / "trip.json").read_text())
+    places = {p["id"] for p in trip["places"]}
+    marks = {m["id"] for m in trip["marks"]}
+    day_places = [set(d.get("places") or []) for d in trip["days"]]
+    cats = {m.get("category") for m in trip["marks"]}
+    for r in out:
+        if r.get("placeholder") and r["category"] not in cats:
+            sys.exit(f"\nPHOTOS: placeholder names category {r['category']}, which nothing is in")
+        if "mark" in r and r["mark"] not in marks:
+            sys.exit(f"\nPHOTOS: {r['file']} names mark {r['mark']}, which is not in the dataset")
+        if "place" in r:
+            if r["place"] not in places:
+                sys.exit(f"\nPHOTOS: {r['file']} names place {r['place']}, which is not in the registry")
+            if r["place"] not in day_places[r["day"]]:
+                sys.exit(f"\nPHOTOS: {r['file']} puts {r['place']} on day {r['day']}, "
+                         f"which did not go there")
+    return out
+
+
 def main():
     # Everything is staged in memory first. The privacy gate reads all of it,
     # and only a clean pass lets a single byte reach site/.
@@ -36,9 +107,23 @@ def main():
         html = (ROOT / tpl).read_text()
         html = html.replace("/*__TRIP_DATA__*/", (DATA / ds).read_text())
         html = html.replace("/*__GEO__*/", geo)
+        html = html.replace("/*__PHOTOS__*/", json.dumps(photos(), separators=(",", ":")))
+        # Netlify sends a charset header, so a missing declaration never shows
+        # up on the deployed page. Every review copy is opened as a local file,
+        # where the browser guesses instead, and yen signs and em dashes come
+        # out as mojibake. Declared here so no template can forget.
+        if "charset" not in html[:2048]:
+            html = '<meta charset="utf-8">\n' + html
         staged[out] = html
         built.append((out, title, blurb, len(html) // 1024))
         print(f"  {out:<18} {len(html)//1024:>4} KB   from {tpl} + {ds}")
+
+    # The interaction studies, served as they were made. They are dead ends and
+    # chosen designs both, and the log entries point at them, so they go up
+    # beside the pages rather than living only in a chat.
+    for f in sorted(EXPLORE.glob("*.html")) if EXPLORE.is_dir() else []:
+        staged[f"explore/{f.name}"] = f.read_text()
+        print(f"  {'explore/'+f.name:<18} {len(staged['explore/'+f.name])//1024:>4} KB")
 
     # robots.txt is written by hand into site/ and must survive a rebuild
     staged["robots.txt"] = ROBOTS
@@ -52,7 +137,7 @@ def main():
     staged["builds.html"] = INDEX.replace("<!--CARDS-->", cards)
     print(f"  {'builds.html':<18} {len(INDEX)//1024:>4} KB")
 
-    log_html, status = build_log()
+    log_html, status = build_log(set(staged))
     staged["index.html"] = staged["log.html"] = log_html
     # A tiny public fact sheet, so the card on the portfolio can read the day
     # number instead of being edited by hand. Sorted keys and no timestamp, so
@@ -63,8 +148,13 @@ def main():
 
     # Only the media a page actually links. Anything else in assets/ would get
     # a public URL without having been reviewed for this context.
-    refs = sorted({r for v in staged.values() if isinstance(v, str)
-                   for r in re.findall(r'(?:src|href|poster)="(assets/[^"#?]+)"', v)})
+    refs = {r for v in staged.values() if isinstance(v, str)
+            for r in re.findall(r'(?:src|href|poster)="(assets/[^"#?]+)"', v)}
+    # Photographs are named by the data, not by a tag in the template. Adding
+    # one to photo_attach.json used to need a matching <link> hand-written into
+    # the page or the file silently never reached site/.
+    refs |= {"assets/photos/" + p["file"] for p in photos()}
+    refs = sorted(refs)
     missing = [r for r in refs if not (ROOT / r).is_file()]
     if missing:
         sys.exit("\nASSETS: linked from a page but not in assets/: " + ", ".join(missing))
@@ -97,7 +187,11 @@ LOG_SRC = ROOT / "BUILDING_IN_PUBLIC.md"
 FIELDS = [("shipped", "Shipped"), ("number", "The number"),
           ("interesting", "The interesting thing"), ("failure", "The honest failure"),
           ("angle", "Angle worth taking"), ("second", "A second number"),
-          ("headline", "Headline"), ("media", "Media")]
+          ("headline", "Headline"), ("media", "Media"),
+          # One markdown link per line, to a page on this site. The studies are
+          # the day's real argument on an interaction day, and until now the
+          # page had nowhere to put them.
+          ("explore", "Explorations")]
 REQUIRED = ("shipped", "number", "interesting", "failure", "angle")
 
 # One still per day, found by convention so a new day needs no code change:
@@ -112,6 +206,11 @@ TOTAL_DAYS = 16
 WORDNUM = {w: i for i, w in enumerate(
     "zero one two three four five six seven eight nine ten eleven twelve".split())}
 FIGURE = re.compile(r"[¥₹$€£]?\d[\d,]*(?:\.\d+)?%?|\b(?:" + "|".join(WORDNUM) + r")\b", re.I)
+
+
+# [name](page.html) — an optional note, running to the next link or the end.
+EXPLORE_LINK = re.compile(r"\[([^\]]+)\]\((?!\w+:)([A-Za-z0-9._\-/#?=]+)\)"
+                          r"(?:\s*[—–-]\s*([^\[]+))?")
 
 
 class LogError(Exception):
@@ -193,6 +292,10 @@ def inline(s):
     s = H.escape(s, quote=False)
     s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
+    # [text](target), relative targets only. A log entry has no business
+    # sending a reader off this site, and a scheme here would be a way to.
+    s = re.sub(r"\[([^\]]+)\]\((?!\w+:)([A-Za-z0-9._\-/#?=]+)\)",
+               r'<a href="\2">\1</a>', s)
     return re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<i>\1</i>", s)
 
 
@@ -233,7 +336,7 @@ def first_sentence(paras):
     return s[:1].upper() + s[1:]
 
 
-def build_log():
+def build_log(staged_names=()):
     try:
         days = parse_log(LOG_SRC.read_text())
     except LogError as e:
@@ -267,6 +370,23 @@ def build_log():
                       "title": bare[:1].upper() + bare[1:],
                       "headline": fig, "label": label}
         failure = "".join(f"<p>{inline(p[:1].upper() + p[1:])}</p>" for p in f["failure"])
+        links = ""
+        if f.get("explore"):
+            text = " ".join(f["explore"]).strip()
+            items, rest = [], text
+            for m in EXPLORE_LINK.finditer(text):
+                if m.group(2) not in staged_names:
+                    sys.exit(f"\nBUILD LOG: Day {d['day']}: Explorations points at "
+                             f"{m.group(2)}, which this build does not publish")
+                note = (m.group(3) or "").strip(" .")
+                items.append(f'<li><a href="{m.group(2)}">{H.escape(m.group(1))}</a>'
+                             + (f"<span>{H.escape(note)}</span>" if note else "") + "</li>")
+                rest = rest.replace(m.group(0), "", 1)
+            if not items or rest.strip():
+                sys.exit(f"\nBUILD LOG: Day {d['day']}: Explorations takes only "
+                         f"'[name](page.html) — note' entries; left over: {rest.strip()[:60]!r}")
+            links = ('<div class="explore"><span class="k">Explorations</span>'
+                     f'<ul>{"".join(items)}</ul></div>')
         entries.append(f"""  <article class="day" id="day-{d['day']}" data-day="{d['day']}">
     <figure class="media"><img src="assets/{img}" alt="{H.escape(alt)}" loading="lazy"><figcaption>{H.escape(alt)}</figcaption></figure>
     <div>
@@ -275,7 +395,7 @@ def build_log():
       <div class="big">{H.escape(fig)}</div>
       <p class="big-label">{H.escape(label)}</p>
       <p class="takeaway">{H.escape(first_sentence(f['angle']))}</p>
-      <div class="failure"><span class="k">The honest failure</span>{failure}</div>
+      <div class="failure"><span class="k">The honest failure</span>{failure}</div>{links}
     </div>
   </article>""")
         cards.append(f"""    <a class="card" href="#day-{d['day']}" data-day="{d['day']}">

@@ -88,6 +88,15 @@ h2.section{font-family:"Shippori Mincho",serif;font-weight:600;font-size:14px;le
 .failure{background:var(--mustard-tint);border-left:3px solid var(--mustard);padding:14px 16px;font-size:14.5px}
 .failure .k{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
 .failure p{margin:0}.failure p+p{margin-top:8px}
+.explore{margin-top:14px}
+.explore .k{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-2);margin-bottom:8px}
+.explore ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.explore li{font-size:14px;line-height:1.4}
+.explore a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;
+  text-decoration-thickness:1px}
+.explore a:hover{color:var(--mustard)}
+.explore span{display:block;color:var(--ink-2);font-size:13px}
 code{font-size:.9em;background:rgba(59,47,35,.08);padding:0 3px}
 .back{display:none;font:inherit;font-size:14px;background:none;border:0;padding:0;margin:-28px 0 0;
   color:var(--ink);text-decoration:underline;text-decoration-color:var(--mustard);cursor:pointer}
@@ -138,7 +147,7 @@ footer p{margin:0 0 6px;max-width:72ch}
     <li><a href="#day-1">01</a></li>
     <li><a href="#day-2">02</a></li>
     <li><a href="#day-3">03</a></li>
-    <li><span aria-disabled="true" title="Not built yet">04</span></li>
+    <li><a href="#day-4">04</a></li>
     <li><span aria-disabled="true" title="Not built yet">05</span></li>
     <li><span aria-disabled="true" title="Not built yet">06</span></li>
     <li><span aria-disabled="true" title="Not built yet">07</span></li>
@@ -155,7 +164,7 @@ footer p{margin:0 0 6px;max-width:72ch}
 </header>
 <main id="top">
   <section class="hero">
-    <div class="prog"><b>Day 3 of 16</b><span class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></div>
+    <div class="prog"><b>Day 4 of 16</b><span class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></div>
     <h1>Japan trip on a 24-hour clock</h1>
     <p class="intro">Sixteen days in Japan, rebuilt in sixteen days of building. Every purchase, meal, journey and night moves off a receipt and onto a twenty-four hour clock.</p>
     <p class="intro">This is the log, one entry per building day: what changed, what broke, and how I got past it. Built with Claude Code.</p>
@@ -180,7 +189,18 @@ footer p{margin:0 0 6px;max-width:72ch}
     </div>
   </section>
 
-  <h2 class="section" id="feature-h">Latest &middot; Day 3 of 16</h2>
+  <h2 class="section" id="feature-h">Latest &middot; Day 4 of 16</h2>
+  <article class="day" id="day-4" data-day="4">
+    <figure class="media"><img src="assets/day-04-photographs.png" alt="A photo on the point it belongs to, and the bar that steps through the day" loading="lazy"><figcaption>A photo on the point it belongs to, and the bar that steps through the day</figcaption></figure>
+    <div>
+      <span class="num-label">Day 04 of 16</span>
+      <h3>Photos on the clock</h3>
+      <div class="big">5</div>
+      <p class="big-label">designs tried, one kept</p>
+      <p class="takeaway">The quickest way to get one good interaction was to build five rough ones and let someone say, in one message, why three of them were wrong.</p>
+      <div class="failure"><span class="k">The honest failure</span><p>The card would not sit still. Stepping from one point to the next made it jump, and I fixed the wrong thing twice before finding the two real reasons. The points were being spread out vertically so they did not all sit on one line, and the card grew taller whenever there was an extra line of text. Both were obvious once seen and invisible until someone said "the blocks are going a bit up and down".</p></div><div class="explore"><span class="k">Explorations</span><ul><li><a href="explore/01-five-ways.html">Five ways to show a photo</a><span>the first try, five designs side by side</span></li><li><a href="explore/02-hover-card-at-density.html">The same card, with everything on screen</a><span>it looked fine with two days and crowded with sixteen</span></li><li><a href="explore/03-stepping-card.html">Stepping through a day</a><span>how big the card should be, and what the arrows do</span></li><li><a href="explore/04-reaching-a-cluster.html">Reaching into a crowd</a><span>three ways to separate points that sit on top of each other</span></li></ul></div>
+    </div>
+  </article>
   <article class="day" id="day-3" data-day="3">
     <figure class="media"><img src="assets/clock_hero.png" alt="The clock view: sixteen days laid out hour by hour" loading="lazy"><figcaption>The clock view: sixteen days laid out hour by hour</figcaption></figure>
     <div>
@@ -219,12 +239,17 @@ footer p{margin:0 0 6px;max-width:72ch}
   <h2 class="section" id="rest-h">Earlier days</h2>
   <div class="cards" id="cards">
     <div class="card future" aria-hidden="true">
-      <span class="card-t"><span class="num-label">Day 05 of 16</span></span><span class="ph">Not built yet</span></div>
+      <span class="card-t"><span class="num-label">Day 06 of 16</span></span><span class="ph">Not built yet</span></div>
     <div class="card future" aria-hidden="true">
-      <span class="card-t"><span class="num-label">Day 04 of 16</span></span><span class="ph">Not built yet</span></div>
+      <span class="card-t"><span class="num-label">Day 05 of 16</span></span><span class="ph">Not built yet</span></div>
+    <a class="card" href="#day-4" data-day="4">
+      <img src="assets/day-04-photographs.png" alt="" loading="lazy">
+      <span class="card-t"><span class="num-label">Day 04 · latest</span>
+      <b>Photos on the clock</b><span class="card-n">5</span><small>designs tried, one kept</small></span>
+    </a>
     <a class="card" href="#day-3" data-day="3">
       <img src="assets/clock_hero.png" alt="" loading="lazy">
-      <span class="card-t"><span class="num-label">Day 03 · latest</span>
+      <span class="card-t"><span class="num-label">Day 03</span>
       <b>The axis changed</b><span class="card-n">89%</span><small>marks squeezed left on linear axis</small></span>
     </a>
     <a class="card" href="#day-2" data-day="2">
@@ -248,7 +273,7 @@ footer p{margin:0 0 6px;max-width:72ch}
 <script>
 document.documentElement.classList.add('js');
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const TOTAL = 16, LATEST = 3;
+const TOTAL = 16, LATEST = 4;
 
 // featured day: the latest by default; #day-N or a tap promotes another
 function show(n, scroll) {

@@ -13,44 +13,123 @@ html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:"Spectral",Georgia,serif;font-size:14px;line-height:1.55}
 
-.lede{max-width:620px;margin:0 auto;padding:11vh 16px 3vh;text-align:center}
+.lede{max-width:640px;margin:0 auto;padding:7vh 16px 2vh;text-align:center}
 .lede h1{font-family:"Shippori Mincho",serif;font-size:34px;font-weight:800;letter-spacing:.03em;margin:0}
 .lede p{color:var(--ink-2);margin:10px 0 0}
 .warn{display:inline-block;margin-top:14px;border:1px solid var(--verm);color:var(--verm);
   padding:5px 12px;font-size:11.5px;letter-spacing:.04em}
 
-.scrolly{position:relative;max-width:1400px;margin:0 auto;padding-inline:16px;
-  display:grid;grid-template-columns:330px minmax(0,1fr);gap:22px;align-items:start}
-@media(max-width:900px){.scrolly{grid-template-columns:1fr}}
-.sticky{grid-column:2;grid-row:1;position:sticky;top:env(safe-area-inset-top,0px);
+.scrolly{position:relative;max-width:1720px;margin:0 auto;padding-inline:20px;
+  display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:26px;align-items:start}
+@media(max-width:980px){.scrolly{grid-template-columns:1fr;padding-inline:14px}}
+.sticky{grid-column:1;grid-row:1;position:sticky;top:env(safe-area-inset-top,0px);
   height:100vh;display:flex;flex-direction:column;justify-content:center}
-@media(max-width:900px){.sticky{grid-column:1}}
-.steps{grid-column:1;grid-row:1;position:relative;z-index:3;pointer-events:none}
-@media(max-width:900px){.steps{grid-column:1;margin-top:-100vh}}
-.step{min-height:96vh;display:flex;align-items:center;padding-block:10vh}
-.step .card{pointer-events:auto;max-width:312px;background:var(--paper);
-  border:1px solid var(--ink);padding:15px 17px;box-shadow:5px 5px 0 rgba(59,47,35,.13);
-  opacity:.35;transition:opacity .4s}
-.step.on .card{opacity:1}
+@media(max-width:980px){.sticky{grid-column:1}}
+.steps{grid-column:2;grid-row:1;position:relative;z-index:3;pointer-events:none}
+@media(max-width:980px){.steps{grid-column:1;margin-top:-100vh}}
+/* The card parks rather than sweeps. Centred in its block, it entered the
+   viewport at the bottom edge exactly when its step became active and left
+   through the top while still active, so it read as arriving late and
+   leaving early. Sticky holds it at a readable height for the whole step. */
+.step{min-height:96vh;display:flex;align-items:flex-start;padding-block:2vh}
+.step .card{position:sticky;top:34vh}
+.step .card{pointer-events:auto;max-width:296px;opacity:0;background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:blur(3px);border:1px solid var(--ink-3);padding:15px 17px;
+  box-shadow:0 6px 22px rgba(59,47,35,.13);transition:opacity .2s ease-out}
+/* No delay. The card changing is part of the same movement as the chart
+   changing, and a gap between them reads as lag. */
+.step.on .card{opacity:1;transition:opacity .26s ease-out}
 .step .n{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--verm)}
 .step h2{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;margin:4px 0 7px}
 .step p{margin:0;font-size:13px;color:var(--ink-2)}
 .step p+p{margin-top:7px}
 
-.bar{display:flex;align-items:center;gap:10px;padding:0 4px 8px;flex-wrap:wrap}
-.toggle{display:inline-flex;border:1px solid var(--ink);background:var(--paper)}
-.toggle button{appearance:none;background:none;border:0;padding:6px 15px;cursor:pointer;
+/* One floating control. At rest it switches the view; once a mark is pinned it
+   steps between points. Two bars fighting for the same edge would be worse. */
+.dock{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);z-index:50;display:grid;align-items:center;justify-items:center;
+  background:var(--paper);border:1px solid var(--ink);border-radius:999px;
+  padding:6px 8px;box-shadow:0 8px 26px rgba(59,47,35,.22);
+  opacity:0;pointer-events:none;transition:opacity .28s,transform .28s cubic-bezier(.2,.85,.25,1)}
+.dock.on{opacity:1;pointer-events:auto}
+/* Both groups sit in the same grid cell, so the bar is sized by the wider of
+   the two and is exactly the same shape whichever job it is doing. The one
+   that is not in use stays laid out and merely invisible, rather than being
+   taken out of the flow and letting the bar resize under the cursor. */
+.dock .grp{grid-area:1/1;display:flex;align-items:center;gap:9px}
+.dock .grp[hidden]{display:flex;visibility:hidden}
+.dock .t{font-size:11.5px;color:var(--ink-2);white-space:nowrap;padding-left:6px}
+.dock .sq{width:34px;height:31px;border:1px solid var(--ink-3);background:none;color:var(--ink-2);
+  cursor:pointer;border-radius:3px;font:inherit;font-size:13px;line-height:1;padding:0}
+.dock .sq:hover:not([disabled]){background:var(--ink);color:var(--paper)}
+.dock .sq[disabled]{opacity:.3;cursor:default}
+.toggle{display:inline-flex;border:1px solid var(--ink-3);border-radius:999px;overflow:hidden;background:var(--paper)}
+.toggle button{appearance:none;background:none;border:0;padding:6px 16px;cursor:pointer;
   font:inherit;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
 .toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .toggle button:focus-visible{outline:2px solid var(--verm);outline-offset:2px}
-.hint{font-size:11px;color:var(--ink-3)}
 #stage{display:block;width:100%;flex:1;min-height:0}
-#tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .12s;
-  background:var(--ink);color:var(--paper);padding:8px 11px;font-size:11.5px;max-width:270px;
-  box-shadow:0 5px 18px rgba(59,47,35,.4)}
-#tip b{display:block;font-size:13px;margin-bottom:3px}
-#tip .r{display:flex;justify-content:space-between;gap:16px;color:var(--paper-3);font-size:10.5px}
-#tip .s{display:block;margin-top:4px;color:var(--verm);font-size:10px}
+/* One mark asks to be hovered, once, on the step that explains hovering. It
+   stops for good the moment the reader hovers anything at all. */
+.cue circle{transform-box:fill-box;transform-origin:center;
+  animation:hpulse 2.5s cubic-bezier(.2,.62,.3,1) infinite}
+.cue circle:nth-of-type(2){animation-delay:1.25s}
+.cue text{font-size:9px;letter-spacing:.18em;text-transform:uppercase;fill:var(--verm)}
+@keyframes hpulse{
+  0%{transform:scale(.5);opacity:0}
+  14%{opacity:.85}
+  100%{transform:scale(3.1);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .cue circle{animation:none;opacity:.5;transform:scale(1.7)}
+}
+/* ---------- the mark card ---------- */
+/* One size at every point. The picture well is a fixed 4:3 and the image is
+   contained inside it, so a portrait and a landscape make the same block, and
+   the room for the controls is reserved whether or not they are showing. */
+.hc{position:fixed;z-index:60;width:266px;background:var(--paper);border:1px solid var(--ink);
+  box-shadow:0 12px 34px rgba(59,47,35,.22);padding:10px;opacity:0;pointer-events:none;
+  transform:scale(.978);transition:opacity .13s ease-out,transform .15s cubic-bezier(.2,.85,.25,1),
+  left .26s cubic-bezier(.35,.9,.3,1),top .26s cubic-bezier(.35,.9,.3,1)}
+.hc.on{opacity:1}.hc.on{transform:none}
+.hc.snap{transition:opacity .13s ease-out,transform .15s cubic-bezier(.2,.85,.25,1)}
+.hc.pinned{pointer-events:auto;border-color:var(--verm)}
+.hc .frame{position:relative;width:100%;aspect-ratio:4/3;background:var(--paper-3);
+  border:1px solid var(--rule,var(--ink-3));display:flex;align-items:center;justify-content:center;
+  overflow:hidden;margin-bottom:9px}
+.hc .frame.none{aspect-ratio:auto;height:0;border:0;margin:0}
+.hc .frame img{max-width:100%;max-height:100%;width:auto;height:auto;display:block}
+.hc .fnav{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;
+  padding:0 5px;opacity:0;transition:opacity .15s}
+.hc.pinned .fnav{opacity:1}
+.hc .fnav button{width:26px;height:26px;border-radius:50%;border:0;cursor:pointer;color:#fff;
+  background:rgba(30,25,20,.5);font-size:13px;line-height:1;padding:0;transition:background .13s,transform .13s}
+.hc .fnav button:hover{background:rgba(30,25,20,.78);transform:scale(1.08)}
+.hc .fnav button[disabled]{opacity:0;pointer-events:none}
+/* A real photograph standing in for a category is still a real photograph of
+   somewhere else. Labelled on the picture itself, which is the thing that is
+   the placeholder, rather than buried in the text. */
+.hc .tag{position:absolute;left:0;top:0;z-index:2;pointer-events:none;
+  background:var(--verm);color:var(--paper);font-size:8.5px;letter-spacing:.13em;
+  text-transform:uppercase;padding:3px 7px}
+.hc .pips{position:absolute;left:0;right:0;bottom:6px;display:flex;gap:4px;justify-content:center}
+.hc .pips i{width:4px;height:4px;border-radius:50%;background:#fff;opacity:.45}
+.hc .pips i.on{opacity:1}
+.hc .meta{height:78px;overflow:hidden}
+.hc.bare .meta{height:auto}
+.hc.bare .foot{margin-top:9px}
+.hc .plc{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--verm);
+  line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc .it{font-family:"Shippori Mincho",serif;font-weight:600;font-size:14.5px;line-height:1.28;
+  margin:3px 0 5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hc .r{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--ink-2)}
+.hc .r em{font-style:normal;color:var(--verm);font-size:9px;letter-spacing:.07em;
+  text-transform:uppercase;margin-left:5px}
+.hc .nt{font-size:11.5px;font-style:italic;color:var(--ink-3);margin-top:4px;line-height:1.38;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc .foot{height:28px;margin-top:6px;border-top:1px solid var(--paper-3);display:flex;
+  align-items:center;justify-content:space-between}
+.hc .foot span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .tail{max-width:660px;margin:0 auto;padding:7vh 16px 12vh;color:var(--ink-3);font-size:11.5px}
 .tail p{margin:0 0 7px}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
@@ -65,16 +144,39 @@ body{margin:0;background:var(--paper);color:var(--ink);
 
 <div class="scrolly">
   <div class="sticky">
-    <div class="bar">
-      <div class="toggle" role="group" aria-label="Choose a view">
-        <button id="v-clock"  aria-pressed="true">Clock</button>
-        <button id="v-ledger" aria-pressed="false">Ledger</button>
-      </div>
-      <span class="hint" id="hint">Hover anything for detail</span>
-    </div>
     <svg id="stage" role="img" aria-label="Sixteen days of a trip through Japan, by hour and by price"></svg>
   </div>
   <div class="steps" id="steps"></div>
+</div>
+
+<div class="dock" id="dock">
+  <div class="grp" id="dock-view">
+    <div class="toggle" role="group" aria-label="Choose a view">
+      <button id="v-ledger" aria-pressed="false">Expense</button>
+      <button id="v-clock"  aria-pressed="true">Journey</button>
+    </div>
+  </div>
+  <div class="grp" id="dock-step" hidden>
+    <span class="t" id="step-t"></span>
+    <button class="sq" id="p-prev" aria-label="Previous point">&larr;</button>
+    <button class="sq" id="p-next" aria-label="Next point">&rarr;</button>
+  </div>
+</div>
+
+
+<div class="hc" id="hc">
+  <div class="frame" id="hc-frame">
+    <img id="hc-img" alt="">
+    <div class="fnav"><button id="hc-prev" aria-label="Previous photograph">&lsaquo;</button><button id="hc-next" aria-label="Next photograph">&rsaquo;</button></div>
+    <div class="tag" id="hc-tag" hidden>placeholder</div>
+    <div class="pips" id="hc-pips"></div>
+  </div>
+  <div class="meta">
+    <div class="plc" id="hc-plc"></div><div class="it" id="hc-it"></div>
+    <div class="r"><span id="hc-h"></span><span id="hc-a"></span></div>
+    <div class="nt" id="hc-nt"></div>
+  </div>
+  <div class="foot"><span id="hc-pos"></span><span id="hc-cue"></span></div>
 </div>
 
 <div class="tail">
@@ -91,10 +193,9 @@ body{margin:0;background:var(--paper);color:var(--ink);
   <p><b>Left out on purpose.</b> Shopping and gifts. Personal, and of no use to
   anyone reading this as a record of travelling in Japan.</p>
 </div>
-<div id="tip" role="status" aria-live="polite"></div>
 
 <script>
-const GEO=/*__GEO__*/, DATA=/*__TRIP_DATA__*/;
+const GEO=/*__GEO__*/, DATA=/*__TRIP_DATA__*/, PHOTOS=/*__PHOTOS__*/;
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const NS="http://www.w3.org/2000/svg";
 const el=(t,a={})=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n;};
@@ -128,13 +229,31 @@ const BX=m=>{const i=BRANK[m.id]??0, n=Math.max(band.length-1,1);
 
 /* map projection, for the opening frames */
 const merc=la=>57.29578*Math.log(Math.tan(Math.PI/4+la*Math.PI/360));
+// The whole country, so the first frame can show all forty-seven prefectures.
+// Narrowing to the thirteen the route touched is a camera move on scroll, not
+// a different projection, so the land can travel rather than cut.
 let glo=[999,-999],gla=[999,-999];
 GEO.forEach(p=>p.r.forEach(r=>r.forEach(([x,y])=>{
   glo[0]=Math.min(glo[0],x);glo[1]=Math.max(glo[1],x);
   gla[0]=Math.min(gla[0],merc(y));gla[1]=Math.max(gla[1],merc(y));})));
-const MS=Math.min(W/(glo[1]-glo[0]),H/(gla[1]-gla[0]))*0.9;
+const MS=Math.min(W/(glo[1]-glo[0]),H/(gla[1]-gla[0]))*0.94;
 const MX=v=>(v-glo[0])*MS+(W-(glo[1]-glo[0])*MS)/2;
 const MY=v=>H-((merc(v)-gla[0])*MS)-(H-(gla[1]-gla[0])*MS)/2;
+
+/* The camera. One number and two offsets, applied to the land as a transform
+   and to every mark by the same arithmetic, so the two can never disagree. */
+let cam={k:1,x:0,y:0};
+const CAM_HOME={k:1,x:0,y:0};
+const camPt=(x,y)=>({x:x*cam.k+cam.x, y:y*cam.k+cam.y});
+const CAM_TRIP=(()=>{
+  let a=[1e9,-1e9], b=[1e9,-1e9];
+  GEO.filter(p=>p.v).forEach(p=>p.r.forEach(r=>r.forEach(([lo,la])=>{
+    const x=MX(lo), y=MY(la);
+    a[0]=Math.min(a[0],x); a[1]=Math.max(a[1],x);
+    b[0]=Math.min(b[0],y); b[1]=Math.max(b[1],y);})));
+  const k=Math.min(W/(a[1]-a[0]), H/(b[1]-b[0]))*0.44;
+  return {k, x:W/2-k*(a[0]+a[1])/2, y:H/2-k*(b[0]+b[1])/2};
+})();
 
 /* ---------- icons: identity by shape ---------- */
 function glyph(cat,mode,isStay){
@@ -160,13 +279,49 @@ function glyph(cat,mode,isStay){
 
 /* ---------- static scaffolding ---------- */
 const gLand=el("g"),gAxis=el("g",{opacity:0}),gBand=el("g",{opacity:0}),gMarks=el("g");
-svg.append(gLand,gAxis,gBand,gMarks);
-gLand.append(el("rect",{x:0,y:0,width:W,height:H,fill:"var(--sea)"}));
+const gHint=el("g",{class:"cue",opacity:0,"pointer-events":"none"});
+svg.append(gLand,gAxis,gBand,gMarks,gHint);
+[0,1].forEach(()=>gHint.append(el("circle",{r:8,fill:"none",stroke:"var(--verm)","stroke-width":1.3})));
+(()=>{ const x=el("text",{x:25,y:3.5}); x.textContent="hover"; gHint.append(x); })();
+// Oversized on purpose. The viewBox letterboxes inside the element, so a sea
+// exactly the size of the viewBox leaves paper bands top and bottom.
+gLand.append(el("rect",{x:-W,y:-H,width:W*3,height:H*3,fill:"var(--sea)"}));
+gLand.style.transformOrigin="0 0";
+gLand.style.transition="transform 1.05s cubic-bezier(.45,.05,.2,1),opacity 1.2s";
+const fills=[], lines=[];
 GEO.forEach(p=>{
   const d="M"+p.r.map(r=>r.map(([x,y])=>MX(x).toFixed(1)+","+MY(y).toFixed(1)).join("L")).join("ZM")+"Z";
-  gLand.append(el("path",{d,fill:p.v?"var(--land-v)":"var(--land)",transform:"translate(1.4,2)",opacity:.9}));
-  gLand.append(el("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":.45,opacity:p.v?.7:.3}));
+  // every prefecture starts as plain land; the visited ones darken later
+  const f=el("path",{d,fill:"var(--land)",transform:"translate(1.4,2)",opacity:.9});
+  f.style.transition="fill .7s ease-out";
+  const s=el("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":.45,opacity:0});
+  gLand.append(f,s); fills.push([f,p.v]); lines.push([s,p.v]);
 });
+
+/* The opening. Land first, then the prefecture lines draw themselves in, then
+   the thirteen that were visited darken, then the marks arrive. Staged rather
+   than simultaneous, so it reads as a map being made rather than a page
+   loading. Skipped whole if the reader has asked for less motion. */
+function intro(){
+  const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(calm){ lines.forEach(([s,v])=>s.setAttribute("opacity",v?.7:.3));
+            fills.forEach(([f,v])=>{ if(v) f.setAttribute("fill","var(--land-v)"); });
+            gMarks.style.opacity=1; return; }
+  gMarks.style.opacity=0;
+  gMarks.style.pointerEvents="none";
+  gMarks.style.transition="opacity .9s ease-out";
+  lines.forEach(([s,v],i)=>{
+    let len=0; try{ len=s.getTotalLength(); }catch(e){}
+    if(!len) { s.setAttribute("opacity",v?.7:.3); return; }
+    s.style.strokeDasharray=len; s.style.strokeDashoffset=len;
+    s.style.transition=`stroke-dashoffset 1.15s cubic-bezier(.4,0,.2,1) ${340+i*11}ms, opacity .3s ${340+i*11}ms`;
+    requestAnimationFrame(()=>{ s.setAttribute("opacity",v?.7:.3); s.style.strokeDashoffset=0; });
+  });
+  const lastLine=340+lines.length*11+1150;
+  fills.forEach(([f,v],i)=>{ if(!v) return;
+    setTimeout(()=>f.setAttribute("fill","var(--land-v)"), lastLine-260+i*34); });
+  setTimeout(()=>{ gMarks.style.opacity=1; gMarks.style.pointerEvents=""; }, lastLine+180);
+}
 const gClockAx=el("g"), gLedgAx=el("g",{opacity:0});
 gAxis.append(gClockAx,gLedgAx);
 for(let h=0;h<=24;h+=2){
@@ -202,48 +357,60 @@ gBand.append(bl,bk);
 
 /* ---------- marks ---------- */
 const nodes=MARKS.map((m,i)=>{
-  const g=el("g",{style:"cursor:pointer;transition:transform 1.15s cubic-bezier(.4,0,.2,1),opacity .55s"});
+  const g=el("g",{style:"cursor:pointer;transition:transform .92s cubic-bezier(.33,0,.2,1),opacity .45s"});
+  // Two transforms, not one. The outer carries the mark to where it belongs,
+  // over most of a second; the inner carries the nudge that makes room under
+  // the cursor, in a sixth of one. Sharing a transform would make the nudge
+  // inherit the travel's easing and arrive long after the cursor had gone.
+  const gi=el("g",{style:"transition:transform .16s cubic-bezier(.3,.9,.3,1)"});
   const dot=el("circle",{r:2.5,fill:"var(--verm)"});
   const ic=glyph(m.category,m.mode_hint,m.category==="stays");
   ic.setAttribute("opacity","0"); ic.style.transition="opacity .5s";
-  g.append(el("circle",{r:11,fill:"transparent"}),dot,ic);
-  g._m=m; g._dot=dot; g._ic=ic; g._i=i;
-  g.addEventListener("pointerenter",e=>tip(e,g));
-  g.addEventListener("pointerleave",untip);
+  gi.append(el("circle",{r:11,fill:"transparent"}),dot,ic);
+  g.append(gi);
+  g._m=m; g._dot=dot; g._ic=ic; g._i=i; g._in=gi;
+  // scattered, not sequential: a straight run of delays arrives as a
+  // visible wave, which reads as the marks smearing into lines
+  g._delay=Math.round(((i*97+i*i*31)%211)/211*260);
+  g.addEventListener("pointerenter",()=>hcEnter(g));
+  g.addEventListener("pointerleave",()=>hcLeave(g));
+  g.addEventListener("click",e=>{e.stopPropagation();hcPin(g);});
   gMarks.append(g); return g;
 });
 function homeOnMap(m){
   const p=PL[m.place_id]||PL[(DATA.days[m.day_index]||{}).places?.[0]];
-  return p?{x:MX(p.lng),y:MY(p.lat)}:{x:W/2,y:H/2};
+  return p?camPt(MX(p.lng),MY(p.lat)):camPt(W/2,H/2);
 }
 function pos(m){
-  if(step<2) return homeOnMap(m);
+  if(step<1||mapHold) return homeOnMap(m);
   if(view==="clock"){
     if(m.kind==="cost") return m.lane==="band"?{x:BX(m),y:BAND_Y+19}:{x:LX(m.amount),y:laneY(m.day_index)};
-    return {x:CX(m.hour),y:laneY(m.day_index)+off(m)};
+    return {x:CX(m.hour),y:laneY(m.day_index)};
   }
   if(m.kind==="event"){ const p=byId[m.merge_to]; return p?pos(p):{x:L,y:laneY(m.day_index)}; }
   if(m.lane==="band") return {x:BX(m),y:BAND_Y+19};
-  return {x:LX(m.amount),y:laneY(m.day_index)+off(m)};
+  return {x:LX(m.amount),y:laneY(m.day_index)};
 }
-/* stack marks that share a slot, so clusters stay countable */
-const OFF={};
-function buildOffsets(){
-  const b={};
-  MARKS.forEach(m=>{
-    if(m.kind==="cost")return;
-    const x=view==="clock"?(m.hour??0)*9:(m.amount?Math.log10(m.amount)*40:0);
-    const k=m.day_index+":"+Math.round(x/8); (b[k]=b[k]||[]).push(m.id);
-  });
-  Object.values(b).forEach(l=>{const n=l.length,s=Math.min(LANE-8,n*8.5);
-    l.forEach((id,j)=>{ OFF[id] = n===1 ? 0 : -s/2 + s*j/(n-1); });});
+/* Every mark sits on its day's line. Marks that share a slot used to be
+   spread vertically so a cluster stayed countable, but it put icons above and
+   below the rule for no reason a reader could see, and made the card bob up
+   and down while stepping. One pair shares an hour exactly; in the expense
+   view fifteen groups share a price exactly and now overlap. The arrows still
+   walk through every one of them in order, so nothing is unreachable. */
+/* The crater at Mt Aso: alone on its line, at a civil hour, and one of the
+   fifteen marks whose photograph is really of that place, so the hover it
+   invites actually pays off. */
+const HINT_AT="e38";
+let hintDone=false;
+function hint(){
+  const g=nodes.find(n=>n._m.id===HINT_AT);
+  const on = !hintDone && !pin && !hov && step===3 && g && g._vis>0 && !mapHold;
+  gHint.setAttribute("opacity", on?1:0);
+  if(on) gHint.setAttribute("transform",`translate(${g._px.toFixed(1)},${g._py.toFixed(1)})`);
 }
-const off=m=>OFF[m.id]||0;
 
 function render(){
-  buildOffsets();
-  const onMap=step<2;
-  gLand.style.transition="opacity 1.2s";
+  const onMap=step<1||mapHold;
   gLand.setAttribute("opacity",onMap?1:0);
   gAxis.style.transition=gBand.style.transition="opacity .9s";
   gAxis.setAttribute("opacity",onMap?0:1);
@@ -253,54 +420,271 @@ function render(){
   gLedgAx.setAttribute("opacity",view==="clock"?0:1);
   nodes.forEach(g=>{
     const m=g._m, p=pos(m);
-    g.style.transitionDelay=(g._i%22)*16+"ms";
+    g._px=p.x; g._py=p.y;
+    g.style.transitionDelay=g._delay+"ms";
     g.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
     let vis=1, showIcon=!onMap;
     if(!onMap){
       if(view==="clock") vis = m.kind==="cost" ? (m.lane==="band"?.3:0) : 1;
       else               vis = m.kind==="event" ? 0 : 1;
-    } else vis = step===0?.34:1;
+    } else vis = 1;
+    g._vis=vis;
     g.setAttribute("opacity",vis);
     g._ic.setAttribute("opacity",showIcon&&vis?1:0);
     g._dot.setAttribute("opacity",showIcon?0:1);
-    const hot = m.lane==="band" || (step>=3 && m.merge_to);
+    const hot = m.lane==="band" || (step>=2 && m.merge_to);
     g.style.color = hot?"var(--verm)":"var(--ink-2)";
     g._dot.setAttribute("fill", hot?"var(--verm)":"var(--ink-2)");
   });
-  $("#hint").textContent = onMap ? "Keep scrolling"
-    : view==="clock" ? "Switch to Ledger and watch what has no clock time fly into the band"
-                     : "Switch back to Clock to see those journeys return to their hour";
+  // A mark that has just left the view cannot stay pinned, and every other
+  // pinned mark is about to travel, so the card travels with it.
+  rows=null; clearSpread(); hint();
+  if(pin && !pin._vis) hcRelease();
+  else if(pin){ fill(pin); hcFollow(); }
+  else if(hov) hcFollow();
 }
 
-/* ---------- tooltip ---------- */
-function tip(e,g){
-  const m=g._m, t=$("#tip");
-  const hh=m.hour!=null?String(Math.floor(m.hour)).padStart(2,"0")+":"+String(Math.round((m.hour%1)*60)).padStart(2,"0"):null;
-  const price=m.amount?yen(m.amount):(m.kind==="event"?"no cost on the day":"price not recorded");
-  let s="";
-  if(m.time_source==="synthetic") s=`<span class="s">invented time, not from the record</span>`;
-  else if(m.time_source) s=`<span class="s">time ${m.time_source}</span>`;
-  if(m.merge_to&&byId[m.merge_to]) s+=`<span class="s">paid for by ${byId[m.merge_to].item}</span>`;
-  if(m.note) s+=`<span class="s">${m.note}</span>`;
-  t.innerHTML=`<b>${m.item||m.category}</b><div class="r"><span>${hh||"no time"}</span><span>${price}</span></div>${s}`;
-  t.style.opacity="1";
-  const mv=ev=>{t.style.left=Math.min(ev.clientX+14,innerWidth-t.offsetWidth-10)+"px";
-                t.style.top=Math.max(ev.clientY-10,8)+"px";};
-  mv(e); svg.addEventListener("pointermove",mv); t._m=mv;
+/* ---------- making room under the cursor ---------- */
+/* Every mark sits on its day's line, so marks minutes apart land on each other.
+   Rather than move them apart for good, the group under the cursor opens
+   sideways and closes again: only that group, only while you are there, and
+   always about its own centre, so the row reads the same at rest. */
+const SP={reach:72, force:10, gap:12};
+let rows=null, spreadOn=new Set();
+const rowKey=m=>m.lane==="band"?"band":"d"+m.day_index;
+function clearSpread(){
+  if(!spreadOn.size) return;
+  spreadOn.forEach(g=>g._in.removeAttribute("transform"));
+  spreadOn=new Set();
 }
-function untip(){const t=$("#tip");t.style.opacity="0";
-  if(t._m){svg.removeEventListener("pointermove",t._m);t._m=null;}}
+function buildRows(){
+  rows={};
+  nodes.forEach(g=>{ if(!g._vis) return;
+    const k=rowKey(g._m); (rows[k]=rows[k]||[]).push(g); });
+  Object.values(rows).forEach(l=>l.sort((a,b)=>a._px-b._px));
+}
+function spread(e){
+  // Frozen once a mark is pinned: the card is covering that stretch of chart
+  // and the arrows are walking the row, so nothing should move underfoot.
+  if(pin || step<1 || mapHold) return clearSpread();
+  if(!rows) buildRows();
+  const r=svg.getBoundingClientRect(), s=Math.min(r.width/W, r.height/H);
+  const px=(e.clientX-r.left-(r.width-W*s)/2)/s;
+  const py=(e.clientY-r.top-(r.height-H*s)/2)/s;
+
+  let best=null, bd=1e9;
+  for(const k in rows) for(const g of rows[k]){
+    const dy=Math.abs(g._py-py); if(dy>LANE*0.55) continue;
+    const dx=Math.abs(g._px-px); if(dx>SP.reach) continue;
+    const d=dx+dy*0.2; if(d<bd){ bd=d; best=g; }
+  }
+  if(!best) return clearSpread();
+
+  const list=rows[rowKey(best._m)];
+  let a=list.indexOf(best), b=a;
+  while(a>0 && list[a]._px-list[a-1]._px<SP.gap) a--;
+  while(b<list.length-1 && list[b+1]._px-list[b]._px<SP.gap) b++;
+  if(b===a) return clearSpread();
+
+  const c=(list[a]._px+list[b]._px)/2;
+  const t=Math.max(0,Math.min(1,1-Math.abs(px-c)/SP.reach));
+  if(t<=0) return clearSpread();
+  const st=Math.max(SP.force,SP.gap), span=st*(b-a), keep=new Set();
+  for(let i=a;i<=b;i++){
+    const g=list[i], want=c-span/2+st*(i-a);
+    g._in.setAttribute("transform",`translate(${((want-g._px)*t).toFixed(2)},0)`);
+    keep.add(g);
+  }
+  spreadOn.forEach(g=>{ if(!keep.has(g)) g._in.removeAttribute("transform"); });
+  spreadOn=keep;
+}
+svg.addEventListener("pointermove",spread);
+svg.addEventListener("pointerleave",clearSpread);
+
+/* ---------- the mark card ---------- */
+/* Photographs attach to a place on a day, or to one named mark, never to the
+   nearest timestamp. The crater photograph sits at 12:50 between an ice cream
+   at 11:52 and a lunch at 13:50, almost equidistant, and neither of them is
+   what it is a picture of. */
+const P_MARK={}, P_PLACE={}, P_DAY={}, P_CAT={};
+PHOTOS.forEach(p=>{
+  if(p.placeholder)                (P_CAT[p.category]=P_CAT[p.category]||[]).push(p);
+  else if(p.mark)                  (P_MARK[p.mark]=P_MARK[p.mark]||[]).push(p);
+  else if(p.day!=null&&p.place)    (P_PLACE[p.day+"/"+p.place]=P_PLACE[p.day+"/"+p.place]||[]).push(p);
+  else if(p.day!=null)             (P_DAY[p.day]=P_DAY[p.day]||[]).push(p);
+});
+// A real photograph of this mark, or of where it happened, always wins. The
+// category stand-in fills in only where nothing real exists yet, and never
+// sits alongside one.
+function shots(m){
+  const real=[].concat(P_MARK[m.id]||[],
+                       m.place_id?(P_PLACE[m.day_index+"/"+m.place_id]||[]):[],
+                       P_DAY[m.day_index]||[]);
+  if(real.length) return real;
+  return P_CAT[m.category]||[];
+}
+
+const PHDIR="assets/photos"+"/";   // split, so the build's asset scan does not read this as a link
+const hc=$("#hc");
+let pin=null, hov=null, shot=0, followRAF=0, followTill=0;
+const hhmm=h=>h==null?null:String(Math.floor(h)).padStart(2,"0")+":"+String(Math.round((h%1)*60)).padStart(2,"0");
+
+/* What the arrows walk: the rest of that day, in the order the current view
+   puts them, skipping whatever this view is not showing. The three band marks
+   belong to no day and walk among themselves. */
+function peers(g){
+  const m=g._m, inBand=m.lane==="band";
+  return nodes.filter(o=>o._vis>0 && (inBand ? o._m.lane==="band"
+                                             : o._m.lane!=="band" && o._m.day_index===m.day_index))
+              .sort((a,b)=>pos(a._m).x-pos(b._m).x);
+}
+
+function fill(g){
+  const m=g._m, ph=shots(m);
+  if(shot>=ph.length) shot=0;
+  const p=ph[shot], fr=$("#hc-frame"), img=$("#hc-img");
+  hc.classList.toggle("bare",!p);
+  if(p){ fr.classList.remove("none");
+         const u=PHDIR+p.file;
+         if(img.getAttribute("src")!==u) img.src=u;
+         // Same file, turned on the page: a second stand-in that is plainly the
+         // same picture, so the arrows can be felt without shipping a copy.
+         img.style.transform=p.rotate?`rotate(${p.rotate}deg)`:"";
+         img.alt=p.placeholder?"":(p.caption||m.item||""); }
+  else { fr.classList.add("none"); img.removeAttribute("src"); img.alt=""; img.style.transform=""; }
+  $("#hc-tag").hidden=!(p&&p.placeholder);
+  $("#hc-pips").innerHTML = ph.length>1 ? ph.map((_,i)=>`<i class="${i===shot?"on":""}"></i>`).join("") : "";
+  $("#hc-prev").disabled=$("#hc-next").disabled=ph.length<2;
+
+  const pl=PL[m.place_id];
+  $("#hc-plc").textContent = m.lane==="band" ? "Before leaving" : (pl?pl.name:DAY[m.day_index]);
+  $("#hc-it").textContent  = m.item||m.category;
+  const hh=hhmm(m.hour);
+  $("#hc-h").innerHTML = (hh||"no hour") + (m.time_source==="synthetic"?"<em>invented</em>":"");
+  $("#hc-a").textContent = m.amount?yen(m.amount):(m.kind==="event"?"no cost on the day":"price not recorded");
+
+  // The caption wins the line when there is a picture, and carries the hour the
+  // photograph itself knew, so nobody reads it as a picture of this purchase.
+  let nt="";
+  if(p&&!p.placeholder){ const t=p.taken?p.taken.slice(11,16):null;
+                         nt=(p.caption||"")+(t&&t!==hh?"  ·  "+t:""); }
+  if(!nt){ if(m.merge_to&&byId[m.merge_to]) nt="paid for by "+byId[m.merge_to].item;
+           else if(m.note) nt=m.note; }
+  $("#hc-nt").textContent=nt;
+
+  const list=peers(g), i=list.indexOf(g);
+  $("#hc-pos").textContent = (m.lane==="band"?"band":"day "+String(m.day_index).padStart(2,"0"))
+                           + (i<0?"":" · "+(i+1)+" of "+list.length);
+  $("#hc-cue").textContent = pin ? "← → day"+(ph.length>1?"  ·  ↑ ↓ photographs":"")+"  ·  esc"
+                                 : "click to pin";
+  if(pin===g){
+    $("#step-t").textContent=(m.lane==="band"?"Before leaving":DAY[m.day_index])
+                            +(i<0?"":" "+(i+1));
+    $("#p-prev").disabled = i<=0;
+    $("#p-next").disabled = i<0 || i>=list.length-1;
+  }
+}
+
+/* Rows in the top half open downward and rows in the bottom half open upward,
+   so the picture is never the thing off the screen. */
+function place(anim){
+  const g=pin||hov; if(!g) return;
+  const r=g.getBoundingClientRect(), st=svg.getBoundingClientRect();
+  const w=hc.offsetWidth, h=hc.offsetHeight, M=10, GAP=16, DOCKROOM=76;
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  let below=(cy-st.top)<st.height*0.5;
+  if(below && cy+GAP+h>innerHeight-DOCKROOM) below=false;
+  if(!below && cy-GAP-h<M) below=true;
+  const top=Math.max(M,Math.min(below?cy+GAP:cy-GAP-h, innerHeight-h-M));
+  const left=Math.max(M,Math.min(cx-w/2, innerWidth-w-M));
+  hc.classList.toggle("snap",!anim);
+  hc.style.left=left.toFixed(1)+"px";
+  hc.style.top =top.toFixed(1)+"px";
+}
+// The marks take just under a second to travel. The card rides along rather
+// than jumping to where the mark will be.
+function hcFollow(){
+  if(!pin&&!hov) return;
+  followTill=performance.now()+1500;
+  if(followRAF) return;
+  const tick=()=>{ place(false);
+    followRAF = performance.now()<followTill ? requestAnimationFrame(tick) : 0; };
+  followRAF=requestAnimationFrame(tick);
+}
+
+// Fetched once the page is otherwise done, so the first hover has the picture
+// already rather than a blank well that fills a moment later. Listed by the
+// data, so a photograph added to photo_attach.json is warmed without being
+// named anywhere in this page.
+(window.requestIdleCallback||(f=>setTimeout(f,2400)))(()=>{
+  PHOTOS.forEach(p=>{ const i=new Image(); i.src=PHDIR+p.file; });
+});
+
+function show(g,anim){ fill(g); hc.classList.add("on"); place(anim); }
+function hcEnter(g){ if(pin) return; hintDone=true; hint(); hov=g; shot=0; show(g,false); }
+function hcLeave(g){ if(pin||hov!==g) return; hov=null; hc.classList.remove("on"); }
+function hcPin(g){ pin=g; hov=null; shot=0; hintDone=true; hint(); clearSpread(); hc.classList.add("pinned"); show(g,true); dockMode(); }
+function hcRelease(){ if(!pin) return; pin=null; hc.classList.remove("pinned","on"); dockMode(); }
+
+/* One dock, two jobs. Pinned, it stops offering the view and starts walking
+   the day; released, it goes back to being the toggle. */
+function dockMode(){
+  const d=$("#dock");
+  $("#dock-view").hidden=!!pin;
+  $("#dock-step").hidden=!pin;
+  if(pin){ clearTimeout(dockT); d.classList.add("on"); }
+  else d.classList.toggle("on", step>=1);
+}
+function stepTo(dir){
+  if(!pin) return;
+  const list=peers(pin), i=list.indexOf(pin), j=i+dir;
+  if(i<0||j<0||j>=list.length) return;
+  pin=list[j]; shot=0; show(pin,true);
+}
+function photoTo(dir){
+  const g=pin||hov; if(!g) return;
+  const n=shots(g._m).length; if(n<2) return;
+  shot=(shot+dir+n)%n; fill(g);
+}
+$("#p-prev").onclick=()=>stepTo(-1);
+$("#p-next").onclick=()=>stepTo(1);
+$("#hc-prev").onclick=e=>{e.stopPropagation();photoTo(-1);};
+$("#hc-next").onclick=e=>{e.stopPropagation();photoTo(1);};
+// Clicking anywhere that is not a mark, the card or the bar lets go. Marks
+// stop their own click, so this never fires for them.
+addEventListener("click",e=>{
+  if(pin && !hc.contains(e.target) && !$("#dock").contains(e.target)) hcRelease();
+});
+addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ hcRelease(); return; }
+  if(!pin) return;
+  const go={ArrowRight:()=>stepTo(1),ArrowLeft:()=>stepTo(-1),
+            ArrowDown:()=>photoTo(1),ArrowUp:()=>photoTo(-1)}[e.key];
+  if(go){ e.preventDefault(); go(); }
+});
+// The label reserves room for the longest thing it will ever say, so the bar
+// does not breathe as you step from Uji to Shirakawa-go.
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{
+  const t=$("#step-t"), keep=t.textContent;
+  t.textContent=[...DAY,"Before leaving"].reduce((a,b)=>b.length>a.length?b:a)+" 00";
+  t.style.minWidth=Math.ceil(t.getBoundingClientRect().width)+"px";
+  t.textContent=keep;
+});
+addEventListener("scroll",()=>{ if(pin||hov) place(false); },{passive:true});
+addEventListener("resize",()=>{ if(pin||hov) place(false); });
 
 /* ---------- steps + toggle ---------- */
 const STEPS=[
- {t:"The country",b:["Thirteen prefectures of forty-seven, over sixteen days.",
-   "Every mark is one thing that happened, sitting where it happened."]},
- {t:"A hundred and eighty marks",b:["Meals, fares, tickets, nights, two flights and two rail passes.",
-   "They are about to leave the map without losing their identity."]},
- {t:"The diary",b:["The land dissolves and each mark travels to its day, and to the hour it happened.",
-   "Midnight to midnight, in two-hour bands. This is the shape of a day rather than the size of a bill."]},
- {t:"What has no hour",b:["Three things were bought before the trip began and belong to no single hour: both rail passes and the return flights.",
-   "They wait in the band at the top. Switch to the Ledger and the journeys they paid for fly up and disappear into them."]},
+ {t:"Thirteen prefectures in sixteen days",
+  b:["182 things happened and were written down: 81 meals, 47 journeys, 35 nights, 9 things to see.",
+     "23 trains, 9 shinkansen, 9 buses, 3 flights. 53 places. Every mark below is one of them, sitting where it happened."]},
+ {t:"What it cost",b:["The land falls away and each mark travels to what it cost, on a scale where every tenfold step is the same distance.",
+   "Three things have no hour at all and wait in the band at the top: both rail passes and the return flights."]},
+ {t:"When it happened",b:["The same marks again, moved to the hour instead of the price.",
+   "Midnight to midnight, sixteen rows. This is the shape of a day rather than the size of a bill."]},
+ {t:"Anything can be asked",b:["Hover any mark for the place, the hour and the price. Where several sit on top of one another, that group opens under the cursor so you can reach the one you meant.",
+   "Where a photograph exists it comes with it, and the arrows across it turn the page.",
+   "Click to pin a mark. The bar at the foot becomes a way to walk that day in order, and so do the arrow keys. Escape lets go."]},
 ];
 $("#steps").innerHTML=STEPS.map((s,i)=>`<div class="step" data-i="${i}">
   <div class="card"><div class="n">${String(i+1).padStart(2,"0")} / ${STEPS.length}</div>
@@ -309,9 +693,34 @@ new IntersectionObserver(es=>es.forEach(e=>{
   if(e.isIntersecting){e.target.classList.add("on"); step=+e.target.dataset.i; render();}
   else e.target.classList.remove("on");
 }),{rootMargin:"-45% 0px -45% 0px"}).observe;
+let dockT=null, holdT=null, mapHold=false;
+function setStep(n){
+  if(n===step && $(".step.on")) return;
+  const leavingMap = step<1 && n>=1;
+  step=n;
+  // exactly one card, swapped at the moment the chart changes, so the two
+  // never sit on screen together and none is left behind
+  $$(".step").forEach((s,i)=>s.classList.toggle("on", i===n));
+  cam = n<1 ? CAM_HOME : CAM_TRIP;
+  gLand.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.k})`;
+  // The first step lands on the ledger, not the clock. Price is the frame
+  // people arrive with; the hour is the thing worth revealing second.
+  view = n===1 ? "ledger" : "clock";
+  $("#v-clock").setAttribute("aria-pressed", view==="clock");
+  $("#v-ledger").setAttribute("aria-pressed", view==="ledger");
+  clearTimeout(dockT);
+  if(n>=1) dockT=setTimeout(()=>$("#dock").classList.add("on"),260);
+  else $("#dock").classList.remove("on");
+  if(pin) dockMode();
+  // A second of zooming with the marks still on the land, then they scatter.
+  // The camera is mild enough that nothing leaves the frame and has to return.
+  clearTimeout(holdT);
+  if(leavingMap){ mapHold=true; holdT=setTimeout(()=>{mapHold=false;render();}, 980); }
+  else if(n<1) mapHold=false;
+  render();
+}
 $$(".step").forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{
-  if(e.isIntersecting){e.target.classList.add("on"); step=+e.target.dataset.i; render();}
-  else e.target.classList.remove("on");
+  if(e.isIntersecting) setStep(+e.target.dataset.i);
 }),{rootMargin:"-45% 0px -45% 0px"}).observe(s));
 function setView(v){
   view=v;
@@ -322,4 +731,5 @@ function setView(v){
 $("#v-clock").onclick=()=>setView("clock");
 $("#v-ledger").onclick=()=>setView("ledger");
 render();
+intro();
 </script>
