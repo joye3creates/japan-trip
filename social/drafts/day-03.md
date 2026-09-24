@@ -5,7 +5,9 @@ Day 3/16 · Japan Trip visualised 🇯🇵
 
 The map dissolves. Every mark flies to its hour.
 
-Switch to the ledger: train rides and hotel arrivals merge into the pass or night that paid for them. Switch back, they split out.
+Places, meals and rides become icons, one lane per day. The trip, day by day.
 
-Nothing is redrawn, only moved. Idea via @pudding.cool.
+Toggle to the ledger: the marks glide onto a price axis, painting each day's spend.
+
+Inspired by @pudding.cool
 #buildinpublic #dataviz
