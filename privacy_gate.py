@@ -121,6 +121,69 @@ def _binary_strings(data):
     return out
 
 
+def _image_metadata(data):
+    """Yield findings for any non-pixel data carried by an image or video.
+
+    Deliberately not a list of known-bad tags. The phone that took these
+    photographs wrote its model name into two private vendor tags, so an
+    allowlist loses by definition. Anything that is not pixels is refused,
+    and the finding names the container structure, never its contents.
+    """
+    if data[:2] == b"\xff\xd8":                       # JPEG
+        i = 2
+        while i + 4 <= len(data) and data[i] == 0xFF:
+            m = data[i + 1]
+            if m == 0xDA or m == 0xD9:                 # scan data, or end
+                break
+            if 0xD0 <= m <= 0xD7:
+                i += 2
+                continue
+            n = struct.unpack(">H", data[i + 2:i + 4])[0]
+            if 0xE0 <= m <= 0xEF:
+                yield f"APP{m - 0xE0} segment", "image metadata"
+            elif m == 0xFE:
+                yield "COM segment", "image comment"
+            i += 2 + n
+
+    elif data[:8] == b"\x89PNG\r\n\x1a\n":              # PNG
+        i = 8
+        while i + 8 <= len(data):
+            n, kind = struct.unpack(">I4s", data[i:i + 8])
+            if kind in (b"tEXt", b"iTXt", b"zTXt", b"eXIf", b"tIME"):
+                yield f"{kind.decode()} chunk", "image metadata"
+            if kind == b"IEND":
+                break
+            i += 12 + n
+
+    elif data[4:8] == b"ftyp":                          # MP4 and friends
+        yield from _mp4_metadata(data, 0, len(data))
+
+
+def _mp4_metadata(data, off, end, depth=0):
+    """Non-zero container dates, and the atom phones use for coordinates."""
+    i = off
+    while i + 8 <= end and depth < 6:
+        n = struct.unpack(">I", data[i:i + 4])[0]
+        kind = data[i + 4:i + 8]
+        if n < 8:
+            break
+        if kind in (b"moov", b"trak", b"mdia", b"minf", b"udta", b"stbl"):
+            yield from _mp4_metadata(data, i + 8, min(i + n, end), depth + 1)
+        elif kind in (b"mvhd", b"tkhd", b"mdhd"):
+            body = data[i + 8:i + n]
+            if body and body[0] == 0 and len(body) >= 12:
+                created, modified = struct.unpack(">II", body[4:12])
+            elif len(body) >= 20:
+                created, modified = struct.unpack(">QQ", body[4:20])
+            else:
+                created = modified = 0
+            if created or modified:
+                yield f"{kind.decode()} atom", "recording date"
+        elif kind in (b"\xa9xyz", b"loci"):
+            yield f"{kind.decode('latin-1')} atom", "location"
+        i += n
+
+
 def _scan_binary(data):
     """Random bytes make phone and reference shapes meaningless, so binaries
     are checked for names and emails only, in their embedded strings."""
@@ -145,7 +208,7 @@ def check(files):
         elif _is_text(path, content):
             hits = [(f"line {n}", k) for n, k in _scan_text(content.decode("utf-8", "replace"))]
         else:
-            hits = list(_scan_binary(content))
+            hits = list(_image_metadata(content)) + list(_scan_binary(content))
         findings += [f"  site/{path}  {where}  {kind}" for where, kind in hits]
     return findings
 
@@ -168,6 +231,43 @@ def enforce(files):
         print("\n".join(f"    site/{p}" for p in binaries))
 
 
+def _selftest():
+    """Synthetic containers, so the protection cannot rot unnoticed.
+
+    Byte sequences rather than real images on purpose: this keeps the test, like
+    the gate, free of any image library, which is what lets both run on a build
+    machine that installs nothing.
+    """
+    soi, dqt, sos = b"\xff\xd8", b"\xff\xdb\x00\x04\x00\x00", b"\xff\xda\x00\x02"
+    def app(n, body=b"\x00\x00"):
+        return bytes([0xFF, 0xE0 + n]) + struct.pack(">H", len(body) + 2) + body
+    png = b"\x89PNG\r\n\x1a\n"
+    def chunk(kind, body=b""):
+        return struct.pack(">I", len(body)) + kind + body + b"\x00\x00\x00\x00"
+
+    cases = [
+        ("JPEG with EXIF",        soi + app(1, b"Exif\x00\x00rest") + dqt + sos, True),
+        ("JPEG with JFIF only",   soi + app(0) + dqt + sos,                        True),
+        ("JPEG with a comment",   soi + b"\xff\xfe\x00\x06abcd" + dqt + sos,     True),
+        ("JPEG, pixels only",     soi + dqt + sos,                                 False),
+        ("PNG with eXIf",         png + chunk(b"IHDR") + chunk(b"eXIf", b"x") + chunk(b"IEND"), True),
+        ("PNG with tEXt",         png + chunk(b"IHDR") + chunk(b"tEXt", b"k\x00v") + chunk(b"IEND"), True),
+        ("PNG, pixels only",      png + chunk(b"IHDR") + chunk(b"IDAT", b"x") + chunk(b"IEND"), False),
+    ]
+    bad = 0
+    for label, data, should_refuse in cases:
+        refused = bool(list(_image_metadata(data)))
+        ok = refused == should_refuse
+        bad += not ok
+        print(f"  {'ok  ' if ok else 'FAIL'}  {label:24} {'refused' if refused else 'passed'}")
+    if bad:
+        sys.exit(f"\n{bad} self-test(s) failed. The gate is not protecting what it claims to.")
+    print(f"\n  {len(cases)} self-tests passed.")
+
+
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        _selftest()
+        raise SystemExit
     root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parent / "site")
     enforce({str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*") if p.is_file()})
