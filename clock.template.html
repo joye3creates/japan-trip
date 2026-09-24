@@ -28,10 +28,12 @@ body{margin:0;background:var(--paper);color:var(--ink);
 .steps{grid-column:2;grid-row:1;position:relative;z-index:3;pointer-events:none}
 @media(max-width:980px){.steps{grid-column:1;margin-top:-100vh}}
 .step{min-height:96vh;display:flex;align-items:center;padding-block:10vh}
-.step .card{pointer-events:auto;max-width:296px;background:color-mix(in srgb,var(--paper) 88%,transparent);
+.step .card{pointer-events:auto;max-width:296px;opacity:0;background:color-mix(in srgb,var(--paper) 88%,transparent);
   backdrop-filter:blur(3px);border:1px solid var(--ink-3);padding:15px 17px;
-  box-shadow:0 6px 22px rgba(59,47,35,.13);opacity:.3;transition:opacity .4s}
-.step.on .card{opacity:1}
+  box-shadow:0 6px 22px rgba(59,47,35,.13);transition:opacity .24s ease-out}
+/* the outgoing card clears before the new one arrives, so they are never
+   both legible at once */
+.step.on .card{opacity:1;transition:opacity .34s ease-out .16s}
 .step .n{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--verm)}
 .step h2{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;margin:4px 0 7px}
 .step p{margin:0;font-size:13px;color:var(--ink-2)}
@@ -276,7 +278,7 @@ gBand.append(bl,bk);
 
 /* ---------- marks ---------- */
 const nodes=MARKS.map((m,i)=>{
-  const g=el("g",{style:"cursor:pointer;transition:transform 1.15s cubic-bezier(.4,0,.2,1),opacity .55s"});
+  const g=el("g",{style:"cursor:pointer;transition:transform .92s cubic-bezier(.33,0,.2,1),opacity .45s"});
   const dot=el("circle",{r:2.5,fill:"var(--verm)"});
   const ic=glyph(m.category,m.mode_hint,m.category==="stays");
   ic.setAttribute("opacity","0"); ic.style.transition="opacity .5s";
@@ -294,7 +296,7 @@ function homeOnMap(m){
   return p?camPt(MX(p.lng),MY(p.lat)):camPt(W/2,H/2);
 }
 function pos(m){
-  if(step<1||mapHold) return homeOnMap(m);
+  if(step<1) return homeOnMap(m);
   if(view==="clock"){
     if(m.kind==="cost") return m.lane==="band"?{x:BX(m),y:BAND_Y+19}:{x:LX(m.amount),y:laneY(m.day_index)};
     return {x:CX(m.hour),y:laneY(m.day_index)+off(m)};
@@ -317,10 +319,9 @@ function buildOffsets(){
 }
 const off=m=>OFF[m.id]||0;
 
-let moving=false, settle=null;
 function render(){
   buildOffsets();
-  const onMap=step<1||mapHold;
+  const onMap=step<1;
   gLand.setAttribute("opacity",onMap?1:0);
   gAxis.style.transition=gBand.style.transition="opacity .9s";
   gAxis.setAttribute("opacity",onMap?0:1);
@@ -338,21 +339,12 @@ function render(){
       else               vis = m.kind==="event" ? 0 : 1;
     } else vis = 1;
     g.setAttribute("opacity",vis);
-    // Never cross-fade an icon while the mark is still moving: a dot turning
-    // into an icon mid-flight is what made them look like streaks.
-    if(moving){ g._ic.setAttribute("opacity",0); g._dot.setAttribute("opacity",vis?1:0); }
-    else { g._ic.setAttribute("opacity",showIcon&&vis?1:0);
-           g._dot.setAttribute("opacity",showIcon?0:1); }
+    g._ic.setAttribute("opacity",showIcon&&vis?1:0);
+    g._dot.setAttribute("opacity",showIcon?0:1);
     const hot = m.lane==="band" || (step>=2 && m.merge_to);
     g.style.color = hot?"var(--verm)":"var(--ink-2)";
     g._dot.setAttribute("fill", hot?"var(--verm)":"var(--ink-2)");
   });
-  clearTimeout(settle);
-  settle=setTimeout(()=>{ moving=false; nodes.forEach(g=>{
-    const m=g._m, showIcon=!(step<1||mapHold);
-    const vis=+g.getAttribute("opacity");
-    g._ic.setAttribute("opacity",showIcon&&vis?1:0);
-    g._dot.setAttribute("opacity",showIcon?0:1); }); }, 1500);
 }
 
 /* ---------- tooltip ---------- */
@@ -395,11 +387,13 @@ new IntersectionObserver(es=>es.forEach(e=>{
   if(e.isIntersecting){e.target.classList.add("on"); step=+e.target.dataset.i; render();}
   else e.target.classList.remove("on");
 }),{rootMargin:"-45% 0px -45% 0px"}).observe;
-let mapHold=false;
+let dockT=null;
 function setStep(n){
-  moving=true;
-  const leavingMap = step<1 && n>=1;
+  if(n===step && $(".step.on")) return;
   step=n;
+  // exactly one card, swapped at the moment the chart changes, so the two
+  // never sit on screen together and none is left behind
+  $$(".step").forEach((s,i)=>s.classList.toggle("on", i===n));
   cam = n<1 ? CAM_HOME : CAM_TRIP;
   gLand.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.k})`;
   // The first step lands on the ledger, not the clock. Price is the frame
@@ -407,16 +401,13 @@ function setStep(n){
   view = n===1 ? "ledger" : "clock";
   $("#v-clock").setAttribute("aria-pressed", view==="clock");
   $("#v-ledger").setAttribute("aria-pressed", view==="ledger");
-  $("#dock").classList.toggle("on", n>=1);
-  if(leavingMap){
-    // hold the marks on the land while it zooms, then let them travel
-    mapHold=true; render();
-    setTimeout(()=>{ mapHold=false; render(); }, 780);
-  } else render();
+  clearTimeout(dockT);
+  if(n>=1) dockT=setTimeout(()=>$("#dock").classList.add("on"),620);
+  else $("#dock").classList.remove("on");
+  render();
 }
 $$(".step").forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{
-  if(e.isIntersecting){ e.target.classList.add("on"); setStep(+e.target.dataset.i); }
-  else e.target.classList.remove("on");
+  if(e.isIntersecting) setStep(+e.target.dataset.i);
 }),{rootMargin:"-45% 0px -45% 0px"}).observe(s));
 function setView(v){
   view=v;
