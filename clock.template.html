@@ -91,11 +91,17 @@ body{margin:0;background:var(--paper);color:var(--ink);
   background:rgba(30,25,20,.5);font-size:13px;line-height:1;padding:0;transition:background .13s,transform .13s}
 .hc .fnav button:hover{background:rgba(30,25,20,.78);transform:scale(1.08)}
 .hc .fnav button[disabled]{opacity:0;pointer-events:none}
+/* A real photograph standing in for a category is still a real photograph of
+   somewhere else. Labelled on the picture itself, which is the thing that is
+   the placeholder, rather than buried in the text. */
+.hc .tag{position:absolute;left:0;top:0;z-index:2;pointer-events:none;
+  background:var(--verm);color:var(--paper);font-size:8.5px;letter-spacing:.13em;
+  text-transform:uppercase;padding:3px 7px}
 .hc .pips{position:absolute;left:0;right:0;bottom:6px;display:flex;gap:4px;justify-content:center}
 .hc .pips i{width:4px;height:4px;border-radius:50%;background:#fff;opacity:.45}
 .hc .pips i.on{opacity:1}
-.hc .meta{height:100px;overflow:hidden}
-.hc.bare .meta{height:auto;overflow:visible}
+.hc .meta{min-height:56px;max-height:100px;overflow:hidden}
+.hc.bare .meta{min-height:0}
 .hc.bare .foot{margin-top:9px}
 .hc .plc{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--verm);
   line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -148,6 +154,7 @@ body{margin:0;background:var(--paper);color:var(--ink);
   <div class="frame" id="hc-frame">
     <img id="hc-img" alt="">
     <div class="fnav"><button id="hc-prev" aria-label="Previous photograph">&lsaquo;</button><button id="hc-next" aria-label="Next photograph">&rsaquo;</button></div>
+    <div class="tag" id="hc-tag" hidden>placeholder</div>
     <div class="pips" id="hc-pips"></div>
   </div>
   <div class="meta">
@@ -414,15 +421,24 @@ function render(){
    nearest timestamp. The crater photograph sits at 12:50 between an ice cream
    at 11:52 and a lunch at 13:50, almost equidistant, and neither of them is
    what it is a picture of. */
-const P_MARK={}, P_PLACE={}, P_DAY={};
+const P_MARK={}, P_PLACE={}, P_DAY={}, P_CAT={};
 PHOTOS.forEach(p=>{
-  if(p.mark)                       (P_MARK[p.mark]=P_MARK[p.mark]||[]).push(p);
+  if(p.placeholder)                P_CAT[p.category]=p;
+  else if(p.mark)                  (P_MARK[p.mark]=P_MARK[p.mark]||[]).push(p);
   else if(p.day!=null&&p.place)    (P_PLACE[p.day+"/"+p.place]=P_PLACE[p.day+"/"+p.place]||[]).push(p);
   else if(p.day!=null)             (P_DAY[p.day]=P_DAY[p.day]||[]).push(p);
 });
-const shots=m=>[].concat(P_MARK[m.id]||[],
-                         m.place_id?(P_PLACE[m.day_index+"/"+m.place_id]||[]):[],
-                         P_DAY[m.day_index]||[]);
+// A real photograph of this mark, or of where it happened, always wins. The
+// category stand-in fills in only where nothing real exists yet, and never
+// sits alongside one.
+function shots(m){
+  const real=[].concat(P_MARK[m.id]||[],
+                       m.place_id?(P_PLACE[m.day_index+"/"+m.place_id]||[]):[],
+                       P_DAY[m.day_index]||[]);
+  if(real.length) return real;
+  const ph=P_CAT[m.category];
+  return ph?[ph]:[];
+}
 
 const PHDIR="assets/photos"+"/";   // split, so the build's asset scan does not read this as a link
 const hc=$("#hc");
@@ -447,8 +463,9 @@ function fill(g){
   if(p){ fr.classList.remove("none");
          const u=PHDIR+p.file;
          if(img.getAttribute("src")!==u) img.src=u;
-         img.alt=p.caption||m.item||""; }
+         img.alt=p.placeholder?"":(p.caption||m.item||""); }
   else { fr.classList.add("none"); img.removeAttribute("src"); img.alt=""; }
+  $("#hc-tag").hidden=!(p&&p.placeholder);
   $("#hc-pips").innerHTML = ph.length>1 ? ph.map((_,i)=>`<i class="${i===shot?"on":""}"></i>`).join("") : "";
   $("#hc-prev").disabled=$("#hc-next").disabled=ph.length<2;
 
@@ -462,10 +479,10 @@ function fill(g){
   // The caption wins the line when there is a picture, and carries the hour the
   // photograph itself knew, so nobody reads it as a picture of this purchase.
   let nt="";
-  if(p){ const t=p.taken?p.taken.slice(11,16):null;
-         nt=(p.caption||"")+(t&&t!==hh?"  ·  "+t:""); }
-  else if(m.merge_to&&byId[m.merge_to]) nt="paid for by "+byId[m.merge_to].item;
-  else if(m.note) nt=m.note;
+  if(p&&!p.placeholder){ const t=p.taken?p.taken.slice(11,16):null;
+                         nt=(p.caption||"")+(t&&t!==hh?"  ·  "+t:""); }
+  if(!nt){ if(m.merge_to&&byId[m.merge_to]) nt="paid for by "+byId[m.merge_to].item;
+           else if(m.note) nt=m.note; }
   $("#hc-nt").textContent=nt;
 
   const list=peers(g), i=list.indexOf(g);

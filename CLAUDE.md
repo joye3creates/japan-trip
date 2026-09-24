@@ -146,6 +146,14 @@ no price, not an estimate from the nightly rate. Invented times are labelled in
 three places on the page, including every tooltip. Inventing plausible figures
 makes a page look finished and the analysis worthless.
 
+This holds for pictures too. `_placeholder_by_category` in `data/photo_attach.json`
+gives every mark a stand-in photograph, one per category, so the interaction can
+be judged before the real photographs are shortlisted. The card labels each one
+on the picture itself and drops the caption, because a real photograph of
+somewhere else shown silently against a purchase is the same lie as an invented
+price. A real photograph, by mark or by place, always wins over the stand-in.
+Delete a category's entry as soon as real photographs cover it.
+
 **Absence must not read as idleness.** On a clock, an empty morning looks like
 nothing happened when it usually means nothing was bought. This is why the notes
 must record activities that cost nothing.

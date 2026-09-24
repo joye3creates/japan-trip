@@ -58,13 +58,27 @@ def photos():
             rec["taken"] = meta[name]["taken"]
         out.append(rec)
 
+    # Stand-ins, one per category, so every mark has a picture while the real
+    # photographs are still being chosen. They carry no caption and the page
+    # labels them, because a real photograph shown against a purchase it has
+    # nothing to do with is the one thing this project must not do quietly.
+    for cat, file in sorted((attach.get("_placeholder_by_category") or {}).items()):
+        if cat.startswith("_"):
+            continue
+        if file not in meta:
+            sys.exit(f"\nPHOTOS: placeholder for {cat} names {file}, which is not in assets/photos/")
+        out.append({"file": file, "category": cat, "placeholder": True})
+
     # A mistyped place or mark attaches a photograph to nothing at all, and the
     # page has no way to say so: the picture simply never appears.
     trip = json.loads((DATA / "trip.json").read_text())
     places = {p["id"] for p in trip["places"]}
     marks = {m["id"] for m in trip["marks"]}
     day_places = [set(d.get("places") or []) for d in trip["days"]]
+    cats = {m.get("category") for m in trip["marks"]}
     for r in out:
+        if r.get("placeholder") and r["category"] not in cats:
+            sys.exit(f"\nPHOTOS: placeholder names category {r['category']}, which nothing is in")
         if "mark" in r and r["mark"] not in marks:
             sys.exit(f"\nPHOTOS: {r['file']} names mark {r['mark']}, which is not in the dataset")
         if "place" in r:

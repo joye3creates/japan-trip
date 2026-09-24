@@ -21,5 +21,13 @@
   "_unplaced": {
     "koi-pond.jpg": "No landmark in the frame and no metadata in the file. Could be Kenroku-en, Byodo-in, Nara Park or Oshino Hakkai. Needs telling.",
     "osaka-castle.jpg": "Osaka Castle at night, but Osaka Castle is not a place in the registry and appears on no day. Day 7 or day 8; needs telling."
+  },
+  "_placeholder_by_category": {
+    "_comment": "A stand-in picture so every mark has one while the real photographs are still being shortlisted. NOT a record of anything: the page marks every one of these on the card, and they carry no caption. Delete an entry as soon as real photographs cover that category.",
+    "food": "totoro-puffs.jpg",
+    "stays": "shirakawa-go.jpg",
+    "experiences": "osaka-castle.jpg",
+    "travel": "koi-pond.jpg",
+    "utilities": "mt-aso.jpg"
   }
 }
