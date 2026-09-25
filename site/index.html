@@ -160,7 +160,7 @@ footer p{margin:0 0 6px;max-width:72ch}
     <li><a href="#day-2">02</a></li>
     <li><a href="#day-3">03</a></li>
     <li><a href="#day-4">04</a></li>
-    <li><span aria-disabled="true" title="Not built yet">05</span></li>
+    <li><a href="#day-5">05</a></li>
     <li><span aria-disabled="true" title="Not built yet">06</span></li>
     <li><span aria-disabled="true" title="Not built yet">07</span></li>
     <li><span aria-disabled="true" title="Not built yet">08</span></li>
@@ -176,14 +176,14 @@ footer p{margin:0 0 6px;max-width:72ch}
 </header>
 <main id="top">
   <section class="hero">
-    <div class="prog"><b>Day 4 of 16</b><span class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></div>
+    <div class="prog"><b>Day 5 of 16</b><span class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></div>
     <h1>Japan trip on a 24-hour clock</h1>
     <p class="intro">Sixteen days in Japan, rebuilt in sixteen days of building. Every purchase, meal, journey and night moves off a receipt and onto a twenty-four hour clock.</p>
     <p class="intro">This is the log, one entry per building day: what changed, what broke, and how I got past it. Built with Claude Code.</p>
     <a class="follow" href="https://bsky.app/profile/shirshacreates.bsky.social">Follow on Bluesky &rarr;</a>
 
     <div class="stage">
-      <p class="stage-label">Latest &middot; Day 4 of 16</p>
+      <p class="stage-label">Day 4 of 16</p>
       <div class="stage-head">
         <div class="tabs" role="tablist">
           <button role="tab" aria-selected="true" data-mode="watch">&#9654; Watch</button>
@@ -193,7 +193,7 @@ footer p{margin:0 0 6px;max-width:72ch}
       </div>
       <div class="screen" id="screen">
         <video id="demo" autoplay muted loop playsinline preload="metadata" poster="assets/day-04-photographs.png"
-          aria-label="Screen recording of day 4: Hover a point for its photo. Click to pin it, then walk the day with the arrows. Points sitting on top of each other open under the cursor.">
+          aria-label="Screen recording of day 5: Hover a point for its photo. Click to pin it, then walk the day with the arrows. Points sitting on top of each other open under the cursor.">
           <source src="assets/day-04-interaction.mp4" type="video/mp4">
         </video>
         <button class="pause" id="pause" type="button">Pause</button>
@@ -202,7 +202,22 @@ footer p{margin:0 0 6px;max-width:72ch}
     </div>
   </section>
 
-  <h2 class="section" id="feature-h">Latest &middot; Day 4 of 16</h2>
+  <h2 class="section" id="feature-h">Latest &middot; Day 5 of 16</h2>
+  <article class="day" id="day-5" data-day="5">
+    <figure class="media"><img src="assets/day-05.png" alt="The recording at the top of the log page, labelled with the day it came from" loading="lazy"><figcaption>The recording at the top of the log page, labelled with the day it came from</figcaption></figure>
+    <div class="body">
+      <div class="lede">
+        <span class="num-label">Day 05 of 16</span>
+        <h3>The number that was quietly wrong</h3>
+        <div class="big">3</div>
+        <p class="big-label">the day the card kept showing</p>
+        <p class="takeaway">A thing that fails by going blank is a bug you fix today.</p>
+      </div>
+      <div class="notes">
+        <div class="failure"><span class="k">The honest failure</span><p>I wrote that fallback, and I wrote it that way on purpose. Degrading to a stale number instead of a blank is the right call for a card on a portfolio. What was missing was anything that would tell me it had happened. The same shape turned up twice more the same day: the page would have quietly reverted to an old video the moment a day had nothing new to record, and the privacy check stopped a build over six bytes of video that happened to look like an email address. Two of the three failed by showing something believable.</p></div>
+      </div>
+    </div>
+  </article>
   <article class="day no-media" id="day-4" data-day="4">
     <div class="body">
       <div class="lede">
@@ -267,12 +282,17 @@ footer p{margin:0 0 6px;max-width:72ch}
   <h2 class="section" id="rest-h">Earlier days</h2>
   <div class="cards" id="cards">
     <div class="card future" aria-hidden="true">
-      <span class="card-t"><span class="num-label">Day 06 of 16</span></span><span class="ph">Not built yet</span></div>
+      <span class="card-t"><span class="num-label">Day 07 of 16</span></span><span class="ph">Not built yet</span></div>
     <div class="card future" aria-hidden="true">
-      <span class="card-t"><span class="num-label">Day 05 of 16</span></span><span class="ph">Not built yet</span></div>
+      <span class="card-t"><span class="num-label">Day 06 of 16</span></span><span class="ph">Not built yet</span></div>
+    <a class="card" href="#day-5" data-day="5">
+      <img src="assets/day-05.png" alt="" loading="lazy">
+      <span class="card-t"><span class="num-label">Day 05 · latest</span>
+      <b>The number that was quietly wrong</b><span class="card-n">3</span><small>the day the card kept showing</small></span>
+    </a>
     <a class="card" href="#day-4" data-day="4">
       <img src="assets/day-04-photographs.png" alt="" loading="lazy">
-      <span class="card-t"><span class="num-label">Day 04 · latest</span>
+      <span class="card-t"><span class="num-label">Day 04</span>
       <b>Photos on the clock</b><span class="card-n">5</span><small>designs tried, one kept</small></span>
     </a>
     <a class="card" href="#day-3" data-day="3">
@@ -301,7 +321,7 @@ footer p{margin:0 0 6px;max-width:72ch}
 <script>
 document.documentElement.classList.add('js');
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const TOTAL = 16, LATEST = 4, WATCH_HINT = "Hover a point for its photo. Click to pin it, then walk the day with the arrows. Points sitting on top of each other open under the cursor.";
+const TOTAL = 16, LATEST = 5, WATCH_HINT = "Hover a point for its photo. Click to pin it, then walk the day with the arrows. Points sitting on top of each other open under the cursor.";
 
 // featured day: the latest by default; #day-N or a tap promotes another
 function show(n, scroll) {

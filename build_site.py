@@ -373,6 +373,11 @@ def build_log(staged_names=()):
         for n in range(1, TOTAL_DAYS + 1))
     segs = "".join(f'<i class="{"done" if n <= latest else ""}"></i>' for n in range(1, TOTAL_DAYS + 1))
     entries, cards, status = [], [], {}
+    top = next((d for d in sorted(days, key=lambda x: -x["day"]) if d["watch"]), None)
+    if top is None:
+        sys.exit("\nBUILD LOG: no day has a **Watch:** field, so the page has nothing to play")
+    shown = top["day"]
+
     for d in sorted(days, key=lambda d: -d["day"]):
         f = d["fields"]
         try:
@@ -409,7 +414,7 @@ def build_log(staged_names=()):
                          f"'[name](page.html) — note' entries; left over: {rest.strip()[:60]!r}")
             links = ('<div class="explore"><span class="k">Explorations</span>'
                      f'<ul>{"".join(items)}</ul></div>')
-        watched = d["day"] == latest and d["watch"]
+        watched = d["day"] == shown
         figure = "" if watched else (
             f'\n    <figure class="media"><img src="assets/{img}" alt="{H.escape(alt)}" '
             f'loading="lazy"><figcaption>{H.escape(alt)}</figcaption></figure>')
@@ -436,14 +441,16 @@ def build_log(staged_names=()):
     upcoming = "".join(f"""    <div class="card future" aria-hidden="true">
       <span class="card-t"><span class="num-label">Day {n:02d} of {TOTAL_DAYS}</span></span><span class="ph">Not built yet</span></div>
 """ for n in range(min(latest + 2, TOTAL_DAYS), latest, -1))
-    # The recording at the top of the page is the latest day's, and falls back
-    # to the first one made when a day has no Watch field of its own.
-    top = next(d for d in days if d["day"] == latest)
-    watch, hint = top["watch"] or ("interaction.mp4", "A screen recording of the clock view.")
+    # The newest recording there is, which is usually but not always the latest
+    # day's. A day with nothing new to record must not drop the page back to the
+    # oldest video on file, which is what asking only the latest day would do.
+    watch, hint = top["watch"]
     poster = top["media"][0]
     return (((ROOT / "log.template.html").read_text()
             .replace("<!--NAV-->", nav).replace("<!--SEGS-->", segs)
             .replace("<!--DAY-->", str(latest)).replace("<!--TOTAL-->", str(TOTAL_DAYS))
+            .replace("<!--SHOWN-->", ("Latest &middot; " if shown == latest else "")
+                     + f"Day {shown} of {TOTAL_DAYS}")
             .replace("<!--WATCH-->", H.escape(watch))
             .replace("<!--POSTER-->", H.escape(poster))
             .replace("<!--HINT-->", H.escape(hint))

@@ -217,3 +217,35 @@ are going a bit up and down".
 **Angle worth taking:** the quickest way to get one good interaction was to
 build five rough ones and let someone say, in one message, why three of them
 were wrong.
+
+## Day 5 — the number that was quietly wrong
+
+**Shipped:** the recording at the top of the log page now follows the day. Each
+entry names its own screen recording, the newest one plays, and the label above
+it says which day you are watching. Day 4 went live.
+
+**The number:** the card on my portfolio said **Day 3** for two days after the
+log said Day 4. Nothing was broken and nothing showed an error.
+
+**Headline:** 3 — the day the card kept showing
+
+**Media:** day-05.png — The recording at the top of the log page, labelled with the day it came from
+
+**The interesting thing:** the card reads a small file off the live site to get
+the day number, so it stays current without being edited. The site got renamed
+at some point. The card kept asking the old address, the request failed, and the
+code did the polite thing: it fell back to the number typed in by hand. A failed
+fetch that shows a blank gets noticed in an hour. One that shows a plausible old
+number can sit there for days.
+
+**The honest failure:** I wrote that fallback, and I wrote it that way on
+purpose. Degrading to a stale number instead of a blank is the right call for a
+card on a portfolio. What was missing was anything that would tell me it had
+happened. The same shape turned up twice more the same day: the page would have
+quietly reverted to an old video the moment a day had nothing new to record, and
+the privacy check stopped a build over six bytes of video that happened to look
+like an email address. Two of the three failed by showing something believable.
+
+**Angle worth taking:** a thing that fails by going blank is a bug you fix
+today. A thing that fails by showing you something reasonable is one you find
+next week.

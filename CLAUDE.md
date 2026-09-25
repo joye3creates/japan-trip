@@ -84,12 +84,17 @@ lists needs a human look before it ships. Only assets a page links are copied.
 The log page takes each day's still from `assets/day-NN.png`, or from the file an
 entry names with `**Media:**`. A new day is an entry plus an image, never code.
 
-**The recording at the top of the log page is the latest day's.** An entry names
-it with `**Watch:** <file in assets/> — <what it shows>`, and that line is what
-the page prints under the video. The day's `**Media:**` still is its poster. The
-latest day's article then leaves its still out, because the video above it is the
-same thing twice. Nothing about this needs a code change from one day to the
-next: write the field, drop the file in `assets/`, and the hero follows.
+**The recording at the top of the log page is the newest one there is.** An
+entry names its own with `**Watch:** <file in assets/> — <what it shows>`, and
+that line is what the page prints under the video. That day's `**Media:**` still
+is the poster, and that day's article leaves its still out, because the video
+above it is the same thing twice. The label above the video names the day the
+recording came from, and says "Latest" only when it is also the newest day.
+
+It is the newest *recording*, not the newest day, on purpose: a day with nothing
+new to record would otherwise drop the page back to the oldest video on file.
+Nothing here needs a code change from one day to the next: write the field, drop
+the file in `assets/`, and the page follows.
 
 **An image inlined as a `data:` URI is still an image.** The gate decodes every
 one it finds in a page and puts it through the same refusal as a file on disk,
