@@ -3,6 +3,14 @@
 One document per working session, written at the end of it. These are the raw
 material for a case study later — keep them specific rather than tidy.
 
+**Plain words, short sentences.** The title is a plain label for what the day
+was — "photos on the clock view", not a line of writing. Say what happened, not
+what it means.
+
+**The subject is the design and the interaction.** What was tried, what got
+thrown out, how it behaves. Data and code work belongs in the log, but as how it
+got made rather than as the story, and in proportion to the time it took.
+
 Naming: `YYYY-MM-DD-session-NN.md`
 
 Each one covers, in this order:
@@ -27,10 +35,15 @@ repo root. That file is a different job: short, written for someone drafting a
 social post rather than for an engineer, and it goes to a Claude Project on
 claude.ai. One entry a working day, in the established shape — shipped, the
 number, the interesting thing, the honest failure, the angle worth taking.
+On a day whose argument is an interaction, add an `**Explorations:**` field, one
+`[name](explore/file.html) — one line` per line, after putting the study in
+`explorations/`. The build refuses a link it does not publish.
 Add a `**Headline:** <figure> — <label, six words max>` line: it is the big
 number on the public log page, and the build warns when it is missing.
 Each day's still is `assets/day-NN.png` (Day 4 is `day-04.png`). To use another
-file in `assets/`, add `**Media:** <file> — <caption>`. A missing still fails the
+file in `assets/`, add `**Media:** <file> — <caption>`. Add
+`**Watch:** <file> — <what it shows>` naming a screen recording: the latest day's
+is what plays at the top of the page, and that line is the caption under it. A missing still fails the
 build with the filename it wanted. Adding a day never needs a code change. Keep
 it under about 300 words. Never put anything in it that the safe-to-post table
 at the top of that file rules out.

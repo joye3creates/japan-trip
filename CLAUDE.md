@@ -22,6 +22,7 @@ source/             original workbook and itinerary; never deployed, never publi
 notes/              raw dumps, render checks; working material
 sessions/           one log per working day
 docs/               archived copies of the living documents
+explorations/       interaction studies, served at /explore/ as they were made
 assets/             screenshots and screen recordings for posting
 names.local.txt     traveller names, gitignored, read at extraction time
 ```
@@ -83,6 +84,30 @@ lists needs a human look before it ships. Only assets a page links are copied.
 The log page takes each day's still from `assets/day-NN.png`, or from the file an
 entry names with `**Media:**`. A new day is an entry plus an image, never code.
 
+**The recording at the top of the log page is the latest day's.** An entry names
+it with `**Watch:** <file in assets/> — <what it shows>`, and that line is what
+the page prints under the video. The day's `**Media:**` still is its poster. The
+latest day's article then leaves its still out, because the video above it is the
+same thing twice. Nothing about this needs a code change from one day to the
+next: write the field, drop the file in `assets/`, and the hero follows.
+
+**An image inlined as a `data:` URI is still an image.** The gate decodes every
+one it finds in a page and puts it through the same refusal as a file on disk,
+because a study with a photograph pasted into it used to walk in through the
+text door where nothing looks for metadata. `scrub_inline.py` strips them in
+place; run it over `explorations/` whenever a study is added.
+
+**Photographs go through `scrub_photos.py`, never straight into `assets/`.**
+Originals live in `pics/`, which is gitignored, because they carry capture
+times, a device fingerprint and often GPS. The script reads those into
+`data/photo_meta.json`, matches each photo to a day, and writes a copy with
+every APP segment removed. The gate then refuses **any** image carrying
+metadata at all, rather than a list of known-bad tags: the phone that took
+these wrote its model name into two private vendor tags, so an allowlist loses
+by definition. `python3 privacy_gate.py --selftest` checks that protection is
+still in place. The scrubber needs Pillow; nothing in the build does, so
+Netlify installs nothing.
+
 Audit: `git grep -ilE '<names>' -- .` plus a scan for email, phone and
 confirmation-number shapes across `site/`.
 
@@ -91,9 +116,16 @@ needs a history rewrite, and must happen before this repo is ever public.
 
 ## Deploying
 
-Netlify site **courageous-lolly-4dfc48**, linked to this repository, currently
-set to Private. `main` publishes automatically; pull requests get a preview at
-`deploy-preview-<n>--courageous-lolly-4dfc48.netlify.app`.
+Netlify site **japantripon24hrclock**, linked to this repository, currently set
+to Private. `main` publishes automatically at `japantripon24hrclock.netlify.app`;
+pull requests get a preview at
+`deploy-preview-<n>--japantripon24hrclock.netlify.app`.
+
+Netlify posts a check on a pull request when the preview is ready, so a preview
+can be waited for. It posts nothing for a production deploy, so a merge cannot be
+confirmed from the repository — check the Netlify dashboard. `netlify.app` is not
+reachable from the build session either, so the live page cannot be fetched from
+here.
 
 `site/robots.txt` disallows crawling. Relax it deliberately, not by accident.
 
@@ -109,11 +141,18 @@ Build command is `python3 build_site.py`.
 1. **Branch** off `main`, named for the day's work
 2. **Write the entry**: a session log in `sessions/`, plus a matching short entry
    in `BUILDING_IN_PUBLIC.md`
-3. **Open a PR**
-4. **Wait for review.** The owner checks the Netlify deploy preview
-5. **Merge** once approved
+3. **Push the branch. Do not open a pull request.**
+4. **Send the owner the built file** with `SendUserFile`, so it is reviewed
+   locally rather than on a deploy preview
+5. **Open the PR only when asked**, then merge once approved
 
 Do not push to `main` directly.
+
+**Netlify builds cost credits, and a pull request is what spends them.** Every
+push to an *open* PR rebuilds its preview, so the old habit of opening a PR and
+then pushing fixes to it spent one build per commit. A branch with no PR
+normally builds nothing. Previews are worth it for a final look before merging;
+they are not worth it for iteration. Send the file instead.
 
 **A scheduled routine fires at 23:59 IST into the main build session** and writes
 both files, then opens the PR. There is no separate logging session: one was
@@ -121,12 +160,38 @@ tried and retired, because it duplicated the routine and produced a second PR
 against the same file. If a session is asked to write the day's entry, check the
 routine has not already done it.
 
+## How to write here
+
+**Plain words, short sentences.** In logs, entries, commit messages and replies.
+Say what happened, not what it means. Titles are labels, not lines of writing.
+No clever openers and nothing that needs re-reading.
+
+**The work is the design and the interaction.** What was tried, what got thrown
+out, how it feels to use. The data and the code are how it gets made, not what
+it is about; they come up when they changed a design decision, and otherwise
+stay out of the way.
+
 ## Conventions that matter
+
+**Studies get published, not screenshotted.** Anything in `explorations/` is
+copied to `site/explore/` and can be linked from a log entry with an
+`**Explorations:** [name](explore/file.html) — one line` field. They are kept as
+they were made, dead ends included, because the rejected four-fifths is the part
+that shows how a decision was reached. The build refuses a link to a page it does
+not publish.
 
 **Placeholders are marked, never filled.** A night with no recorded price shows
 no price, not an estimate from the nightly rate. Invented times are labelled in
 three places on the page, including every tooltip. Inventing plausible figures
 makes a page look finished and the analysis worthless.
+
+This holds for pictures too. `_placeholder_by_category` in `data/photo_attach.json`
+gives every mark a stand-in photograph, one per category, so the interaction can
+be judged before the real photographs are shortlisted. The card labels each one
+on the picture itself and drops the caption, because a real photograph of
+somewhere else shown silently against a purchase is the same lie as an invented
+price. A real photograph, by mark or by place, always wins over the stand-in.
+Delete a category's entry as soon as real photographs cover it.
 
 **Absence must not read as idleness.** On a clock, an empty morning looks like
 nothing happened when it usually means nothing was bought. This is why the notes

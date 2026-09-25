@@ -43,9 +43,20 @@ real booking confirmations and a real rail pass order.
 
 ## Tone notes for drafting
 
-Specific beats clever. The numbers are the hook, not the adjectives. The
-failures are more interesting than the successes and should not be smoothed
-over. No hashtags-as-decoration, no "excited to share".
+Plain words. Short sentences. Say what happened, not what it means.
+
+Titles are plain labels, not lines of writing: "photos on the clock", not "a
+photograph does not know where it belongs". No clever openers, no riddles, no
+sentences that need re-reading.
+
+**The subject is the design and the interaction.** What was tried, what got
+thrown out, what it feels like to use. The data work and the code underneath it
+are how it got made, not what it is about, and they only appear when they
+changed a design decision.
+
+The numbers are the hook, not the adjectives. The failures are more interesting
+than the successes and should not be smoothed over. No hashtags-as-decoration,
+no "excited to share".
 
 ## What is safe to post
 
@@ -135,6 +146,8 @@ an unreadable smear.
 
 **Media:** clock_hero.png — The clock view: sixteen days laid out hour by hour
 
+**Watch:** interaction.mp4 — The map dissolves into sixteen days by the hour, then switches to what it cost.
+
 **The interesting thing:** the whole project pivoted. Price is an accounting
 question; time is the travel question, and almost no travel tool answers it. The
 data argued against it at first, since only 15% of entries carried any time
@@ -164,3 +177,43 @@ the day. Once shared across the rides they paid for, they turn out to be the
 
 **Angle worth taking:** the most useful thing said all day was six words from the
 person who could see what the tool could not.
+
+## Day 4 — photos on the clock
+
+**Shipped:** you can now hover any point on the chart and see a photo of it,
+with the place, the time and the price. Click it and the bar at the bottom of
+the screen turns into a way to step through that whole day, one thing at a time.
+Arrow keys work too.
+
+**The number:** **five** ways of showing a photo were built and tried before one
+was kept. Three were thrown out in a single message: two because they hid the
+photos behind a click, one because hovering it made the row expand, which pushed
+the point out from under the cursor, which closed it again.
+
+**Headline:** 5 — designs tried, one kept
+
+**Media:** day-04-photographs.png — A photo on the point it belongs to, and the bar that steps through the day
+
+**Watch:** day-04-interaction.mp4 — Hover a point for its photo. Click to pin it, then walk the day with the arrows. Points sitting on top of each other open under the cursor.
+
+**The interesting thing:** a photo does not belong to a minute, it belongs to a
+place. The photo of the crater at Mt Aso was taken at 12:50. The two nearest
+points on that day are an ice cream at 11:52 and a lunch at 13:50. Picking the
+closest one would have put a photo of a volcano on an ice cream. So a photo gets
+attached to a place on a day, and it shows up on everything that happened there.
+
+**The honest failure:** the card would not sit still. Stepping from one point to
+the next made it jump, and I fixed the wrong thing twice before finding the two
+real reasons. The points were being spread out vertically so they did not all
+sit on one line, and the card grew taller whenever there was an extra line of
+text. Both were obvious once seen and invisible until someone said "the blocks
+are going a bit up and down".
+
+**Explorations:** [Five ways to show a photo](explore/01-five-ways.html) — the first try, five designs side by side
+[The same card, with everything on screen](explore/02-hover-card-at-density.html) — it looked fine with two days and crowded with sixteen
+[Stepping through a day](explore/03-stepping-card.html) — how big the card should be, and what the arrows do
+[Reaching into a crowd](explore/04-reaching-a-cluster.html) — three ways to separate points that sit on top of each other
+
+**Angle worth taking:** the quickest way to get one good interaction was to
+build five rough ones and let someone say, in one message, why three of them
+were wrong.
