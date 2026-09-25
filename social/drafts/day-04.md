@@ -5,5 +5,5 @@ Day 4/16 · Japan Trip visualised 🇯🇵
 
 Hover any mark to see its photo, place, time and price. Click to pin, then walk the day with the arrows.
 
-Five designs tried, one kept. Three cut in one message: two hid photos behind a click, one grew on hover and fled the cursor.
+4 interaction studies. 5 designs tried, one kept.
 #buildinpublic #dataviz
