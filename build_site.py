@@ -191,7 +191,11 @@ FIELDS = [("shipped", "Shipped"), ("number", "The number"),
           # One markdown link per line, to a page on this site. The studies are
           # the day's real argument on an interaction day, and until now the
           # page had nowhere to put them.
-          ("explore", "Explorations")]
+          ("explore", "Explorations"),
+          # The recording that plays at the top of the page. The latest day's
+          # is the one that plays, so the hero follows the log without a code
+          # change, the way each day's still already does.
+          ("watch", "Watch")]
 REQUIRED = ("shipped", "number", "interesting", "failure", "angle")
 
 # One still per day, found by convention so a new day needs no code change:
@@ -199,6 +203,7 @@ REQUIRED = ("shipped", "number", "interesting", "failure", "angle")
 #     **Media:** <file> — <caption>
 # Stills only. The screen recordings run 21s and 25s, too long to loop.
 IMAGE_TYPES = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+VIDEO_TYPES = {".mp4", ".webm"}
 
 # The trip is sixteen days, so the build is sixteen working days: "Day N of 16".
 TOTAL_DAYS = 16
@@ -261,6 +266,7 @@ def parse_log(text):
         if missing:
             raise LogError(f"Day {d['day']} (line {d['line']}) is missing: {', '.join(missing)}")
         d["media"] = media_for(d)
+        d["watch"] = watch_for(d)
     seen = [d["day"] for d in days]
     if sorted(seen) != list(range(1, len(seen) + 1)):
         raise LogError(f"days are not a clean run from 1: {seen}")
@@ -285,6 +291,22 @@ def media_for(d):
     if not (ASSETS / name).is_file():
         raise LogError(f"Day {d['day']} wants assets/{name} ({how}); add that file")
     return name, caption
+
+
+def watch_for(d):
+    """(filename, hint) for the day's recording, or None. The hint is what the
+    page says under the video, so it is written per day rather than generic."""
+    if not d["fields"].get("watch"):
+        return None
+    m = re.fullmatch(r"(\S+)\s+[—–]\s+(.+)", plain(" ".join(d["fields"]["watch"])).strip())
+    name = m.group(1) if m else ""
+    if not m or "/" in name or "\\" in name or name.startswith("."):
+        raise LogError(f"Day {d['day']}: Watch must read '<file in assets/> — <what it shows>'")
+    if Path(name).suffix.lower() not in VIDEO_TYPES:
+        raise LogError(f"Day {d['day']}: assets/{name} is not a video")
+    if not (ASSETS / name).is_file():
+        raise LogError(f"Day {d['day']} wants assets/{name} for its Watch field; add that file")
+    return name, m.group(2).strip()
 
 
 def inline(s):
@@ -387,15 +409,22 @@ def build_log(staged_names=()):
                          f"'[name](page.html) — note' entries; left over: {rest.strip()[:60]!r}")
             links = ('<div class="explore"><span class="k">Explorations</span>'
                      f'<ul>{"".join(items)}</ul></div>')
-        entries.append(f"""  <article class="day" id="day-{d['day']}" data-day="{d['day']}">
-    <figure class="media"><img src="assets/{img}" alt="{H.escape(alt)}" loading="lazy"><figcaption>{H.escape(alt)}</figcaption></figure>
-    <div>
-      <span class="num-label">Day {d['day']:02d} of {TOTAL_DAYS}</span>
-      <h3>{title}</h3>
-      <div class="big">{H.escape(fig)}</div>
-      <p class="big-label">{H.escape(label)}</p>
-      <p class="takeaway">{H.escape(first_sentence(f['angle']))}</p>
-      <div class="failure"><span class="k">The honest failure</span>{failure}</div>{links}
+        watched = d["day"] == latest and d["watch"]
+        figure = "" if watched else (
+            f'\n    <figure class="media"><img src="assets/{img}" alt="{H.escape(alt)}" '
+            f'loading="lazy"><figcaption>{H.escape(alt)}</figcaption></figure>')
+        entries.append(f"""  <article class="day{' no-media' if watched else ''}" id="day-{d['day']}" data-day="{d['day']}">{figure}
+    <div class="body">
+      <div class="lede">
+        <span class="num-label">Day {d['day']:02d} of {TOTAL_DAYS}</span>
+        <h3>{title}</h3>
+        <div class="big">{H.escape(fig)}</div>
+        <p class="big-label">{H.escape(label)}</p>
+        <p class="takeaway">{H.escape(first_sentence(f['angle']))}</p>
+      </div>
+      <div class="notes">
+        <div class="failure"><span class="k">The honest failure</span>{failure}</div>{links}
+      </div>
     </div>
   </article>""")
         cards.append(f"""    <a class="card" href="#day-{d['day']}" data-day="{d['day']}">
@@ -407,9 +436,18 @@ def build_log(staged_names=()):
     upcoming = "".join(f"""    <div class="card future" aria-hidden="true">
       <span class="card-t"><span class="num-label">Day {n:02d} of {TOTAL_DAYS}</span></span><span class="ph">Not built yet</span></div>
 """ for n in range(min(latest + 2, TOTAL_DAYS), latest, -1))
+    # The recording at the top of the page is the latest day's, and falls back
+    # to the first one made when a day has no Watch field of its own.
+    top = next(d for d in days if d["day"] == latest)
+    watch, hint = top["watch"] or ("interaction.mp4", "A screen recording of the clock view.")
+    poster = top["media"][0]
     return (((ROOT / "log.template.html").read_text()
             .replace("<!--NAV-->", nav).replace("<!--SEGS-->", segs)
             .replace("<!--DAY-->", str(latest)).replace("<!--TOTAL-->", str(TOTAL_DAYS))
+            .replace("<!--WATCH-->", H.escape(watch))
+            .replace("<!--POSTER-->", H.escape(poster))
+            .replace("<!--HINT-->", H.escape(hint))
+            .replace("<!--HINT_JS-->", json.dumps(hint))
             .replace("<!--ENTRIES-->", "\n".join(entries))
             .replace("<!--CARDS-->", upcoming + "\n".join(cards))), status)
 

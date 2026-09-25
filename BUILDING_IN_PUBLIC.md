@@ -146,6 +146,8 @@ an unreadable smear.
 
 **Media:** clock_hero.png — The clock view: sixteen days laid out hour by hour
 
+**Watch:** interaction.mp4 — The map dissolves into sixteen days by the hour, then switches to what it cost.
+
 **The interesting thing:** the whole project pivoted. Price is an accounting
 question; time is the travel question, and almost no travel tool answers it. The
 data argued against it at first, since only 15% of entries carried any time
@@ -191,6 +193,8 @@ the point out from under the cursor, which closed it again.
 **Headline:** 5 — designs tried, one kept
 
 **Media:** day-04-photographs.png — A photo on the point it belongs to, and the bar that steps through the day
+
+**Watch:** day-04-interaction.mp4 — Hover a point for its photo. Click to pin it, then walk the day with the arrows. Points sitting on top of each other open under the cursor.
 
 **The interesting thing:** a photo does not belong to a minute, it belongs to a
 place. The photo of the crater at Mt Aso was taken at 12:50. The two nearest

@@ -84,6 +84,13 @@ lists needs a human look before it ships. Only assets a page links are copied.
 The log page takes each day's still from `assets/day-NN.png`, or from the file an
 entry names with `**Media:**`. A new day is an entry plus an image, never code.
 
+**The recording at the top of the log page is the latest day's.** An entry names
+it with `**Watch:** <file in assets/> — <what it shows>`, and that line is what
+the page prints under the video. The day's `**Media:**` still is its poster. The
+latest day's article then leaves its still out, because the video above it is the
+same thing twice. Nothing about this needs a code change from one day to the
+next: write the field, drop the file in `assets/`, and the hero follows.
+
 **An image inlined as a `data:` URI is still an image.** The gate decodes every
 one it finds in a page and puts it through the same refusal as a file on disk,
 because a study with a photograph pasted into it used to walk in through the
@@ -109,9 +116,16 @@ needs a history rewrite, and must happen before this repo is ever public.
 
 ## Deploying
 
-Netlify site **courageous-lolly-4dfc48**, linked to this repository, currently
-set to Private. `main` publishes automatically; pull requests get a preview at
-`deploy-preview-<n>--courageous-lolly-4dfc48.netlify.app`.
+Netlify site **japantripon24hrclock**, linked to this repository, currently set
+to Private. `main` publishes automatically at `japantripon24hrclock.netlify.app`;
+pull requests get a preview at
+`deploy-preview-<n>--japantripon24hrclock.netlify.app`.
+
+Netlify posts a check on a pull request when the preview is ready, so a preview
+can be waited for. It posts nothing for a production deploy, so a merge cannot be
+confirmed from the repository — check the Netlify dashboard. `netlify.app` is not
+reachable from the build session either, so the live page cannot be fetched from
+here.
 
 `site/robots.txt` disallows crawling. Relax it deliberately, not by accident.
 

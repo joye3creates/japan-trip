@@ -41,7 +41,9 @@ On a day whose argument is an interaction, add an `**Explorations:**` field, one
 Add a `**Headline:** <figure> — <label, six words max>` line: it is the big
 number on the public log page, and the build warns when it is missing.
 Each day's still is `assets/day-NN.png` (Day 4 is `day-04.png`). To use another
-file in `assets/`, add `**Media:** <file> — <caption>`. A missing still fails the
+file in `assets/`, add `**Media:** <file> — <caption>`. Add
+`**Watch:** <file> — <what it shows>` naming a screen recording: the latest day's
+is what plays at the top of the page, and that line is the caption under it. A missing still fails the
 build with the filename it wanted. Adding a day never needs a code change. Keep
 it under about 300 words. Never put anything in it that the safe-to-post table
 at the top of that file rules out.
