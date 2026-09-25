@@ -3,7 +3,7 @@ media: assets/day-04-photo-hover.mp4 | Hovering a mark on the clock opens its ph
 ---
 Day 4/16 · Japan Trip visualised 🇯🇵
 
-Hover any mark to see its photo, place, time and price. Click to pin, then walk the day with the arrows.
+Hover a mark for its photo, place, time and price. Click to pin, arrow through the day.
 
-4 interaction studies. 5 designs tried, one kept.
+Tried a filmstrip rail, day drawer, inline bloom, place spotlight and hover card. Kept the card, added pin-and-step, then spread for crowded marks.
 #buildinpublic #dataviz
