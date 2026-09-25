@@ -13,6 +13,7 @@ Stills are 2x.
 | `day-04.png` | The build-log page: a generated day card, header and day nav |
 | `interaction.mp4` | 21s. Map dissolving into the clock, then toggling to the ledger and back |
 | `day-03-toggle.mp4` | 8.5s, cut from `interaction.mp4`: map dissolving into the clock, one toggle to the ledger and back |
+| `day-04-photo-hover.mp4` | 9.5s, cut from `day-04-interaction.mp4`: hover a mark for its photo, pin it, step through the day |
 | `tabs-route-numbers-ledger.mp4` | 25s. Route, day isolation, Numbers, Ledger with filters |
 | `interaction.gif` | The first video at 600px, for places that will not take video |
 
