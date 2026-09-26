@@ -29,9 +29,10 @@ do, and why, so people can see the thinking. That lives in
 
 ## 1. Data in
 
-- [ ] **(you)** Photo times and places: run ExifTool over the trip folders
+- [ ] **(you)** Photos are in Google Photos: put the trip in one album, export that album with Google Takeout, unzip it
 - [ ] **(you)** Google Timeline: export it from the phone
 - [ ] **(you)** Run both through `tools/trim-before-sending.html` before sending. It keeps only 14 Nov – 1 Dec 2025 and only Japan
+- [ ] **(you)** Pick your ~200 from the Takeout folder, since the photos arrive on your laptop anyway
 - [ ] **(you)** Step counts from your phone's health or fitness app, if it was counting
 - [ ] **(you)** Train and attraction bookings, the same way as the hotel PDFs
 - [ ] **(you)** Pre-trip spending: SIM, anything bought before leaving

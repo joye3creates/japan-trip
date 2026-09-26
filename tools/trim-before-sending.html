@@ -19,6 +19,7 @@ h1{font-size:28px;font-weight:600;margin:0 0 8px}
   background:var(--paper-2);transition:border-color .15s,background .15s}
 .drop:hover,.drop.over{border-color:var(--ink);background:#e3d3b1}
 .drop b{display:block;font-size:17px;margin-bottom:4px}
+.drop.small{padding:20px}
 .drop span{font-size:14px;color:var(--ink-2)}
 .drop input{position:absolute;width:1px;height:1px;opacity:0}
 .drop:focus-within{outline:2px solid var(--verm);outline-offset:3px}
@@ -41,16 +42,24 @@ code{font-size:.9em;background:rgba(59,47,35,.08);padding:0 4px}
 <body>
 <main>
   <h1>Trim before sending</h1>
-  <p class="lede">Cuts your photo spreadsheet or Google Timeline file down to the trip:
+  <p class="lede">Cuts your photo details or Google Timeline file down to the trip:
      <b>14 November – 1 December 2025</b>, and <b>only places inside Japan</b>.
      Everything else is removed before you send it, including home.</p>
   <div class="promise">This page runs entirely in your browser. It can't upload
      anything — it's built so the browser blocks every connection. To be sure,
      turn off Wi-Fi before you use it.</div>
 
-  <label class="drop" id="drop">
+  <p class="k">Photos from Google Photos</p>
+  <label class="drop" id="pick-folder">
+    <b>Choose your unzipped Takeout folder</b>
+    <span>Only the small <code>.json</code> file next to each photo is read. The photos themselves aren't opened.</span>
+    <input type="file" id="folder" webkitdirectory directory multiple>
+  </label>
+
+  <p class="k" style="margin-top:22px">Or a single file</p>
+  <label class="drop small" id="drop">
     <b>Drop a file here, or click to choose</b>
-    <span><code>japan_photo_times.csv</code> from ExifTool, or the <code>.json</code> Timeline export</span>
+    <span>the <code>.json</code> Timeline export, or <code>japan_photo_times.csv</code> from ExifTool</span>
     <input type="file" id="file" accept=".csv,.json,application/json,text/csv">
   </label>
 
@@ -145,6 +154,69 @@ function photoCsv(text) {
     sections: [],
     extra: common ? [`Removed the start of every file path (<code>${esc(common)}</code>), which can include your computer's user name.`] : [],
     dates: d0 <= d1 ? [d0.replace(/:/g, "-"), d1.replace(/:/g, "-")] : null,
+    box: lat0 <= lat1 ? [lat0, lat1, lng0, lng1] : null,
+    file: new Blob([csv], {type: "text/csv"}), name: "photo-times-trimmed.csv",
+  });
+}
+
+// ---- a Google Photos Takeout folder ------------------------------------------
+// Takeout puts a small .json next to every photo. Only four things are taken
+// from each: the photo's name, when it was taken, and latitude and longitude.
+// Everything else Google keeps with a photo — the names of people it has
+// recognised, a link into the account, any caption — is never read into the
+// output at all.
+async function takeout(files) {
+  out.hidden = false;
+  out.innerHTML = `<p class="k">Reading</p><p>${files.length} files…</p>`;
+  const recs = [];
+  let hadPeople = 0;
+  for (const f of files) {
+    if (!/\.json$/i.test(f.name)) continue;                      // the photos: never opened
+    let d; try { d = JSON.parse(await f.text()); } catch (e) { continue; }
+    const ts = +((d && d.photoTakenTime && d.photoTakenTime.timestamp) || 0);
+    if (!ts) continue;                                            // album details, not a photo
+    if (Array.isArray(d.people) && d.people.length) hadPeople++;
+    // A photo with no place has 0,0 here rather than nothing. Google's own
+    // place wins; the one written by the camera is the fallback.
+    const real = g => g && (g.latitude || g.longitude) ? g : null;
+    const g = real(d.geoData) || real(d.geoDataExif);
+    const dir = (f.webkitRelativePath || f.name).replace(/\\/g, "/");
+    recs.push({path: dir.slice(0, dir.lastIndexOf("/") + 1) + (d.title || f.name.replace(/\.json$/i, "")),
+               t: ts * 1000, lat: g ? +g.latitude : null, lng: g ? +g.longitude : null});
+  }
+  if (!recs.length) {
+    fail("No photo details found in that folder. Make sure it's the unzipped Takeout folder, " +
+         "with the .json files next to the photos. Nothing has been kept.");
+    return;
+  }
+
+  let common = recs[0].path.slice(0, recs[0].path.lastIndexOf("/") + 1);
+  for (const r of recs) while (common && !r.path.startsWith(common))
+    common = common.slice(0, common.slice(0, -1).lastIndexOf("/") + 1);
+
+  const kept = [], why = {dates: 0, place: 0};
+  let lat0 = 90, lat1 = -90, lng0 = 180, lng1 = -180, t0 = Infinity, t1 = -Infinity;
+  for (const r of recs) {
+    if (!inWindow(r.t)) { why.dates++; continue; }
+    const hasGps = r.lat !== null && r.lng !== null;
+    if (hasGps && !inJapan(r.lat, r.lng)) { why.place++; continue; }
+    kept.push([r.path.slice(common.length), new Date(r.t).toISOString().slice(0, 19) + "Z",
+               hasGps ? String(r.lat) : "", hasGps ? String(r.lng) : ""]);
+    if (hasGps) { lat0 = Math.min(lat0, r.lat); lat1 = Math.max(lat1, r.lat); lng0 = Math.min(lng0, r.lng); lng1 = Math.max(lng1, r.lng); }
+    t0 = Math.min(t0, r.t); t1 = Math.max(t1, r.t);
+  }
+  kept.sort((a, b) => a[1] < b[1] ? -1 : 1);
+  const head = ["SourceFile", "TakenUTC", "GPSLatitude", "GPSLongitude"];
+  const csv = [head, ...kept].map(r => r.map(csvCell).join(",")).join("\n") + "\n";
+  const iso = t => new Date(t).toISOString().slice(0, 10);
+  report({
+    what: "photos", total: recs.length, kept: kept.length,
+    dropped: [[why.dates, "taken outside 14 Nov – 1 Dec 2025"], [why.place, "taken outside Japan"]],
+    sections: [],
+    extra: ["Only each photo's name, time and place were kept. Everything else Google stores with a photo " +
+            "is left out" + (hadPeople ? `, including the names of people it recognised in ${hadPeople} of them.` : "."),
+            ...(common ? [`Removed the start of every file path (<code>${esc(common)}</code>).`] : [])],
+    dates: kept.length ? [iso(t0), iso(t1)] : null,
     box: lat0 <= lat1 ? [lat0, lat1, lng0, lng1] : null,
     file: new Blob([csv], {type: "text/csv"}), name: "photo-times-trimmed.csv",
   });
@@ -252,6 +324,7 @@ function fail(msg) { out.hidden = false; out.innerHTML = `<p class="k">Stopped</
 // ---- getting the file in -----------------------------------------------------
 const drop = $("#drop");
 $("#file").onchange = e => e.target.files[0] && handle(e.target.files[0]);
+$("#folder").onchange = e => e.target.files.length && takeout([...e.target.files]);
 ["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
 ["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
 drop.addEventListener("drop", e => e.dataTransfer.files[0] && handle(e.dataTransfer.files[0]));

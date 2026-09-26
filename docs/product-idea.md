@@ -88,6 +88,9 @@ None of them put time, money and photos on one view.
 
 ## The hard parts
 
+- **Photos live in the cloud.** Most people's photos are in Google Photos or
+  iCloud, not on a drive. Getting their details out takes an export that can run
+  for hours. An importer has to start from those exports, or ask for access
 - **Phones have no hover.** The Japan piece is built around hovering a point.
   A product has to work by tapping first
 - **Time zones.** Photos store local time, often without saying which zone.

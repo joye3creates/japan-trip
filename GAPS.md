@@ -104,6 +104,17 @@ something a person doing this for their own trip would hit too.
   Timeline backup on, it may be gone.
 - **Found out:** before trying Takeout, which saves a wasted hour.
 
+### The photos live in Google Photos, not on a drive
+
+- **What happened:** the plan assumed photos on a hard drive, read with ExifTool.
+  They're in Google Photos.
+- **Worked around:** Google Takeout exports an album with a small `.json` file
+  next to every photo. It carries the time and place Google shows, even for
+  photos whose own files lost them. The trimming page reads only those files and
+  never opens the photos, so ExifTool isn't needed.
+- **Watch for:** those files also carry the names of people Google recognised,
+  links into the account and any captions. The page keeps none of that.
+
 ### Location files include home
 
 - **What happened:** the photo spreadsheet and the Timeline file both carry

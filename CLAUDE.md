@@ -233,7 +233,10 @@ meaning, so logging during a trip should be only spending and a note.
 
 **Location files are cut down on the owner's laptop before they're sent.**
 `tools/trim-before-sending.html` keeps only 14 Nov – 1 Dec 2025 and only places
-inside Japan, from either the ExifTool spreadsheet or a Timeline export, and
+inside Japan. It takes an unzipped Google Photos Takeout folder (the owner's
+photos are in Google Photos), a Timeline export, or an ExifTool spreadsheet. From
+Takeout it reads only the `.json` beside each photo and keeps only name, time and
+place — never the names of people Google recognised, links, or captions. It
 strips the user name from file paths. It blocks all network access by its own
 content security policy. Never ask for an untrimmed location file.
 
