@@ -1,47 +1,43 @@
 # Roadmap to day 16
 
-Written on building day 6 of 16. A checklist, not a contract: tick things off,
-cross things out, move them. **(you)** marks the things only you can do. The rest
-I can start as soon as what it depends on arrives.
+Written on building day 6 of 16, and narrowed the same day. A checklist, not a
+contract: tick things off, cross things out, move them. **(you)** marks what only
+you can do.
 
-## Where we are
+## The aim
 
-Days 1–5 are built and logged. The clock view works: the map dissolves into
-sixteen days by the hour, it switches to what things cost, every point has a
-photo card, crowded points open under the cursor, and the build log is live.
+**A finished data visualisation piece about the trip**: real times, a look of its
+own, and a data story worth reading. Good enough to pitch to The Pudding.
 
-The two biggest weaknesses: **the times are invented**, and **the photos are
-placeholders**.
+The product is **written down, not built**: what it would be, what it wouldn't
+do, and why, so people can see the thinking. That lives in
+[`docs/product-idea.md`](docs/product-idea.md).
 
-## What we're making (proposed, not agreed)
+## Done on day 16
 
-**One line:** drop in your trip's photos and spending, and see the trip laid out
-hour by hour. Nothing leaves your laptop unless you choose to publish it.
-
-**Done on day 16 could mean:**
-
-1. The Japan piece, finished: real times, final look, one data story
-2. One working slice of the product: someone drops in their own photo list and a
-   spending sheet and sees their own trip on the clock, in their browser, with
-   nothing uploaded
-3. Mocks of the rest: logging during a trip, the souvenir style tool, privacy
-   controls
-4. Tested with at least three people, findings written down
-5. The case study
-
-Everything past that goes in the parking lot at the bottom.
+1. **Must:** the Japan piece, finished: real times, final look, one data story
+2. **Must:** one round of feedback from people, and the changes it asked for
+3. **Must:** a record of every gap in the data and how it was found or worked
+   around, in [`GAPS.md`](GAPS.md). Started today
+4. **Must:** the product idea written down. Drafted today
+5. **On the day:** a reusable prompt for turning trip objects into a visual
+   language, written from how the exercise actually went
+6. **Try:** the case study
+7. **Maybe:** a pitch to The Pudding
 
 ---
 
 ## 1. Data in
 
-- [ ] **(you)** Photo times and places: run ExifTool over the trip folders, send the spreadsheet
-- [ ] **(you)** Google Timeline: export from the phone, then cut to 15–30 Nov before sending
+- [ ] **(you)** Photo times and places: run ExifTool over the trip folders
+- [ ] **(you)** Google Timeline: export it from the phone
+- [ ] **(you)** Run both through `tools/trim-before-sending.html` before sending. It keeps only 14 Nov – 1 Dec 2025 and only Japan
 - [ ] **(you)** Step counts from your phone's health or fitness app, if it was counting
 - [ ] **(you)** Train and attraction bookings, the same way as the hotel PDFs
-- [ ] **(you)** Pre-trip spending: SIM, passes, anything bought before leaving
+- [ ] **(you)** Pre-trip spending: SIM, anything bought before leaving
 - [ ] **(you)** Photos of the surviving handwritten pages
 - [ ] **(you)** Pick ~200 photos to show
+- [x] A way to cut location files down on your laptop before they're sent
 - [ ] Importer for the photo spreadsheet
 - [ ] Importer for the Timeline file
 - [ ] Replace invented times with real ones, and mark which source each time came from
@@ -49,17 +45,19 @@ Everything past that goes in the parking lot at the bottom.
 
 ## 2. Gaps
 
-- [ ] List what's still missing after everything is in
+- [x] Start the gaps record
+- [ ] Add every new gap as the data comes in, with what was used instead
 - [ ] Decide how the page shows a gap, so an empty morning never reads as "nothing happened"
 - [ ] Use the surviving pages for what the data can't give: what mattered, what cost nothing
 
 ## 3. Patterns and the story
 
-- [ ] Look for two or three findings worth telling. Candidates:
+- [ ] Find two or three findings. Candidates:
   - what you photographed versus what you paid for
   - steps against spending: did walking days cost less
-  - the rail pass: the biggest cost of the trip, invisible day to day
+  - the rail passes: ¥116,884 paid before the trip, invisible in the daily spending. Did they pay off?
   - when in the day money went, and when photos were taken
+- [ ] For a Pudding pitch, frame it as a question strangers care about, not only "our trip". "Did the rail passes pay off?" and "Where does the money actually go, hour by hour?" are both questions people planning Japan ask
 - [ ] Pick one or two
 - [ ] Design the scroll piece: dragging along a bar changes what the chart shows
 - [ ] Build it
@@ -70,58 +68,49 @@ Everything past that goes in the parking lot at the bottom.
 - [ ] Pull colours, textures and motifs out of them
 - [ ] Three distinct directions: palette, type, icons, texture
 - [ ] **(you)** Pick one
+- [ ] **On the day: note how we worked** — what you sent, what worked, what didn't, what you'd skip next time. End with a prompt you can run again on your next trip
 - [ ] Restyle the clock page
-- [ ] Redraw the icons in the chosen language (the manhole covers could be the place icons)
-- [ ] Fonts: check every one is licensed for the web, and for a product if this becomes one
+- [ ] Redraw the icons in the chosen language
+- [ ] Fonts: check each one is licensed for the web
 - [ ] Carry it into the log page, the portfolio card and the case study
 
 ## 5. Interaction and animation
 
 - [ ] Refine the map-to-clock move and the camera
 - [ ] Refine the micro-interactions: card, spread, stepping bar
-- [ ] **Design for phones.** There is no hover on a phone, and most people will open a shared link on one
+- [ ] **Phones.** There is no hover on a phone, and most people will open a shared link on one
 - [ ] Reduced-motion version
 
-## 6. Product: the working slice
+## 6. Feedback round
 
-- [ ] A page where you drop in a photo spreadsheet and a spending sheet and get your own clock
-- [ ] Runs in the browser; nothing is uploaded
-- [ ] Works on a trip that isn't Japan
+One round, once the piece is in a good place. Showing it to people, not asking
+them for their data.
 
-## 7. Product: concept and mocks
+- [ ] **(you)** Pick three to five people
+- [ ] Decide what to watch for: do they understand the clock, find the hover, follow the story, like the look
+- [ ] Run it
+- [ ] Write down what they said and what we changed because of it
 
-- [ ] Write the one-line product properly **(you)**
-- [ ] Look at what exists: Polarsteps, TripIt, Google Photos and Apple Photos memories. Be ready to say how this is different
-- [ ] Logging during a trip: spending and a note, nothing more (the phone already records where and when)
-- [ ] The souvenir style tool: upload what you liked the look of, get a palette, motifs and suggested fonts, then choose
-- [ ] Privacy controls: what to show, what to hide, per photo and per day
-- [ ] Links out: where each hotel and ticket was booked, the place's own page, and any trick it needed
+## 7. The product, written down
 
-## 8. Testing
+- [x] Draft [`docs/product-idea.md`](docs/product-idea.md)
+- [ ] **(you)** Read it and change what's wrong
+- [ ] Add what the gaps record teaches about the product as it grows
 
-- [ ] **(you)** Ask three people who travelled recently. They need their own photo data for the second round, so ask early
-- [ ] Round 1: watch three people use the Japan piece. Can they read the clock? Do they find the hover?
-- [ ] Fix what they trip on
-- [ ] Round 2: three people try the working slice with their own trip
-- [ ] Write the findings down
+## 8. Hosting and privacy
 
-## 9. Hosting and privacy
-
-- [ ] Decide what's public and what stays private. The Netlify site is Private right now
+- [ ] Decide what's public before the feedback round. The Netlify site is Private right now
 - [ ] Before the repo is ever public: early commits carry a real name and need a history rewrite
 - [ ] Photo weight: 200 photos need to load quickly on a phone
-- [ ] People in photos: fine for this trip by your decision; a product for others needs a rule
 
-## 10. Daily log
+## 9. Daily log
 
 - [ ] Keep the daily entry and session log going
-- [ ] Record every annoyance in getting the data in. That is the research for the product
 
-## 11. Case study
+## 10. Case study (try)
 
-- [ ] Outline the story now, so each day's log feeds it
+- [ ] Outline the story, so each day's log feeds it
 - [ ] Write it
-- [ ] Carry the visual language into it
 
 ---
 
@@ -129,30 +118,23 @@ Everything past that goes in the parking lot at the bottom.
 
 | Day | Focus |
 |---|---|
-| 6 | **(you)** exports, souvenir photos, ask testers. Me: importers, this roadmap |
-| 7 | Data in: real times replace invented, gap list |
-| 8 | Test round 1 on the Japan piece |
-| 9 | Visual identity: three directions |
-| 10 | Apply the chosen one: page, icons, fonts |
-| 11 | Interaction and animation, including phones |
-| 12 | Patterns and the scroll story |
-| 13 | The working slice: drop in your own trip |
-| 14 | Product mocks: logging, style tool, privacy |
-| 15 | Test round 2 with testers' own trips |
-| 16 | Case study |
+| 6 | Plan. Product idea and gaps record drafted. Trimming page built. **(you)** exports |
+| 7 | Data in: real times replace invented, new gaps recorded |
+| 8 | Visual identity: three directions from your objects, and the reusable prompt |
+| 9 | Apply the chosen look: page, icons, fonts |
+| 10 | Patterns: find the story |
+| 11 | Build the scroll piece |
+| 12 | Feedback round |
+| 13 | Changes from feedback, interaction and animation, phones |
+| 14 | More of 13: this is where feedback usually lands |
+| 15 | Polish. Pudding pitch if it's ready |
+| 16 | Case study, if there's time |
 
-## Risks
-
-- **Too much for eleven days.** Build the Japan piece and one working slice properly; design the rest as mocks.
-- **Everything waits on the data.** Exports first.
-- **Phones.** The interaction is built on hover.
-- **Google Timeline is fragile.** Google already pulled it off the web; it only exists if it was switched on. Photo data is what every phone has, so it should be the backbone.
-- **Testing needs other people's data.** Ask early.
+If the object photos aren't ready by day 8, swap days 8–9 with 10–11.
 
 ## Parking lot: after day 16
 
-- A real mobile app for logging during a trip
-- Accounts, login, sync
+- Building the product for real: logging during a trip, importing, accounts
 - The style tool as a finished, automatic tool
-- Affiliate links for bookings
+- Links out to booking sites, and affiliate links
 - Trips with more than one traveller's photos

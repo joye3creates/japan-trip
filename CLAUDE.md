@@ -23,6 +23,7 @@ notes/              raw dumps, render checks; working material
 sessions/           one log per working day
 docs/               archived copies of the living documents
 explorations/       interaction studies, served at /explore/ as they were made
+tools/              pages the owner runs on her own laptop; never deployed
 assets/             screenshots and screen recordings for posting
 names.local.txt     traveller names, gitignored, read at extraction time
 ```
@@ -218,7 +219,23 @@ Chart palettes get validated, not eyeballed.
 ## Open
 
 **`ROADMAP.md` is the plan to day 16**: the checklist, the suggested order,
-what is blocked on the owner, and what is parked for after.
+what is blocked on the owner, and what is parked for after. The aim is a finished
+data visualisation piece; the product is written down, not built.
+
+**`GAPS.md` records every gap in the data** and what was done about it. Add to it
+whenever something turns out to be missing. The owner wants this process
+visible, and it is the research behind `docs/product-idea.md`.
+
+**`docs/product-idea.md` is the product, written down.** Its central point, which
+the owner wants carried into the case study: don't build a capture app. Phones
+already record where and when in every photo; what's missing is money and
+meaning, so logging during a trip should be only spending and a note.
+
+**Location files are cut down on the owner's laptop before they're sent.**
+`tools/trim-before-sending.html` keeps only 14 Nov – 1 Dec 2025 and only places
+inside Japan, from either the ExifTool spreadsheet or a Timeline export, and
+strips the user name from file paths. It blocks all network access by its own
+content security policy. Never ask for an untrimmed location file.
 
 **The transcribed handwritten notes** are the one thing blocking a real version
 rather than a demonstration. They bring times, activities that cost nothing, and

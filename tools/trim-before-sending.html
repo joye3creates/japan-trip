@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- This page is not allowed to contact anything: no fonts, no scripts from
+     elsewhere, no uploads. The browser enforces it, not a promise. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'">
+<title>Trim before sending</title>
+<style>
+:root{--paper:#E8DCC0;--paper-2:#DFD0AE;--ink:#3B2F23;--ink-2:#6B5B47;--ink-3:#92836C;--verm:#A83A2B;--ok:#4E6B3A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Georgia,"Times New Roman",serif}
+main{max-width:660px;margin:0 auto;padding:6vh 20px 10vh}
+h1{font-size:28px;font-weight:600;margin:0 0 8px}
+.lede{color:var(--ink-2);margin:0 0 6px}
+.promise{font-size:14px;color:var(--ink-2);border-left:3px solid var(--ok);padding:6px 12px;margin:18px 0 26px;background:rgba(78,107,58,.07)}
+.drop{display:block;border:1.5px dashed var(--ink-3);padding:34px 20px;text-align:center;cursor:pointer;
+  background:var(--paper-2);transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--ink);background:#e3d3b1}
+.drop b{display:block;font-size:17px;margin-bottom:4px}
+.drop span{font-size:14px;color:var(--ink-2)}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.drop:focus-within{outline:2px solid var(--verm);outline-offset:3px}
+#out{margin-top:28px}
+#out[hidden]{display:none}
+.k{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+.big{font-size:26px;font-weight:600;margin:0 0 4px}
+ul{margin:10px 0 0;padding-left:20px}
+li{margin:4px 0}
+.good{color:var(--ok)}
+.warn{color:var(--verm)}
+button{font:inherit;font-size:15px;padding:10px 18px;margin-top:22px;border:1px solid var(--ink);
+  background:var(--ink);color:var(--paper);cursor:pointer}
+button:hover{background:#2a2119}
+button:focus-visible{outline:2px solid var(--verm);outline-offset:3px}
+.after{font-size:14px;color:var(--ink-2);margin-top:12px}
+code{font-size:.9em;background:rgba(59,47,35,.08);padding:0 4px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Trim before sending</h1>
+  <p class="lede">Cuts your photo spreadsheet or Google Timeline file down to the trip:
+     <b>14 November – 1 December 2025</b>, and <b>only places inside Japan</b>.
+     Everything else is removed before you send it, including home.</p>
+  <div class="promise">This page runs entirely in your browser. It can't upload
+     anything — it's built so the browser blocks every connection. To be sure,
+     turn off Wi-Fi before you use it.</div>
+
+  <label class="drop" id="drop">
+    <b>Drop a file here, or click to choose</b>
+    <span><code>japan_photo_times.csv</code> from ExifTool, or the <code>.json</code> Timeline export</span>
+    <input type="file" id="file" accept=".csv,.json,application/json,text/csv">
+  </label>
+
+  <section id="out" hidden aria-live="polite"></section>
+</main>
+
+<script>
+// ---- the window: the trip, with a day either side for time zones ----------
+const FROM = Date.UTC(2025, 10, 14, 0, 0, 0);     // 14 Nov 2025
+const TO   = Date.UTC(2025, 11, 1, 23, 59, 59);   // 1 Dec 2025
+const DAY_FROM = "2025:11:14", DAY_TO = "2025:12:01";
+// Japan, main islands to Okinawa. Home is well outside it.
+const inJapan = (lat, lng) => lat >= 24 && lat <= 46 && lng >= 122 && lng <= 146;
+const inWindow = t => t >= FROM && t <= TO;
+
+const $ = s => document.querySelector(s);
+const out = $("#out");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ---- reading ---------------------------------------------------------------
+function handle(file) {
+  out.hidden = false;
+  out.innerHTML = `<p class="k">Reading</p><p>${esc(file.name)}…</p>`;
+  const r = new FileReader();
+  r.onerror = () => fail("The file couldn't be read.");
+  r.onload = () => {
+    const text = r.result;
+    try {
+      if (/\.csv$/i.test(file.name) || /^\s*"?SourceFile/.test(text)) photoCsv(text);
+      else timeline(JSON.parse(text));
+    } catch (e) {
+      fail("This doesn't look like the ExifTool spreadsheet or a Timeline export. " +
+           "Nothing has been kept. Tell me what the file is called and I'll adjust this page.");
+    }
+  };
+  r.readAsText(file);
+}
+
+// ---- the photo spreadsheet --------------------------------------------------
+function parseCsv(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') q = false;
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim() !== ""));
+}
+const csvCell = v => /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+
+function photoCsv(text) {
+  const rows = parseCsv(text);
+  const head = rows.shift() || [];
+  const col = n => head.indexOf(n);
+  const iF = col("SourceFile"), iD = col("DateTimeOriginal"), iLa = col("GPSLatitude"), iLo = col("GPSLongitude");
+  if (iF < 0 || (iD < 0 && iLa < 0)) throw new Error("not the ExifTool spreadsheet");
+
+  // A path that starts at the top of the disk carries the computer's user
+  // name. Keep only what's below the folder all the photos share.
+  const paths = rows.map(r => (r[iF] || "").replace(/\\/g, "/"));
+  let common = paths.length ? paths[0].slice(0, paths[0].lastIndexOf("/") + 1) : "";
+  for (const p of paths) while (common && !p.startsWith(common))
+    common = common.slice(0, common.slice(0, -1).lastIndexOf("/") + 1);
+
+  const kept = [], why = {dates: 0, place: 0};
+  let lat0 = 90, lat1 = -90, lng0 = 180, lng1 = -180, d0 = "9999", d1 = "0000";
+  rows.forEach((r, n) => {
+    const day = (r[iD] || "").slice(0, 10);
+    const lat = parseFloat(r[iLa]), lng = parseFloat(r[iLo]);
+    const hasGps = Number.isFinite(lat) && Number.isFinite(lng);
+    if (day && (day < DAY_FROM || day > DAY_TO)) { why.dates++; return; }
+    if (hasGps && !inJapan(lat, lng)) { why.place++; return; }
+    const copy = r.slice(); copy[iF] = paths[n].slice(common.length);
+    kept.push(copy);
+    if (hasGps) { lat0 = Math.min(lat0, lat); lat1 = Math.max(lat1, lat); lng0 = Math.min(lng0, lng); lng1 = Math.max(lng1, lng); }
+    if (day) { d0 = day < d0 ? day : d0; d1 = day > d1 ? day : d1; }
+  });
+
+  const csv = [head, ...kept].map(r => r.map(csvCell).join(",")).join("\n") + "\n";
+  report({
+    what: "photos", total: rows.length, kept: kept.length,
+    dropped: [[why.dates, "taken outside 14 Nov – 1 Dec 2025"], [why.place, "taken outside Japan"]],
+    sections: [],
+    extra: common ? [`Removed the start of every file path (<code>${esc(common)}</code>), which can include your computer's user name.`] : [],
+    dates: d0 <= d1 ? [d0.replace(/:/g, "-"), d1.replace(/:/g, "-")] : null,
+    box: lat0 <= lat1 ? [lat0, lat1, lng0, lng1] : null,
+    file: new Blob([csv], {type: "text/csv"}), name: "photo-times-trimmed.csv",
+  });
+}
+
+// ---- the Timeline file ------------------------------------------------------
+// Google has changed this format more than once, so nothing here depends on
+// exact field names. An entry is kept only if it has a date inside the trip,
+// has at least one location, and every location in it is inside Japan. An
+// entry whose location this page can't read is dropped, not kept.
+const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+const DEG = /(-?\d+(?:\.\d+)?)\s*°\s*,\s*(-?\d+(?:\.\d+)?)\s*°/g;
+const GEO = /^geo:(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/;
+
+function scan(node, dates, pts) {
+  if (typeof node === "string") {
+    if (ISO.test(node)) { const t = Date.parse(node); if (!isNaN(t)) dates.push(t); }
+    for (const m of node.matchAll(DEG)) pts.push([+m[1], +m[2]]);
+    const g = node.match(GEO); if (g) pts.push([+g[1], +g[2]]);
+    return;
+  }
+  if (Array.isArray(node)) { node.forEach(x => scan(x, dates, pts)); return; }
+  if (node && typeof node === "object") {
+    if ("latitudeE7" in node && "longitudeE7" in node) pts.push([node.latitudeE7 / 1e7, node.longitudeE7 / 1e7]);
+    const la = node.latitude ?? node.lat, lo = node.longitude ?? node.lng ?? node.lon;
+    if (typeof la === "number" && typeof lo === "number") pts.push([la, lo]);
+    if ("timestampMs" in node) { const t = +node.timestampMs; if (t) dates.push(t); }
+    for (const k in node) scan(node[k], dates, pts);
+  }
+}
+
+function timeline(data) {
+  const root = Array.isArray(data) ? {entries: data} : data;
+  if (!root || typeof root !== "object") throw new Error("not a Timeline export");
+
+  const outObj = {}, sections = [], why = {dates: 0, place: 0, none: 0};
+  let total = 0, keptN = 0, lat0 = 90, lat1 = -90, lng0 = 180, lng1 = -180, t0 = Infinity, t1 = -Infinity;
+
+  for (const key in root) {
+    const val = root[key];
+    if (!Array.isArray(val)) { sections.push(key); continue; }   // profiles, settings: never kept
+    const kept = [];
+    for (const item of val) {
+      total++;
+      const dates = [], pts = [];
+      scan(item, dates, pts);
+      if (!dates.some(inWindow)) { why.dates++; continue; }
+      if (!pts.length) { why.none++; continue; }
+      if (!pts.every(([a, b]) => inJapan(a, b))) { why.place++; continue; }
+      kept.push(item);
+      for (const [a, b] of pts) { lat0 = Math.min(lat0, a); lat1 = Math.max(lat1, a); lng0 = Math.min(lng0, b); lng1 = Math.max(lng1, b); }
+      for (const t of dates.filter(inWindow)) { t0 = Math.min(t0, t); t1 = Math.max(t1, t); }
+    }
+    if (kept.length) outObj[key] = kept;
+    keptN += kept.length;
+  }
+
+  const iso = t => new Date(t).toISOString().slice(0, 10);
+  report({
+    what: "entries", total, kept: keptN,
+    dropped: [[why.dates, "outside 14 Nov – 1 Dec 2025"], [why.place, "with a place outside Japan"],
+              [why.none, "with no location this page could read"]],
+    sections,
+    extra: [],
+    dates: keptN ? [iso(t0), iso(t1)] : null,
+    box: keptN ? [lat0, lat1, lng0, lng1] : null,
+    file: new Blob([JSON.stringify(outObj, null, 1)], {type: "application/json"}),
+    name: "timeline-trimmed.json",
+  });
+}
+
+// ---- telling you what happened ---------------------------------------------
+function report(r) {
+  if (!r.kept) {
+    fail(`Nothing matched the trip, out of ${r.total} ${r.what}. ` +
+         "Don't send anything yet — tell me what this page says and I'll look at why.");
+    return;
+  }
+  const f = n => n.toFixed(2);
+  const drops = r.dropped.filter(([n]) => n).map(([n, t]) => `<li>${n} ${t}</li>`).join("");
+  const secs = r.sections.length
+    ? `<li>Whole sections removed: ${r.sections.map(s => `<code>${esc(s)}</code>`).join(", ")}. ` +
+      `Google keeps home and work in sections like these.</li>` : "";
+  const box = r.box && `Every place kept is between latitude ${f(r.box[0])} and ${f(r.box[1])}, ` +
+    `longitude ${f(r.box[2])} and ${f(r.box[3])} — all inside Japan.`;
+  out.innerHTML = `
+    <p class="k">Result</p>
+    <p class="big">Kept ${r.kept} of ${r.total} ${r.what}</p>
+    ${drops || secs ? `<p>Removed:</p><ul>${drops}${secs}</ul>` : ""}
+    ${r.extra.map(x => `<p>${x}</p>`).join("")}
+    ${r.dates ? `<p class="good">Everything kept is dated ${r.dates[0]} to ${r.dates[1]}.</p>` : ""}
+    ${box ? `<p class="good">${box}</p>` : ""}
+    <button id="save" type="button">Save ${esc(r.name)}</button>
+    <p class="after">Open the saved file and look through it before you send it.
+       The file you dropped in hasn't been changed.</p>`;
+  $("#save").onclick = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(r.file); a.download = r.name;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+}
+function fail(msg) { out.hidden = false; out.innerHTML = `<p class="k">Stopped</p><p class="warn">${msg}</p>`; }
+
+// ---- getting the file in -----------------------------------------------------
+const drop = $("#drop");
+$("#file").onchange = e => e.target.files[0] && handle(e.target.files[0]);
+["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => e.dataTransfer.files[0] && handle(e.dataTransfer.files[0]));
+</script>
+</body>
+</html>
