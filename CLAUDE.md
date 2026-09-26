@@ -217,6 +217,9 @@ Chart palettes get validated, not eyeballed.
 
 ## Open
 
+**`ROADMAP.md` is the plan to day 16**: the checklist, the suggested order,
+what is blocked on the owner, and what is parked for after.
+
 **The transcribed handwritten notes** are the one thing blocking a real version
 rather than a demonstration. They bring times, activities that cost nothing, and
 journey departures. `CAPTURE.md` says what they need to contain. When they
